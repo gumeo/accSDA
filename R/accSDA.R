@@ -1,0 +1,23 @@
+#' accSDA: A package for performing sparse discriminant analysis
+#'         in various ways.
+#'
+#' The accSDA package provides functions to perform sparse discriminant
+#' analysis using a selection of three optimization methods,
+#' proximal gradient (PG), accelerated proximal gradient (APG) and
+#' alternating direction method of multipliers (ADMM). The package
+#' is intended to extend the available tools to perform sparse
+#' discriminant analysis in R. The three methods can be called
+#' from the function \code{\link{ASDA}}. Cross validation is also
+#' implemented for the L1 regularization parameter. Functions
+#' for doing predictions, summary, printing and simple plotting
+#' are also provided. The sparse discriminant functions perform
+#' lda on the projected data by default, using the lda function
+#' in the MASS package. The functions return an object of the
+#' same class as the name of the function and provide the lda
+#' solution, along with the projected data, thus other kinds
+#' of discriminant analysis can be performed on the projected data.
+#'
+#'
+#' @docType package
+#' @name accSDA
+NULL

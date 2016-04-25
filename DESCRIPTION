@@ -1,0 +1,26 @@
+Package: accSDA
+Version: 0.1
+Date: 2016-01-26
+Authors@R: c(
+    person("Gudmundur", "Einarsson", , "gumeo140688@gmail.com", role = c("aut", "cre", "trl")),
+    person("Line", "Clemmensen", , "lkhc@dtu.dk", role = c("aut","ths")),
+    person("Brendan", "Ames", , "bpames@ua.edu", role = c("aut")),
+    person("Summer", "Atkins", , "sratkins@crimson.ua.edu", role = c("aut"))
+    )
+Title: Accelerated Sparse Discriminant Analysis
+Imports:
+    MASS (>= 7.3.45),
+    rARPACK (>= 0.10.0),
+    sparseLDA (>= 0.1.7)
+Depends:
+    R (>= 3.2)
+Description: Implementation of sparse linear discriminant analysis.
+    Various optimization methods are implemented
+    including alternating direction method of multipliers (ADMM), proximal gradient
+    (PG) and accelerated proximal gradient (APG). Functions for performing cross
+    validation are also supplied along with basic prediction and plotting functions.
+License: GPL (>= 2)
+URL: http://www2.compute.dtu.dk/~guei/accSDA.html
+BugReports: linkToMyGitHubWhenPublished
+LazyData: TRUE
+RoxygenNote: 5.0.1

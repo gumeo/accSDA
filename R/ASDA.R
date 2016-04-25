@@ -1,0 +1,522 @@
+#' @title Accelerated Sparse Discriminant Analysis
+#'
+#' @description Applies accelerated proximal gradient algorithm, proximal gradient algorithm
+#' or alternating direction methods of multipliers algorithm to
+#' the optimal scoring formulation of sparse discriminant analysis proposed
+#' by Clemmensen et al. 2011.
+#' \deqn{argmin{|(Y_t\theta-X_t\beta)|_2^2 + t|\beta|_1 + \lambda|\beta|_2^2}}{
+#' argmin{|(Y_t*theta-X_t*b)|_2^2 + t*|beta|_1 + lambda*|beta|_2^2}}
+#'
+#' @param Xt n by p data matrix, (can also be a data.frame that can be coerced to a matrix)
+#' @param Yt n by K matrix of indicator variables (Yij = 1 if i in class j).
+#'     This will later be changed to handle factor variables as well.
+#'     Each observation belongs in a single class, so for a given row/observation,
+#'     only one element is 1 and the rest is 0.
+#' @param Om p by p parameter matrix Omega in generalized elastic net penalty.
+#' @param gam Regularization parameter for elastic net penalty.
+#' @param lam Regularization parameter for l1 penalty, must be greater than zero.
+#'     If cross-validation is used (\code{CV = TRUE}) then this must be a vector
+#'     of length greater than one.
+#' @param q Desired number of discriminant vectors.
+#' @param control List of control arguments. See Details.
+#' @param method This parameter selects which optimization method to use.
+#'     It is specified as a character vector which can be one of the three values
+#'     \describe{
+#'       \item{\code{SDAP}}{Proximal gradient algorithm.}
+#'       \item{\code{SDAAP}}{Accelerated proximal gradient algorithm.}
+#'       \item{\code{SDAD}}{Alternating directions method of multipliers algortihm.}
+#'     }
+#' @param ... Additional arguments for \code{\link[MASS]{lda}} function in package MASS.
+#'
+#' @details The control list contains the following entries to further tune the
+#'          algorithms.
+#'          \describe{
+#'            \item{\code{PGsteps}}{Maximum number if inner proximal gradient/ADMM
+#'            algorithm for finding beta. Default value is 1000.}
+#'            \item{\code{PGtol}}{Stopping tolerance for inner method. If the method is \code{SDAD},
+#'            then this must be a vector of two values, absolute (first element) and relative
+#'            tolerance (second element). Default value is 1e-5 for both absolute and
+#'            relative tolerances.}
+#'            \item{\code{maxits}}{Number of iterations to run. Default value is 250.}
+#'            \item{\code{tol}}{Stopping tolerance. Default value is 1e-3.}
+#'            \item{\code{mu}}{Penalty parameter for augmented lagrangian term,
+#'            must be greater than zero and only needs to be specified when using
+#'            method \code{SDAD}. Default value is 1.}
+#'            \item{\code{CV}}{Logical value which is \code{TRUE} if cross validation is supposed to be
+#'            performed. If cross-validation is performed, then lam should be specified as
+#'            a vector containing the regularization values to be tested. Default value is \code{FALSE}.}
+#'            \item{\code{folds}}{Integer determining the number of folds in cross-validation. Not needed
+#'            if CV is not specified. Default value is 5.}
+#'            \item{\code{feat}}{Maximum fraction of nonzero features desired in validation scheme. Not needed
+#'            if CV is not specified. Default value is 0.15.}
+#'            \item{\code{quiet}}{Set to \code{FALSE} if status updates are supposed to be printed to the R console.
+#'            Default value is \code{TRUE}. Note that this triggers a lot of printing to the console.}
+#'          }
+#'
+#' @return \code{ASDA} returns an object of \code{\link{class}} "\code{ASDA}" including a list
+#' with the following named components:
+#'
+#' \describe{
+#'   \item{\code{call}}{The matched call.}
+#'   \item{\code{B}}{p by q matrix of discriminant vectors, i.e. sparse loadings.}
+#'   \item{\code{Q}}{K by q matrix of scoring vectors, i.e. optimal scores.}
+#'   \item{\code{varNames}}{Names of the precitors used, i.e. column names of Xt.}
+#'   \item{\code{origP}}{Number of variables in Xt.}
+#'   \item{\code{fit}}{Output from function \code{\link[MASS]{lda}} on projected data.
+#'   This is \code{NULL} the trivial solution is found, i.e. B is all zeroes. Use
+#'   lower values of \code{lam} if that is the case.}
+#'   \item{\code{classes}}{The classes in Yt.}
+#'   \item{\code{lambda}}{The lambda/\code{lam} used, best value found by cross-
+#'   validation if \code{CV} is \code{TRUE}.}
+#' }
+#' @seealso \code{\link{SDAAP}}, \code{\link{SDAP}} and \code{\link{SDAD}}
+#' @note The input matrix Xt should be normalized, i.e. each column corresponding to
+#'     a variable should have its mean subtracted and scaled to unit length. The functions
+#'     \code{\link{normalize}} and \code{\link{normalizetest}} are supplied for this purpose in the package.
+#' @examples
+#'     # Prepare training and test set
+#'     train <- c(1:40,51:90,101:140)
+#'     Xtrain <- iris[train,1:4]
+#'     nX <- normalize(Xtrain)
+#'     Xtrain <- nX$Xc
+#'     Ytrain <- iris[train,5]
+#'     Xtest <- iris[-train,1:4]
+#'     Xtest <- normalizetest(Xtest,nX)
+#'     Ytest <- iris[-train,5]
+#'     
+#'     # Define parameters for SDAD
+#'     Om <- diag(4)+0.1*matrix(1,4,4) #elNet coef mat
+#'     gam <- 0.01
+#'     lam <- 0.01
+#'     method <- "SDAD"
+#'     q <- 2
+#'     control <- list(PGsteps = 100,
+#'                     PGtol = c(1e-5,1e-5),
+#'                     mu = 1,
+#'                     maxits = 100,
+#'                     tol = 1e-3,
+#'                     quiet = FALSE)
+#'     
+#'     # Run the algorithm
+#'     res <- ASDA(Xt = Xtrain,
+#'                 Yt = Ytrain,
+#'                 Om = Om,
+#'                 gam = gam ,
+#'                 lam = lam,
+#'                 q = q,
+#'                 method = method,
+#'                 control = control)
+#'     
+#'     # Can also just use the defaults, which is SDAAP:
+#'     resDef <- ASDA(Xtrain,Ytrain)
+#' @rdname ASDA
+#' @export ASDA
+ASDA <- function (Xt, ...) UseMethod("ASDA")
+
+
+#' @return \code{NULL}
+#'
+#' @rdname ASDA
+#' @method ASDA default
+ASDA.default <- function(Xt, Yt, Om = diag(p), gam = 1e-3, lam = 1e-6, q = K-1, method = "SDAAP", control=list(), ...){
+
+  # Similar to the use of the optim function in stats from base
+  ## Defaults for the control variables:
+  con <- list(PGsteps = 1000, 
+              PGtol = 1e-5, 
+              maxits = 250,
+              tol = 1e-3,
+              mu = NA, 
+              CV = FALSE, 
+              folds = 5,
+              feat = 0.15, 
+              quiet = TRUE)
+  nmsC <- names(con)
+  if(method == "SDAD"){
+    # Set special defaults for SDAD
+    con$mu <- 1
+    PGtol = c(1e-5,1e-5)
+  } 
+  # Overwrite with user supplied input!
+  con[(namc <- names(control))] <- control
+  # Warn user of input that cannot be used!
+  if(length(noNms <- namc[!namc %in% nmsC]))
+    warning("unknown names in control: ", paste(noNms,collapse=", "))
+  
+  # This is straight from nnet:::formula
+  # This is used later to handle Yt as a factor
+  class.ind <- function(cl) {
+    Ik=diag(length(levels(cl)))
+    x=Ik[as.numeric(cl),]
+    dimnames(x) <- list(names(cl), levels(cl))
+    x
+  }
+
+  # Go through the inputs to verify that they are correct.
+  if(missing(Xt)){
+    stop("You must specify a data matrix Xt to use this function!")
+  }
+  predNames <- colnames(Xt)
+  if(missing(Yt)){
+    stop("You must specify an indicator matrix Yt to use this function!")
+  }
+  if(is.factor(Yt))
+  {
+    classes <- levels(Yt)
+    factorY <- Yt
+    Yt <- class.ind(Yt)
+  } else {
+    classes <- colnames(Yt)
+    if(is.null(classes)){
+      # No column names, generate numbers instead...
+      classes <- paste(1:ncol(Yt))
+    }
+    factorY <- factor(colnames(Yt)[apply(Yt, 1, which.max)])
+  }
+  # Define K and p for default inputs
+  p <- dim(Xt)[2]
+  K <- length(classes)
+  if(missing(Om)){
+    print("Om not specified, using default diag(p).")
+  }
+  if(dim(Om)[1] != dim(Xt)[2]){
+    stop("Om must be a p by p matrix, where p is the number of variables/columns in Xt.")
+  }
+  if(missing(gam)){
+    print("gam not specified, using default value 1e-3")
+  }
+  if(gam < 0){
+    stop("gam must be positive!")
+  }
+  if(missing(lam)){
+    print("lam not specified, using default value 1e-6")
+  }
+  for(i in 1:length(lam)){
+    if(lam[i]<0){
+      stop("All elements of lam must be positive!")
+    }
+  }
+  if(missing(q)){
+    print("q not specified, default is the max number K-1, where K is number of classes in Yt")
+  }
+  if(q > as.numeric(K)-1){
+    stop("q is too high, at most K-1 variates allowed, where K is the number of classes!")
+  }
+  PGsteps <- con$PGsteps
+  if(PGsteps < 0){
+    stop("PGsteps must be a positive integer!")
+  }
+  PGtol <- con$PGtol
+  if(length(PGtol) == 1){
+    if(PGtol < 0){
+      stop("PGtol must be positive!")
+    }
+  } else{
+    if(PGtol[1] < 0 | PGtol[2] < 0){
+      stop("PGtol values must be positive!")
+    }
+    if(method == "SDAP" | method == "SDAAP"){
+      stop("PGtol must be a single numeric value when method is not SDAD!")
+    }
+  }
+  
+  maxits <- con$maxits
+  if(maxits < 0){
+    stop("maxits must be positive")
+  }
+  tol <- con$tol
+  if(tol < 0){
+    stop("tol must be positive!")
+  }
+  if(missing(method)){
+    print("method not specified, using default SDAAP. You can choose from: SDAP, SDAAP or SDAD")
+  }
+  if(!(method == "SDAP" | method == "SDAAP" | method == "SDAD")){
+    stop(paste(method, " is not a valid method! Use SDAP, SDAAP or SDAD"))
+  }
+  mu <- con$mu
+  if(method == "SDAD" & mu < 0){
+    stop("mu must be positive")
+  }
+  if(method == "SDAD" & length(PGtol)!=2){
+    stop("When using SDAD you need to specify PGtol as a vector with
+         two components, absolute and relative tolerance. E.g. PGtol <- c(1e-5,1e-5)")
+  }
+  CV <- con$CV
+  folds <- con$folds
+  feat <- con$feat
+  quiet <- con$quiet
+  if(CV){
+    if(length(lam)<2){
+      stop("If you want to do cross validation, then specify lam as a vector with
+           the parameters to test!")
+    }
+    if(missing(folds)){
+      stop("Specify the number of folds for cross-validation!")
+    }
+    if(missing(feat)){
+      stop("Specify the desired proportion of features!")
+    }
+    if(feat < 0 | feat > 1){
+      stop("feat must be between 0 and 1!")
+    }
+  }
+  if(!quiet){
+    print("Preliminary check of input finished!")
+    print(paste("Using method: ",method))
+    if(CV){
+      print("Running cross-validation! This may take a while!")
+    }
+  }
+  ###
+  # Input has been checked
+  ###
+  # Use the selected method
+  ###
+  if(!CV){
+    if(method == "SDAP"){
+      res <- SDAP(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol)
+    } else if(method == "SDAAP"){
+      res <- SDAAP(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol)
+    } else{ # method is SDAD, input has been checked
+      res <- SDAD(Xt, Yt, Om, gam, lam, mu, q, PGsteps, PGtol, maxits, tol)
+    }
+  } else{
+    if(method == "SDAP"){
+      res <- SDAPcv(Xt, Yt, folds, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, feat, quiet)
+    } else if(method == "SDAAP"){
+      res <- SDAAPcv(Xt, Yt, folds, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, feat, quiet)
+    } else{ # method is SDAD
+      res <- SDADcv(Xt, Yt, folds, Om, gam, lam, mu, q, PGsteps, PGtol, maxits, tol, feat, quiet)
+    }
+  }
+  ###
+  # Done running the optimization
+  ###
+  # Use lda from MASS package on projected data
+  ###
+  if(!quiet){
+    print("Algorithm has finished running, running lda on projected data and wrapping up!")
+  }
+  B <- res$B
+  Q <- res$Q
+
+  if(CV){
+    lbest <- res$lbest
+    lambest <- res$lambest
+  } else{
+    lambest <- lam
+  }
+  
+  # Check if we get the trivial solution
+  if (all(B==0)){
+    # lda will throw error in this case
+    # so we give a warning...
+    warning('no non-zero elements - try other regularization parameters')
+    lobj <- NULL
+  }else{
+    # Projected data
+    sl <- Xt%*%B
+    colnames(sl) <- paste("score", 1:ncol(sl), sep = "")
+    lobj <- MASS::lda(sl, factorY, ...)
+  }
+  # Return structure
+  structure(
+    list(call = match.call(),
+         beta = B,
+         theta = Q,
+         varNames = predNames,
+         origP = dim(Xt)[2],
+         fit = lobj,
+         classes = classes,
+         lambda = lambest,
+         CV = CV),
+    class = "ASDA")
+}
+
+#' @export
+ASDA.data.frame <- function(Xt, ...){
+  res <- ASDA.default(Xt = structure(data.matrix(Xt), class = "matrix"), ...)
+  cl <- match.call()
+  cl[[1L]] <- as.name("ASDA")
+  res$call <- cl
+  res
+}
+
+#' @export
+ASDA.matrix <- function(Xt, ...){
+  res <- ASDA.default(Xt, ...)
+  cl <- match.call()
+  cl[[1L]] <- as.name("ASDA")
+  res$call <- cl
+  res
+}
+
+#' Predict method for sparse discriminant analysis
+#'
+#' Predicted values based on fit from the function \code{\link{ASDA}}. This
+#' function is used to classify new observations based on their explanatory variables/features.
+#'
+#' @param object Object of class ASDA. This object is returned from the function \code{\link{ASDA}}.
+#' @param newdata A matrix of new observations to classify.
+#' @param ... Arguments passed to \code{\link[MASS]{predict.lda}}.
+#' @return A list with components:
+#'
+#' \describe{
+#'   \item{\code{class}}{The classification (a factor)}
+#'   \item{\code{posterior}}{posterior probabilities for the classes}
+#'   \item{\code{x}}{the scores}
+#' }
+#' @seealso \code{\link{SDAAP}}, \code{\link{SDAP}} and \code{\link{SDAD}}
+#' @note The input matrix newdata should be normalized w.r.t. the normalization
+#'     of the training data
+#' @examples
+#'     # Prepare training and test set
+#'     train <- c(1:40,51:90,101:140)
+#'     Xtrain <- iris[train,1:4]
+#'     nX <- normalize(Xtrain)
+#'     Xtrain <- nX$Xc
+#'     Ytrain <- iris[train,5]
+#'     Xtest <- iris[-train,1:4]
+#'     Xtest <- normalizetest(Xtest,nX)
+#'     Ytest <- iris[-train,5]
+#'     
+#'     # Define parameters for SDAD
+#'     Om <- diag(4)+0.1*matrix(1,4,4) #elNet coef mat
+#'     gam <- 0.01
+#'     lam <- 0.01
+#'     method <- "SDAD"
+#'     q <- 2
+#'     control <- list(PGsteps = 100,
+#'                     PGtol = c(1e-5,1e-5),
+#'                     mu = 1,
+#'                     maxits = 100,
+#'                     tol = 1e-3,
+#'                     quiet = FALSE)
+#'     
+#'     # Run the algorithm
+#'     res <- ASDA(Xt = Xtrain,
+#'                 Yt = Ytrain,
+#'                 Om = Om,
+#'                 gam = gam ,
+#'                 lam = lam,
+#'                 q = q,
+#'                 method = method,
+#'                 control = control)
+#'                 
+#'     # Do the predictions on the test set
+#'     preds <- predict(object = res, newdata = Xtest)
+#' @rdname predict.ASDA
+#' @export
+predict.ASDA <- function(object, newdata = NULL, ...)
+{
+  if(!is.matrix(newdata)) newdata <- as.matrix(newdata)
+  if(!is.null(object$varNames))
+  {
+    newdata <- newdata[, object$varNames, drop = FALSE]
+  } else {
+    if(ncol(newdata) != object$origP) stop("dimensions of training and testing X different")
+    #newdata <- newdata[, object$varIndex, drop = FALSE]
+
+  }
+  xnew <- newdata %*% object$beta
+  pred <- predict(object$fit,xnew)
+  pred
+}
+
+#' Print method for ASDA object
+#'
+#' Prints a summary of the output from the \code{\link{ASDA}} function. The
+#' output summarizes the dicriminant analysis in human readable format.
+#'
+#' @param x Object of class ASDA. This object is returned from the function \code{\link{ASDA}}.
+#' @param digits Number of digits to show in printed numbers.
+#' @param numshow Number of best ranked variables w.r.t. to their absolute coeffiecients.
+#' @param ... arguments passed to or from other methods.
+#' 
+#' @return An invisible copy of \code{x}.
+#' @seealso \code{\link{ASDA}}, \code{\link{predict.ASDA}} and \code{\link{SDAD}}
+#' @examples
+#'     # Prepare training and test set
+#'     train <- c(1:40,51:90,101:140)
+#'     Xtrain <- iris[train,1:4]
+#'     nX <- normalize(Xtrain)
+#'     Xtrain <- nX$Xc
+#'     Ytrain <- iris[train,5]
+#'     Xtest <- iris[-train,1:4]
+#'     Xtest <- normalizetest(Xtest,nX)
+#'     Ytest <- iris[-train,5]
+#'     
+#'     # Run the algorithm
+#'     resDef <- ASDA(Xtrain,Ytrain)
+#'     
+#'     # Print 
+#'     print(resDef)
+#' @rdname print.ASDA
+#' @export
+print.ASDA <- function(x, digits = max(3, getOption("digits") - 3), numshow = 5, ...)
+{
+  # Print the original call
+  cat("\nCall:\n", deparse(x$call), "\n\n", sep = "")
+  # Gather classes into a string
+  classInfo <- paste(x$classes, collapse = ", ")
+  
+  cat("lambda =", format(x$lambda, digits = digits),
+      "\nclasses =", classInfo,
+      "\n\n")
+  
+  top <- if(!is.null(x$varNames)) x$varNames else paste("Predictor", 1:dim(x$beta)[1], sep = "")
+  varOrder <- if(is.matrix(x$beta)) order(apply(abs(x$beta), 1, sum)) else order(abs(x$beta))
+  top <- top[varOrder]
+  top <- top[1:min(numshow, length(top))]
+  top <- paste(top, collapse = ", ")
+  topStr <- paste("Top", min(numshow, dim(x$beta)[1]),"predictors:\t")
+  
+  cat(topStr,
+      top,
+      "\n",
+      sep = "")
+  
+  invisible(x)
+}
+
+# TODO: 
+#-----------------------------------------------------------------------------------------------
+#       Implement barplot
+#-----------------------------------------------------------------------------------------------
+#       Implement plot, also status diagnostic plot w.r.t. classification rates
+#-----------------------------------------------------------------------------------------------
+#       Implement summary
+#       Likely just call print to start with
+#-----------------------------------------------------------------------------------------------
+#       Add verbose for intermediate printing of function value, implement this!
+#-----------------------------------------------------------------------------------------------
+# This is maybe not relevant, better for shorter tests
+#       Test the package microbenchmark to measure times.
+#-----------------------------------------------------------------------------------------------
+#       Include Penicillin data, document it and get column names from Line.
+#-----------------------------------------------------------------------------------------------
+#       Add option to do CV in parallel
+#-----------------------------------------------------------------------------------------------
+# Find good profiler for this
+#       Maybe do profiling to spot potential for C++ implementations of some parts.
+#-----------------------------------------------------------------------------------------------
+#       Do the same tests as Summer.
+#-----------------------------------------------------------------------------------------------
+#       Create an onload message, concerning maybe citation and other stuff
+#-----------------------------------------------------------------------------------------------
+# Finished!
+#       Make input for ASDA more user friendly.
+#          In this regard look at control in:
+#          https://github.com/lgautier/R-3-0-branch-alt/blob/master/src/library/stats/R/optim.R
+#          There are several things that can easily be added to
+#          a control list variable.
+#       Done: Needs testing! Done, works!
+#-----------------------------------------------------------------------------------------------
+# Finished! Maybe add the print from MASS::print.lda as well
+#       Implement print
+#       Add proportion of nonzero components in betas
+#-----------------------------------------------------------------------------------------------
+# Finished for now, need to revisit this for other functions.
+#       Add examples into documentation
+#-----------------------------------------------------------------------------------------------
