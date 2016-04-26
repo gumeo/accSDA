@@ -9,7 +9,7 @@ To install the package from github you first need the `devtools` package. So ins
 Now you can proceed to install the package:
 ```R
 library(devtools)
-install_github(gumso/accSDA)
+install_github("gumeo/accSDA")
 library(accSDA)
 ```
 And now you can start playing around with the package!
