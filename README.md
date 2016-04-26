@@ -16,7 +16,7 @@ And now you can start playing around with the package!
 
 # Iris tutorial
 
-The following is an example on how one could use the package on Fisher's Iris dataset. I choose the Iris dataset because most people are familiar with it. Other examples with $p>>n$ examples will arive later!
+The following is an example on how one could use the package on Fisher's Iris dataset. I choose the Iris dataset because most people are familiar with it. Other examples with *p>>n* examples will arive later!
 
 ```R
 # Prepare training and test set
