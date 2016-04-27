@@ -520,3 +520,5 @@ print.ASDA <- function(x, digits = max(3, getOption("digits") - 3), numshow = 5,
 # Finished for now, need to revisit this for other functions.
 #       Add examples into documentation
 #-----------------------------------------------------------------------------------------------
+# Remember to move this list to somewhere on github and create news.md and other files
+#-----------------------------------------------------------------------------------------------
