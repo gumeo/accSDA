@@ -24,7 +24,7 @@
 #' This function should potentially be made internal for the release.
 #' @rdname ZVD
 #' @export ZVD
-ZVD <- function (A, ...) UseMethod("ZVD")
+ZVD <- function (A, ...) UseMethod("ZVD",A)
 
 #' @return \code{NULL}
 #'
