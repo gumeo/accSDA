@@ -3,336 +3,302 @@
 #' Applies alternating direction methods of multipliers to solve sparse
 #' zero variance descriminant analysis.
 #'
-#' @param X n by p data matrix.
-#' @param Y n by K indicator matrix.
-#' @param folds number of folds to use in K-fold cross-validation.
-#' @param gams Vector of regularization parameters for l1 penalty.
-#'        All elements must be greater than zero.
-#' @param beta Augmented Lagrangian parameter. Must be greater than zero.
+#' @param Atrain Training data set.
+#' @param Aval Validation set.
+#' @param k Number of classes within training and validation sets.
+#' @param num_gammas Number of gammas to train on.
+#' @param g_mults Parameters defining range of gammas to train, g_max*(c_min, c_max).
+#'        Note that it is an array/vector with two elements.
 #' @param D Penalty dictionary basis matrix.
-#' @param q Desired number of discriminant vectors.
-#' @param maxits Number of iterations to runn ADMM algorithm.
-#' @param tol Stopping tolerances for ADMM, must have tol$rel and tol$abs.
-#' @param ztol Rounding tolerance for truncating entries to 0.
-#' @param feat Maximum fraction of nonzero features desired in validation scheme.
-#' @param quiet toggles between displaying intermediate statistics.
-#' @return \code{SZVDcv} returns an object of \code{\link{class}} "\code{SZVDcv}" 
-#'        including a list with the named components \code{DVs} and \code{gambest}.
-#'        Where \code{DVs} are the discriminant vectors for the best l1 regularization
-#'        parameter and \code{gambest} is the best regularization parameter found
-#'        in the cross-validation.
-#' @seealso Used by: \code{\link{SZVDcv}}.
+#' @param sparsity_pen weight defining validation criteria as weighted sum of misclassification error and
+#'        cardinality of discriminant vectors.
+#' @param scaling Whether to rescale data so each feature has variance 1.
+#' @param penalty Controls whether to apply reweighting of l1-penalty (using sigma = within-class std devs)
+#' @param beta Parameter for augmented Lagrangian term in the ADMM algorithm.
+#' @param tol Stopping tolerances for the ADMM algorithm, must have tol$rel and tol$abs.
+#' @param maxits Maximum number of iterations used in the ADMM algorithm.
+#' @param quiet Controls display of intermediate results.
+#' @return \code{SZVDcv} returns an object of \code{\link{class}} "\code{SZVDcv}"
+#'        including a list with the following named components:
+#' \describe{
+#'   \item{\code{DVs}}{Discriminant vectors for the best choice of gamma.}
+#'   \item{\code{all_DVs}}{Dicriminant vectors for all choices of gamma.}
+#'   \item{\code{l0_DVs}}{Discriminant vectors for gamma minimizing cardinality.}
+#'   \item{\code{mc_DVs}}{Discriminant vector minimizing misclassification.}
+#'   \item{\code{gamma}}{Choice of gamma minimizing validation criterion.}
+#'   \item{\code{gammas}}{Set of all gammas trained on.}
+#'   \item{\code{max_g}}{Maximum value of gamma guaranteed to yield a nontrivial solution.}
+#'   \item{\code{ind}}{Index of best gamma.}
+#'   \item{\code{w0}}{unpenalized zero-variance discriminants (initial solutions) plus B and W, etc. from ZVD}
+#' }
+#' @seealso Non CV version: \code{\link{SZVD}}.
 #' @details
-#' This function will currently solve as a standalone function in accSDA for time comparison.
-#' A wrapper function like ASDA will be created to use the functionality of plots and such.
-#' Maybe call it ASZDA. For that purpose the individual ZVD function will need to be implemented.
+#' This function might require a wrapper similar to ASDA.
 #' @rdname SZVDcv
 #' @export SZVDcv
-SZVDcv <- function(X, ...) UseMethod("SZVDcv")
+SZVDcv <- function(Atrain, ...) UseMethod("SZVDcv")
 
 #' @return \code{NULL}
 #'
 #' @rdname SZVDcv
 #' @method SZVDcv default
-SZVDcv.default <- function(X, Y, folds, gams,  beta,D, q, maxits, tol, ztol, feat, quiet){
-  ## Initialization
-  
-  # Gams is a vector, change into a matrix
-  if(is.null(dim(gams))){
-    tmpG <- matrix(0,length(gams),q)
-    for(i in 1:q){
-      tmpG[,i] <- gams
-    }
-    gams <- tmpG
+SZVDcv.default <- function(Atrain, Aval, k, num_gammas, g_mults, D, sparsity_pen, scaling, penalty, beta, tol, maxits, quiet){
+  # get dimensions of the training set
+  N = dim(Atrain)[1]
+  p = dim(Atrain)[2]-1
+
+  ##################################################################################
+  ## Compute penalty term for estimating range of regularization parameter values.
+  ##################################################################################
+
+  # Call ZVD function to solve the unpenalized problem.
+  w0 = ZVD(Atrain, scaling=scaling, get_DVs=TRUE)
+
+  # Extract scaling vector for weighted l1 penalty and diagonal penalty matrix.
+  if (penalty==TRUE){ # scaling vector is the std deviations of each feature.
+    s = sqrt(diag(w0$W))
+  }  else if(penalty==FALSE){ # scaling vector is all-ones (i.e., no scaling)
+    s = rep(1, times=p)
   }
-  
-  # Get dimensions of input matrices
-  n <- dim(X)[1]
-  p <- dim(X)[2]
-  K <- dim(Y)[2]
-  
-  # If n is not divisible by K, duplicate some records for the sake of
-  # cross validation.
-  pad <- 0
-  if(n %% folds > 0){
-    pad <- ceiling(n/folds)*folds - n
-    
-    # Add the duplicates, such that number of data points is
-    # divisible by the number of folds
-    X <- rbind(X,X[1:pad,])
-    Y <- rbind(Y,Y[1:pad,])
+  w0$s = s
+
+  # If dictionary D missing, use the identity matri.x
+  if (missing(D)){
+    D = diag(p)
   }
-  
-  # Get the new number of rows
-  n <- dim(X)[1]
-  
-  # Randomly permute rows of X
-  prm <- sample(1:n,n,replace=FALSE)
-  X <- X[prm,]
-  Y <- Y[prm,]
-  
-  # Make Atrain
-  Atrain <- cbind(Y%*%matrix(1:K,K,1),X)
-  
-  ###
-  # Initialization of cross-validation indices
-  ###
-  
-  # Number of validation samples
-  nv <- n/folds
-  
-  # Initial validation indices
-  vinds <- 1:nv
-  
-  # Initial training indices
-  tinds <- (nv+1):n
-  
-  # Number of params to test
-  ngam <- dim(gams)[1]
-  
-  # Validation scores
-  scores <- q*p*matrix(1,nrow = folds, ncol = ngam)
-  
-  # Misclassification rate for each classifier
-  mc <- matrix(0,nrow = folds, ncol = ngam)
-  
-  for(f in 1:folds){
-    ## Initialization
-    
-    # Extract X and Y data
-    Xt <- X[tinds,]
-    At <- Atrain[tinds,]
-    
-    # Extract validation data
-    Av <- Atrain[vinds,]
-    
-    # Get dimensions of training matrices.
-    nt <- dim(Xt)[1]
-    p <- dim(Xt)[2]
-    
-    # Call ZVD function to solve the unpenalized problem
-    get_DVs <- TRUE
-    w0 <- ZVD(At, 0, get_DVs)
-    
-    # Normalize B (divide by the spectral norm)
-    if(dim(w0$B)[2] == 1){ # B stored as vector
-      w0$B <- w0$B/norm(w0$B, type = "2")
-    } else{ # B stored as p by p symmetric matrix
-      w0$B <- w0$B + t(w0$B)
-      w0$B <- w0$B/norm(w0$B, type = "2")
-    }
-    
-    # Initialize objective matrix
-    if(dim(w0$B)[2] == 1){ # B stored as vector
-      B0 <- w0$B
-    } else{ # B stored as p by p symmetric matrix
-      B0 <- crossprod(w0$N,w0$B)%*%w0$N
-      B0 <- (B0 + t(B0))/2
-    }
-    
-    # Initialize the nullspace matrix
-    N0 <- w0$N
-    
-    # Number of gammas
-    num_gammas <- dim(gams)[1]
-    
-    # Validation loop
-    if(!quiet){
-      print("-------------------------------------------")
-      print(paste("Fold number:",f))
-      print("-------------------------------------------")
-    }
-    
-    #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    # Loop through potential regularization parameters.
-    #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    for(ll in 1:num_gammas){
-      #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      # Initialization.
-      #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      
-      # Initialize B and N
-      B <- B0
-      N <- N0
-      
-      # Initialize DVs
-      DVs <- matrix(0,p,q)
-      
-      # Set x0 to be the unpenalized zero-variance discriminant vector in Null(W0)
-      if(dim(B0)[2] == 1){ #B0 vector
-        # Compute t(DN)%*%(mu1-mu2)
-        w <- crossprod(N0,crossprod(D,B0))
-        
-        # Use normalized w as initial x
-        x0 <- w/norm(w,type = "2")
-      } else{ #B0 matrix
-        x0 <- crossprod(N0,crossprod(D,w0$dvs[,1,drop=FALSE]))
-      }
-      
-      # y is the unpenalized solution in the original space.
-      # z is the all-zeros vector in the original space.
-      
-      #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      # Call Alternating Direction Method to solve SZVD problem.
-      #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      for(j in 1:q){
-        #+++++++++++++++++++++++++++++++++++++++++++++++++++++
-        # Initialization.
-        #+++++++++++++++++++++++++++++++++++++++++++++++++++++
-        
-        sols0 <- list(x = x0,
-                      y = w0$dvs[,j],
-                      z = matrix(0,p,1))
-        quietADMM <- TRUE
-        
-        #+++++++++++++++++++++++++++++++++++++++++++++++++++++
-        # Call ADMM solver.
-        #+++++++++++++++++++++++++++++++++++++++++++++++++++++
-        s <- matrix(1,p,1)
-        retObj <- SZVD_ADMM(B, N, D, sols0, s, gams[ll,j], beta, tol, maxits, quietADMM)
-        tmpx <- retObj$x
-        
-        # Extract j-th discriminant vector
-        DVs[,j] <- D%*%N%*%tmpx
-        
-        #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        # Update N and B for the newly found DV.
-        #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        
-        if(j < q){
-          # Project columns of N onto orthogonal complement of Nx
-          
-          x <- DVs[,j]
-          x <- x/norm(x, type = "2")
-          
-          # Project N into orthogonal complement of span(x)
-          Ntmp <- N - x%*%(crossprod(x,N))
-          
-          # Call QR factorization to extract orthonormal basis for span (Ntmp)
-          qrTmp <- qr(Ntmp)
-          Q <- qr.Q(qrTmp)
-          R <- qr.R(qrTmp)
-          
-          # Extract nonzero rows of R to get columns of Q to use as new N.
-          R_rows <- (abs(diag(R)) > 1e-6)
-          
-          # Use nontrivial columns of Q as updated N.
-          N <- Q[, R_rows]
-          
-          # Update B0 according to the new basis N.
-          B <- crossprod(N, w0$B) %*% N
-          B <- 0.5*(B+t(B))
 
 
-          # Update initial solutions in x direction by projecting next unpenalized ZVD vector.
-          x0 <- crossprod(N, crossprod(D, w0$dvs[,j+1]))
-        } 
-        
-        #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        # Get performance scores on the validation set.
-        #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        # Call test_ZVD to get predictions, etc.
-        
-        statsObj <- test_ZVD(DVs, Av, w0$means, w0$mu, FALSE)
-        stats <- statsObj$stats
-        
-        #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        # Validation scores.
-        #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        
-        # Round small entries to zero
-        DVs <- DVs * (ceiling(abs(DVs)-ztol))
-        
-        # if fraction nonzero features less than feat.
-        if( 1 <= sum(DVs != 0) & sum(DVs != 0) <= q*p*feat){
-          # Use misclassification rate as validation score.
-          scores[f,ll] <- stats$mc
-        } else if(sum(DVs != 0) < 0.5){ 
-          # Trivial solution
-          scores[f,ll] <- q*p # Disqualify with largest possible value
-        } else{
-          # Solution is not sparse enough, use most sparse as measure of quality instead.
-          scores[f,ll] <- sum(DVs != 0)
-        }
-        
-        # Display iteration stats.
-        if(!quiet){
-          print(paste("f:", f, "| ll:", ll, "| lam:", lams[ll], "| feat:", 
-                      sum(DVs != 0)/(q*p), "| mc:", stats$mc, "| score:", scores[f,ll]))
-        }
-      }
-    } # End ll over validation parameters
-    #--------------------------------------------
-    # Update training/validation split
-    #--------------------------------------------
-    # Extract new validation indices
-    tmp <- tinds[1:nv]
-    
-    if(nv+1 > nt){
-      # Special case for 2-fold CV
-      tinds <- vinds
-      vinds <- tmp
-    } else{
-      tinds <- c(tinds[(nv+1):nt],vinds)
-      
-      # Update validation indices
-      vinds <- tmp
-    }
-  } # End folds
-  
-  ###
-  # Find the best solution
-  ###
-  
-  # Average CV scores
-  avg_score <- colMeans(scores)
-  
-  # Choose lambda with best average score
-  gbest <- which.min(avg_score)
-  
-  gambest <- gams[gbest]
-  
-  ###
-  # Solve with lambda = lam(lbest)
-  ###
-  print(paste("Finished Training: lam =", gambest))
-  
-  # Use the full training set to obtain parameters
-  Xt <- X[1:(n-pad),]
-  Yt <- Y[1:(n-pad),]
-  Atrain <- cbind(Yt%*%matrix(1:K,K,1),Xt)
-  # Loop until nontrivial solution is found
-  trivsol <- TRUE
-  while(trivsol){
-    szvdObj <- SZVD(Atrain, gambest, D, FALSE, FALSE, tol, maxits, beta, quietADMM)
-    DVs <- szvdObj$DVs
-    
-    # Round small entried to zero
-    DVs <- DVs*(ceiling(abs(DVs)-ztol))
-    
-    # Check for trivial solution
-    if(sum(DVs != 0) == 0){
-      # If trivial solution, update gbest by one and update gambest.
-      gbest <- gbest + 1
-      gambest <- gams[gbest,]
-    } else{
-      trivsol <- FALSE
-    }
+  ##################################################################################
+  ## Compute range of sensible parameter values.
+  ##################################################################################
+
+  ## Normalize B (divide by the spectral norm)
+  if (dim(w0$B)[2]==1){
+    w0$B = w0$B/norm(w0$B, type='f')
+  }  else{
+    w0$B = (w0$B + t(w0$B))/eigen((w0$B + t(w0$B)), symmetric=TRUE, only.values=TRUE)$values[1]
   }
-  
-  # Create an object of class SDAPcv to return, might add more to it later
-  retOb <- structure(
-    list(call = match.call(),
-         DVs = DVs,
-         gambest = gambest),
-    class = "SZVDcv")
-  
-  return(retOb)
+
+  # Compute ratio of max gen eigenvalue and l1 norm of the first ZVD to get "bound" on gamma.
+  if (dim(w0$B)[2]==1){
+    max_gamma =  (t(w0$dvs)%*%w0$B)^2/sum(abs(s*(D %*% w0$dvs)))
+  }else{
+    max_gamma = apply(w0$dvs, 2, function(x){(t(x) %*% w0$B %*% x)/sum(abs(s*(D%*%x)))})
+  }
+
+  # Generate range of gammas to choose from.
+  gammas = sapply(max_gamma, function(x){seq(from=g_mults[1]*x, to=g_mults[2]*x, length=num_gammas)})
+
+
+
+  ##################################################################################
+  ## Get the ZVDs for each choice of gamma and evaluate validation error.
+  ##################################################################################
+
+  ##################################################################################
+  # Initialize the validation scores.
+  ##################################################################################
+  val_scores = rep(0, times=num_gammas)
+  mc_ind = 1
+  l0_ind = 1
+  best_ind = 1
+  min_mc = 1
+  min_l0 = p+1
+
+  triv=FALSE
+
+  ##################################################################################
+  # Save initial matrices.
+  ##################################################################################
+
+  # Initalize objective matrix
+  if (dim(w0$B)[2]==1){
+    B0 = w0$B
+  }    else{
+    B0 = t(w0$N) %*% w0$B %*% w0$N
+    B0 = (B0+t(B0))/2
+  }
+
+  # Initialize nullspace matrix.
+  N0 = w0$N
+
+  # Initialize DVs and iteration lists.
+  DVs = list()
+  its = list()
+
+  # Initial sparsest solution.
+  l0_x = t(N0)%*%t(D)%*%w0$dvs
+
+
+  # y is the unpenalized solution in the original space.
+  # z is the all-zeros vector in the original space.
+
+  ##################################################################################
+  # For each gamma, calculate ZVDs and corresponding validation scores.
+
+  for (i in (1:num_gammas)){
+
+
+    ##################################################################################
+    # Initialization.
+    ##################################################################################
+
+    # Initialize output.
+    DVs[[i]] = matrix(0, nrow = p, ncol = (k-1))
+    its[[i]] = rep(0, times=(k-1))
+
+
+    # Initialize B and N.
+    B = B0
+    N = N0
+
+
+    # Set x0 to be the unpenalized zero-variance discriminant vectors in Null(W0)
+    if (dim(B0)[2] == 1){
+
+      # Compute (DN)'*(mu1-mu2)
+      w = t(D%*%N0) %*% B0
+
+      # Use normalized w as initial x.
+      x0 = w/norm(w,'f')
+
+    }
+    else{
+      x0 = t(N0)%*% t(D) %*%  w0$dvs[,1]
+    }
+
+    ##################################################################################
+    ### Get DVs
+    ##################################################################################
+
+    for (j in 1:(k-1)){
+
+      ## Call ADMM solver.
+      tmp = SZVD_ADMM(B = B,  N = N, D=D, pen_scal=s,
+                      sols0 = list(x = x0, y = w0$dvs[,j], z= as.matrix(rep(0,p))),
+                      gamma=gammas[i,j], beta=beta, tol=tol,
+                      maxits=maxits, quiet=TRUE)
+
+      # Extract i-th discriminant vector.
+      DVs[[i]][,j] = matrix(D%*%N%*%tmp$x, nrow=p, ncol=1)
+      #DVs[[i]][,j] = matrix(tmp$y, nrow=p, ncol=1)
+
+      # Record number of iterations to convergence.
+      its[[i]][j] = tmp$its
+
+
+      ##################################################################################
+      # Update N and B for the newly found DV.
+      ##################################################################################
+
+      if (j < (w0$k-1)) {
+
+        # Project columns of N onto orthogonal complement of Nx.
+        x = as.matrix(DVs[[i]][,j])
+        x = x/norm(as.matrix(x), 'f')
+
+        # Project N into orthogonal complement of span(x)
+        Ntmp = N - x %*% (t(x) %*% N)
+
+        # Call QR factorization to extract orthonormal basis for span(Ntmp)
+        QR = qr(x=Ntmp, LAPACK = TRUE)
+
+        # Extract nonzero rows of R to get columns of Q to use as new N.
+        R_rows = (abs(diag(qr.R(QR))) > 1e-6)
+
+        # Use nontrivial columns of Q as updated N.
+        N = qr.Q(QR)[, R_rows]
+
+        # Update B0 according to the new basis N.
+        B = t(N) %*% w0$B %*% N
+        B = 0.5*(B+t(B))
+
+
+        # Update initial solutions in x direction by projecting next unpenalized ZVD vector.
+        x0 = t(N)%*% t(D) %*%  w0$dvs[,(j+1)]
+
+      }
+
+    }
+
+    ##################################################################################
+    # Get performance scores on the validation set.
+    ##################################################################################
+    # Call test_ZVD to get predictions, etc.
+    SZVD_res = test_ZVD(DVs[[i]], Aval, w0$means, w0$mu, scaling=scaling)
+
+    ## Update the cross-validation score for this choice of gamma.
+
+    # If gamma induces the trivial solution, disqualify gamma by assigning
+    # large enough penalty that it can't possibly be chosen.
+    if (sum(SZVD_res$stats$l0) < 3){
+      val_scores[i] = 100*dim(Aval)[1]
+      triv=TRUE
+    }
+    else{
+      # if all discriminant vectors are nontrivial use the formula:
+      # e_q = %misclassified + % nonzero.
+      val_scores[i] = SZVD_res$stats$mc + sparsity_pen*sum(SZVD_res$stats$l0)/(p*(k-1))
+    }
+
+
+    ## Update the best gamma so far.
+    # Compare to existing proposed gammas and save best so far.
+    if (val_scores[i] <= val_scores[best_ind]){
+      best_ind = i
+    }
+
+    # Record sparsest nontrivial solution so far.
+    if (min(SZVD_res$stats$l0) > 3 && SZVD_res$stats$l0 < min_l0){
+      l0_ind = i
+      l0_x = DVs[[i]]
+      min_l0 = SZVD_res$stats$l0
+    }
+
+    # Record best (in terms of misclassification error) so far.
+    if (SZVD_res$stats$mc <= min_mc){
+      mc_ind = i
+      mc_x = DVs[[i]]
+      min_mc = SZVD_res$stats$mc
+    }
+
+
+    # Display current iteration stats.
+    if (quiet==FALSE){
+      print(sprintf("it = %g, val_score= %g, mc=%g, l0=%g, its=%g", i, val_scores[i],
+                    SZVD_res$stats$mc, sum(SZVD_res$stats$l0), mean(its[[i]])), quote=F)
+    }
+
+    # Terminate if a trivial solution has been found.
+    if (triv==TRUE){
+      break
+    }
+
+  }
+  ##################################################################################
+
+  # Export discriminant vectors found using validation.
+  val_x = DVs[[best_ind]]
+
+  # Return best ZVD, gamma, lists of gammas and validation scores, etc.
+  return(structure(list(call = match.call(),
+                        DVs = val_x,
+                        all_DVs = DVs,
+                        l0_DVs = l0_x,
+                        mc_DVs = mc_x,
+                        gamma = gammas[best_ind,],
+                        gammas = gammas,
+                        max_g = max_gamma,
+                        ind=best_ind,
+                        scores=val_scores,
+                        w0=w0,
+                        x0=x0),
+              class="SZVDcv"))
 }
 
 #' @export
-SZVDcv.matrix <- function(X, ...){
-  res <- SZVDcv.default(X, ...)
+SZVDcv.matrix <- function(Atrain, ...){
+  res <- SZVDcv.default(Atrain, ...)
   cl <- match.call()
   cl[[1L]] <- as.name("SZVDcv")
   res$call <- cl

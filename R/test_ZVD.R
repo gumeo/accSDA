@@ -18,7 +18,7 @@
 #' \describe{
 #'   \item{\code{stats}}{list containing number of misclassified observations,
 #'   l0 and l1 norms of discriminants.}
-#'   \item{\code{pred}}{predicted class labels according to nearest centroid
+#'   \item{\code{pred_labs}}{predicted class labels according to nearest centroid
 #'   and the discriminants.}
 #' }
 #' @seealso Used by: \code{\link{SZVDcv}}.
@@ -27,82 +27,74 @@
 #' debugging purposes. Potential release in the future.
 #' @keywords internal
 test_ZVD <- function(w, test, classMeans, mus, scaling){
-  # 
+  #
   if(scaling){
-    mu <- as.matrix(mus$mu)
+    mu <- mus$mu
     sig <- mus$sig
   } else{
-    mu <- as.matrix(mus)
+    mu <- mus
   }
-  
+
   # Extract class labels and observations
-  test_labels <- test[,1]
-  test_obs <- test[,2:dim(test)[2]]
-  
+  test_labels <- factor(test[,1])
+  test_obs = as.matrix(data.frame(test[,2:dim(test)[2]]))
+
   # Get number of test observations
   N <- length(test_labels)
-  
+
   # Get the number of classes
-  K <- max(test_labels)
-  
+  K = length(levels(test_labels))
+
   # Center the test data
   test_obs <- test_obs - matrix(1,N,1)%*%t(mu)
-  
+
   # Scale according to the saved scaling from the training data (if desired)
   if(scaling){
     test_obs <- test_obs %*% diag(1/sig)
   }
-  
+
   #====================================================================
   # Classify the test data according to nearest centroid rule.
   #====================================================================
-    
+
   # Project the test data to the lower dim linear space defined by the ZVDs.
-  proj <- t(w)%*%t(test_obs)
-  
+  proj <- t(w)%*%t(as.matrix(test_obs))
+
   # Compute centroids and projected distances.
   cent <- crossprod(w,classMeans)
-  
+
   # Compute distances to the centroid for each projected test observation.
-  dists <- matrix(0,N,K)
-  for(i in 1:N){
-    for(j in 1:K){
-      dists[i,j] <- norm(proj[,i] - cent[,j], type = "2")
-    }
-  }
-  
-  # Label test observation according to the closes centroid in its projection.
-  predicted_labels <- t(apply(dists, 1, function(x) c(min(x),which.min(x))))
-  predicted_labels <- predicted_labels[,2] # Select the indices
-  
+  dist = apply(X = t(proj), MARGIN=1,
+               FUN=function(y){
+                 apply(X=cent, MARGIN=2, FUN= function(x){ norm(as.matrix( x - y, 'f')) } )
+               }
+  )
+
+  # Label test observation according to the closest centroid to its projection.
+  predicted_labels = max.col(-t(dist))
+
+  # Extract labels from the test data (assumed these are integers from 1,..., k.)
+  true_labels = test[,1]
+
   #===================================================================
   # Compute fraction misclassed, l0 and l1 norms of the classifiers.
   #====================================================================
-    
+
   # Compute fraction of misclassified observations.
   misclassed <- sum(abs(test_labels - predicted_labels) > 0) / N
-  
+
   # l0
-  l0 <- sum(abs(w) > 1e-3)
-  
+  l0 <- apply(w, MARGIN=2, FUN= function(x){ sum(abs(x)>1e-3)})
+
   # l1
-  l1 <- sum(abs(w))
-  
+  l1 <- apply(w, MARGIN=2, FUN= function(x){sum(abs(x))})
+
   #====================================================================
   # Output results.
   #====================================================================
-  
-  # stats
-  stats <- list(mc = misclassed,
-                l0 = l0,
-                l1 = l1)
-  
+
   # Create an object of class test_ZVD to return
-  retOb <- structure(
-    list(call = match.call(),
-         stats = stats,
-         preds = predicted_labels),
-    class = "test_ZVD")
-  
-  return(retOb)
+  return(structure(
+    list(stats=list(mc=misclassed, l0=l0, l1=l1), pred_labs = predicted_labels, dist=dist),
+    class = "test_ZVD"))
 }

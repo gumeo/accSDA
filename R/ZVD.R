@@ -2,10 +2,10 @@
 #'
 #' Implements the ZVD algorithm to solve dicriminant vectors.
 #'
-#' @param A Data matrix, where first column corresponds to class labels.
+#' @param A Matrix, where first column corresponds to class labels.
 #' @param scaling Logical whether to rescale data so each feature has variance 1.
 #' @param get_DVs Logical whether to obtain unpenalized zero-variance discriminant vectors.
-#' @return \code{SZVDcv} returns an object of \code{\link{class}} "\code{ZVD}" 
+#' @return \code{SZVDcv} returns an object of \code{\link{class}} "\code{ZVD}"
 #'        including a list with the following named components:
 #' \describe{
 #'   \item{\code{dvs}}{discriminant vectors (optional).}
@@ -17,6 +17,7 @@
 #'   \item{\code{k}}{number of classes in given data set.}
 #'   \item{\code{labels}}{list of classes.}
 #'   \item{\code{obs}}{matrix of data observations.}
+#'   \item{\code{class_obs}}{Matrices of observations of each class.}
 #' }
 #' @seealso Used by: \code{\link{SZVDcv}}.
 #' @details
@@ -29,153 +30,169 @@ ZVD <- function (A, ...) UseMethod("ZVD")
 #'
 #' @rdname ZVD
 #' @method ZVD default
-ZVD.default <- function(A, scaling, get_DVs){
-  #
-  # HERE WE NEED A DESCRIPTION
-  # Use Roxygen2 to create the desired documentation
-  #
-  # TODO: Currently the labels are the first column of A
-  #       this needs to be changed to be more general.
-  # NOTE1: This function requires normalize from sparseLDA
-  # Note2: Scaling is optional in the matlab version, maybe
-  #        make a flag for normalization, i.e. center and scaling
-  # Note3: Classes are assumed to be numeric values from 1 to K
-  #        We need to be able to deal with factors in data frames
-  #        as well.
-  # Note4: Requires the function nullSp define in the same folder
-  # Note5: eigs function from rARPACK used
+ZVD.default <- function(A, scaling = FALSE, get_DVs = FALSE){
+  ######################################################################
+  # Extract class labels from observed signals.
+  # Training data is represented as matrix A with observations as rows. First row is vector of class labels.
+  ######################################################################
 
-  ###
-  # Preprocessing
-  ###
+  classes = factor(A[,1])
+  X = as.matrix(data.frame(A[,2:dim(A)[2]]))
 
-  # Extract class labels
-  classes <- A[,1]
+  # Get input dimensions.
+  n = dim(X)[1]
+  p = dim(X)[2]
 
-  # Extract observations
-  X <- A[,2:(dim(A)[2])]
+  # Center the data.
+  mu = colMeans(X)
+  X = X - (rep(1, times= n )) %*% t(mu)
 
-  # Normalize the training data
-  Xnorm <- sparseLDA::normalize(X)
-  X <- Xnorm$Xc
-  n <- dim(X)[1]
-  p <- dim(X)[2]
+  ## Scale the data so each feature has variance equal to 1.
+  if (scaling){
+    # Compute standard deviation of each feature.
+    sig = apply(X=X,MARGIN=2, FUN = function(y){
+      if(sd(y)==0) {return(1)}
+      else{return(sd(y))}
+    }
+    )
 
-  # Get number of classes
-  K <- length(unique(as.factor(classes)))
+    # Divide each feature by its standard deviation to ensure each feature has variance equal to one.
+    X = X%*% diag(1/sig)
+  }
 
-  # Initialize matrix of within-class means
-  classMeans <- matrix(0, p, K)
+  #########################################################
+  #### Extract classes from the observations.
+  ########################################################
 
-  # Ininitialize within-class covariance
-  W <- matrix(0, p, p)
+  # Initialize observations as an empty list.
+  class_obs = list()
+
+  # Extract class labels.
+  labels = levels(classes)
+
+  # Get number of classes.
+  K = length(labels)
+
+  # Initialize matrix of within-class means.
+  classMeans = matrix(0, nrow = p, ncol = K)
+
+  # Initialize within-class covariance.
+  W = matrix(0, nrow = p, ncol = p)
 
   # Initialize between-class covariance (if more than 2 classes)
-  if(K > 2){
-    B <- matrix(0, p, p)
+  if (K>2){
+    B = matrix(0, nrow = p, ncol = p)
   }
 
-  class_sizes <- matrix(0, K, 1)
+  # DIAG: sizes.
+  sizes = rep(0, K)
+  #######################################################
+  # For each class, make an object in the list containing only the observations in that class
+  # and update the between and within-class sample covariances.
+  #######################################################
+  for (i in 1: K){
 
-  #-----------------------------------------------------------------------
-  # Compute within-class scatter matrix
-  #-----------------------------------------------------------------------
-  for(i in 1:K){
-    # Find indices of observations in the current class
-    class_inds <- (classes == i)
+    # Find indices of observations in the current class.
+    class_inds = (classes == labels[i])
 
-    # Get the objects of this class
-    class_obs <- X[class_inds,]
+    # Make new object in class_obs corresponding to the observations in this class.
+    class_obs[[i]] = X[(class_inds==T) , ]
 
-    # Get number of observations in this class
-    ni <- dim(class_obs)[1]
-    class_sizes[i,1] <- ni
+    # Get number of observations in this class.
+    ni = dim(class_obs[[i]])[1]
+    sizes[i] = ni
 
-    # Compute within-class means
-    classMeans[,i] <- colMeans(class_obs)
+    # Compute within-class means.
+    classMeans[,i] = colMeans(class_obs[[i]])
 
-    # Compute sample class-scatter matrix
-    Xc <- class_obs - matrix(1,ni,1)%*%t(classMeans[,i])
+    # Compute within-class covariance (from the formula)
+    for (j in 1:ni){
+      xj = as.matrix(class_obs[[i]][j,])
 
-    # Update W
-    W <- W + t(Xc)%*%Xc
-  }
+      # Update W.
+      W = W + (xj - classMeans[,i]) %*% t(xj - classMeans[,i])
 
-  # Symmetrize W
-  W <- (W + t(W))/2
-
-  #-----------------------------------------------------------------------
-  # Compute B
-  #-----------------------------------------------------------------------
-  if(K == 2){
-    # (K=2 case) (Store as a p by 1 matrix/vector)
-    B <- classMeans[,1,drop = FALSE] - classMeans[,2,drop = FALSE]
-  }else{
-    # K > 2 case.
-
-    # Make partition matrix
-    Y <- matrix(0, n, K)
-    for(i in 1:n){
-      # Note that here we are doing dummy coding of the
-      # factor variable, this can probably be done more
-      # efficiently
-      Y[i,classes[i]] <- 1
     }
 
-    # Set scatter matrix B
-    XY <- t(X)%*%Y
-    B <- XY%*%(solve(t(Y)%*%Y,t(XY)))
+    # Update B (K>2 case)
+    if (K>2){
+      B = B + ni*classMeans[,i] %*% t(classMeans[,i])
+    }
 
-    # Symmetrize B
-    B <- (B + t(B))/2
   }
 
-  #-----------------------------------------------------------------------
-  # Find the null-vectors of W
-  #-----------------------------------------------------------------------
-  N <- nullSp(W) # The null space calculated as in matlab
+  # Symmetrize W.
+  W = (W + t(W))/2
 
-  #-----------------------------------------------------------------------
-  # Find ZVDs (if GetDVs == TRUE)
-  #-----------------------------------------------------------------------
-  if(get_DVs){
-    if(K==2){
-      # Compute max eigenvector of t(N)%*%B%*%N
-      w <- N%*%(t(N)%*%B)
-      w <- w/norm(w, type = "2")
-    } else{
-      # Compute K-1 nontrivial eigenvectors of t(N)%*%B%*%N
-      # This depends on the rARPACK package
-      # This is for speed, so we do not need to
-      # calculate all eigenvectors, that is slow
-      val <- rARPACK::eigs(t(N)%*%B%*%N, k = K-1, which = 'LM')
-      w <- val$vectors
+  # Compute B (K=2 case) (Store as a p by 1 matrix/vector)
+  if (K==2){
+    B = as.matrix((classMeans[,1]-classMeans[,2]))
+  }
 
-      # Project back to original space
-      w <- N%*%w
+
+
+  #######################################################
+  ## Find ZVDs (if wanted)
+  #######################################################
+  if (get_DVs){
+    # Find the null-vectors of W.
+    S = eigen(W, symmetric=TRUE)
+    ds = sort(S$values, index.return=TRUE, decreasing=TRUE)
+    V = as.matrix(S$vectors[,ds$ix])
+    zeros = (ds$x < 1e-6)
+    N = as.matrix(V[,zeros])
+
+    # Compute the Zero Variance Discriminants.
+    if (K==2){
+      # Compute max eigenvector of N'*B*N
+      w = N%*%t(N)%*%(classMeans[,1] - classMeans[,2])
+      w = w/norm(as.matrix(w), 'F')
+    }else{
+      # Compute K-1 nontrivial eigenvectors of N'*B*N.
+      w = svd(t(N) %*% B %*%N, nu=(K-1), nv= (K-1))$v[,1:K-1]
+      # Project back to the original space.
+      w = N %*% w
     }
   }
 
-  #-----------------------------------------------------------------------
-  # Prepare output
-  #-----------------------------------------------------------------------
-  outOb <- structure(list(call = match.call(),
-                          mu = Xnorm$mx,
-                          sig = Xnorm$vx,
-                          dvs = NA,
-                          B = B,
-                          W = W,
-                          N = N,
-                          means = classMeans,
-                          k = K,
-                          labels = classes,
-                          obs = X,
-                          ni = class_sizes),
-                     class = "ZVD")
-  if(get_DVs){
-    outOb$dvs <- w
+  #######################################################
+  # Prep output.
+  #######################################################
+
+  # Output scaling/centring terms (if used).
+  if (scaling){
+    mu = list(mu=mu, sig=sig)
   }
-  return(outOb)
+
+  # Output list.
+  if (get_DVs){
+    ZVDout = structure(list(call = match.call(),
+                            dvs=w,
+                            B=B,
+                            W=W,
+                            N=N,
+                            mu=mu,
+                            means=classMeans,
+                            k=K,
+                            labels=classes,
+                            obs=X,
+                            class_obs=class_obs,
+                            sizes=sizes),
+                       class="ZVD")
+  } else{
+    ZVDout = structure(list(call = match.call(),
+                            B=B,
+                            W=W,
+                            mu=mu,
+                            means=classMeans,
+                            k=K, labels=classes,
+                            obs=X,
+                            class_obs=class_obs,
+                            sizes=sizes),
+                       class = "ZVD")
+  }
+  ## Return output.
+  return(ZVDout)
 }
 
 #' @export

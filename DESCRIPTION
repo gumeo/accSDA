@@ -14,13 +14,15 @@ Imports:
     sparseLDA (>= 0.1.7)
 Depends:
     R (>= 3.2)
-Description: Implementation of sparse linear discriminant analysis.
-    Various optimization methods are implemented
+Description: Implementation of sparse linear discriminant analysis, which is a supervised
+    classification method. Various optimization methods are implemented
     including alternating direction method of multipliers (ADMM), proximal gradient
     (PG) and accelerated proximal gradient (APG). Functions for performing cross
     validation are also supplied along with basic prediction and plotting functions.
+    Sparse zero variance discriminant analysis (SZVD) is also included in the package.
+    See the vignette and the github wiki for a more extended description.
 License: GPL (>= 2)
-URL: http://www2.compute.dtu.dk/~guei/accSDA.html
-BugReports: linkToMyGitHubWhenPublished
+URL: https://github.com/gumeo/accSDA/wiki
+BugReports: https://github.com/gumeo/accSDA/issues
 LazyData: TRUE
 RoxygenNote: 5.0.1
