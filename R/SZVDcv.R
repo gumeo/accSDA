@@ -1,4 +1,4 @@
-#' Cross-validation of sparse zero variance discriminant analysis
+ #' Cross-validation of sparse zero variance discriminant analysis
 #'
 #' Applies alternating direction methods of multipliers to solve sparse
 #' zero variance descriminant analysis.
@@ -36,13 +36,13 @@
 #' This function might require a wrapper similar to ASDA.
 #' @rdname SZVDcv
 #' @export SZVDcv
-SZVDcv <- function(Atrain, ...) UseMethod("SZVDcv")
+SZVDcv <- function(Atrain, ...) UseMethod("SZVDcv",Atrain)
 
 #' @return \code{NULL}
 #'
 #' @rdname SZVDcv
 #' @method SZVDcv default
-SZVDcv.default <- function(Atrain, Aval, k, num_gammas, g_mults, D, sparsity_pen, scaling, penalty, beta, tol, maxits, quiet){
+SZVDcv.default <- function(Atrain, Aval, k, num_gammas, g_mults, D, sparsity_pen, scaling = FALSE, penalty = FALSE, beta, tol, maxits, quiet){
   # get dimensions of the training set
   N = dim(Atrain)[1]
   p = dim(Atrain)[2]-1
