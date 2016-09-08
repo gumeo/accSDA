@@ -83,7 +83,7 @@ test_ZVD <- function(w, test, classMeans, mus, scaling){
   #====================================================================
 
   # Compute fraction of misclassified observations.
-  misclassed <- sum(abs(test_labels - predicted_labels) > 0) / N
+  misclassed <- sum(abs(true_labels - predicted_labels) > 0) / N
 
   # l0
   l0 <- apply(w, MARGIN=2, FUN= function(x){ sum(abs(x)>1e-3)})
