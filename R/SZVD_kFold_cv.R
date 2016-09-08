@@ -393,8 +393,8 @@ SZVD_kFold_cv.default <- function(X, Y, folds, gams,  beta,D, q, maxits, tol, zt
 }
 
 #' @export
-SZVDcv_kFold_cv.matrix <- function(X, ...){
-  res <- SZVDcv_kFold_cv.default(X, ...)
+SZVD_kFold_cv.matrix <- function(X, ...){
+  res <- SZVD_kFold_cv.default(X, ...)
   cl <- match.call()
   cl[[1L]] <- as.name("SZVDcv_kFold_cv")
   res$call <- cl
