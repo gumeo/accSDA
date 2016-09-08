@@ -175,3 +175,9 @@ SZVD.default <- function(train, gamma, D, penalty=TRUE, scaling=TRUE, tol = list
                         w0 = w0),
                    class = "SZVD"))
 }
+
+#' @export
+SZVD.matrix <- function(train, ...){
+  res <- SZVD.default(train, ...)
+  res
+}
