@@ -39,9 +39,9 @@ use at this stage. Will potentially be released in future versions.
 \details{
 This function is used by other functions and should only be called explicitly for
 debugging purposes. Potential release in the future.
+This function should potentially be made internal for the release.
 }
 \seealso{
 Used by: \code{\link{SZVDcv}}.
 }
-\keyword{internal}
 

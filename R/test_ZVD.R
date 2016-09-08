@@ -25,7 +25,9 @@
 #' @details
 #' This function is used by other functions and should only be called explicitly for
 #' debugging purposes. Potential release in the future.
-#' @keywords internal
+#' This function should potentially be made internal for the release.
+#' @rdname test_ZVD
+#' @export test_ZVD
 test_ZVD <- function(w, test, classMeans, mus, scaling){
   #
   if(scaling){
