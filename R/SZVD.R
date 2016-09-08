@@ -32,7 +32,7 @@
 #' Maybe call it ASZDA. For that purpose the individual ZVD function will need to be implemented.
 #' @rdname SZVD
 #' @export SZVD
-SZVD <- function (train, ...) UseMethod("SZVD")
+SZVD <- function (train, ...) UseMethod("SZVD",train)
 
 #' @return \code{NULL}
 #'
