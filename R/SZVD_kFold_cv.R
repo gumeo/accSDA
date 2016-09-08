@@ -3,7 +3,7 @@
 #' Applies alternating direction methods of multipliers to solve sparse
 #' zero variance descriminant analysis.
 #'
-#' @param X n by p data matrix.
+#' @param X n by p data matrix, variables should be scaled to by sd
 #' @param Y n by K indicator matrix.
 #' @param folds number of folds to use in K-fold cross-validation.
 #' @param gams Number of regularly spaced regularization parameters to try in [0,1]*max_gamma.
@@ -260,7 +260,7 @@ SZVD_kFold_cv.default <- function(X, Y, folds, gams,  beta,D, q, maxits, tol, zt
         #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         # Call test_ZVD to get predictions, etc.
 
-        statsObj <- test_ZVD(DVs[[i]], Av, w0$means, w0$mu, TRUE)
+        statsObj <- test_ZVD(DVs[[i]], Av, w0$means, w0$mu, FALSE)
         stats <- statsObj$stats
 
         #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

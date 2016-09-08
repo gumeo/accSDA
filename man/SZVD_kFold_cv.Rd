@@ -11,7 +11,7 @@ SZVD_kFold_cv(X, ...)
   ztol, feat, quiet)
 }
 \arguments{
-\item{X}{n by p data matrix.}
+\item{X}{n by p data matrix, variables should be scaled to by sd}
 
 \item{Y}{n by K indicator matrix.}
 
