@@ -25,14 +25,14 @@
 #' @details
 #' Add how max_gamma is calculated from the ZVD solution.
 #' This function might require a wrapper similar to ASDA.
-#' @rdname SZVDcv_kFold_cv
-#' @export SZVDcv_kFold_cv
-SZVDcv_kFold_cv <- function(X, ...) UseMethod("SZVDcv_kFold_cv",X)
+#' @rdname SZVD_kFold_cv
+#' @export SZVD_kFold_cv
+SZVD_kFold_cv <- function(X, ...) UseMethod("SZVD_kFold_cv",X)
 
 #' @return \code{NULL}
 #'
-#' @rdname SZVDcv_kFold_cv
-#' @method SZVDcv_kFold_cv default
+#' @rdname SZVD_kFold_cv
+#' @method SZVD_kFold_cv default
 SZVD_kFold_cv.default <- function(X, Y, folds, gams,  beta,D, q, maxits, tol, ztol, feat, quiet){
 
   # Try to put everything in the style of the old function to make the code for experiments more convenient.
@@ -396,7 +396,7 @@ SZVD_kFold_cv.default <- function(X, Y, folds, gams,  beta,D, q, maxits, tol, zt
 SZVD_kFold_cv.matrix <- function(X, ...){
   res <- SZVD_kFold_cv.default(X, ...)
   cl <- match.call()
-  cl[[1L]] <- as.name("SZVDcv_kFold_cv")
+  cl[[1L]] <- as.name("SZVD_kFold_cv")
   res$call <- cl
   res
 }
