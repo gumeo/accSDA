@@ -5,43 +5,54 @@
 \alias{SZVDcv.default}
 \title{Cross-validation of sparse zero variance discriminant analysis}
 \usage{
-SZVDcv(X, ...)
+SZVDcv(Atrain, ...)
 
-\method{SZVDcv}{default}(X, Y, folds, gams, beta, D, q, maxits, tol, ztol, feat,
-  quiet)
+\method{SZVDcv}{default}(Atrain, Aval, k, num_gammas, g_mults, D, sparsity_pen,
+  scaling, penalty, beta, tol, maxits, quiet)
 }
 \arguments{
-\item{X}{n by p data matrix.}
+\item{Atrain}{Training data set.}
 
-\item{Y}{n by K indicator matrix.}
+\item{Aval}{Validation set.}
 
-\item{folds}{number of folds to use in K-fold cross-validation.}
+\item{k}{Number of classes within training and validation sets.}
 
-\item{gams}{Vector of regularization parameters for l1 penalty.
-All elements must be greater than zero.}
+\item{num_gammas}{Number of gammas to train on.}
 
-\item{beta}{Augmented Lagrangian parameter. Must be greater than zero.}
+\item{g_mults}{Parameters defining range of gammas to train, g_max*(c_min, c_max).
+Note that it is an array/vector with two elements.}
 
 \item{D}{Penalty dictionary basis matrix.}
 
-\item{q}{Desired number of discriminant vectors.}
+\item{sparsity_pen}{weight defining validation criteria as weighted sum of misclassification error and
+cardinality of discriminant vectors.}
 
-\item{maxits}{Number of iterations to runn ADMM algorithm.}
+\item{scaling}{Whether to rescale data so each feature has variance 1.}
 
-\item{tol}{Stopping tolerances for ADMM, must have tol$rel and tol$abs.}
+\item{penalty}{Controls whether to apply reweighting of l1-penalty (using sigma = within-class std devs)}
 
-\item{ztol}{Rounding tolerance for truncating entries to 0.}
+\item{beta}{Parameter for augmented Lagrangian term in the ADMM algorithm.}
 
-\item{feat}{Maximum fraction of nonzero features desired in validation scheme.}
+\item{tol}{Stopping tolerances for the ADMM algorithm, must have tol$rel and tol$abs.}
 
-\item{quiet}{toggles between displaying intermediate statistics.}
+\item{maxits}{Maximum number of iterations used in the ADMM algorithm.}
+
+\item{quiet}{Controls display of intermediate results.}
 }
 \value{
-\code{SZVDcv} returns an object of \code{\link{class}} "\code{SZVDcv}" 
-       including a list with the named components \code{DVs} and \code{gambest}.
-       Where \code{DVs} are the discriminant vectors for the best l1 regularization
-       parameter and \code{gambest} is the best regularization parameter found
-       in the cross-validation.
+\code{SZVDcv} returns an object of \code{\link{class}} "\code{SZVDcv}"
+       including a list with the following named components:
+\describe{
+  \item{\code{DVs}}{Discriminant vectors for the best choice of gamma.}
+  \item{\code{all_DVs}}{Dicriminant vectors for all choices of gamma.}
+  \item{\code{l0_DVs}}{Discriminant vectors for gamma minimizing cardinality.}
+  \item{\code{mc_DVs}}{Discriminant vector minimizing misclassification.}
+  \item{\code{gamma}}{Choice of gamma minimizing validation criterion.}
+  \item{\code{gammas}}{Set of all gammas trained on.}
+  \item{\code{max_g}}{Maximum value of gamma guaranteed to yield a nontrivial solution.}
+  \item{\code{ind}}{Index of best gamma.}
+  \item{\code{w0}}{unpenalized zero-variance discriminants (initial solutions) plus B and W, etc. from ZVD}
+}
 
 \code{NULL}
 }
@@ -50,11 +61,9 @@ Applies alternating direction methods of multipliers to solve sparse
 zero variance descriminant analysis.
 }
 \details{
-This function will currently solve as a standalone function in accSDA for time comparison.
-A wrapper function like ASDA will be created to use the functionality of plots and such.
-Maybe call it ASZDA. For that purpose the individual ZVD function will need to be implemented.
+This function might require a wrapper similar to ASDA.
 }
 \seealso{
-Used by: \code{\link{SZVDcv}}.
+Non CV version: \code{\link{SZVD}}.
 }
 

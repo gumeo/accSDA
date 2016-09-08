@@ -2,6 +2,7 @@
 
 S3method(ASDA,data.frame)
 S3method(ASDA,matrix)
+S3method(SZVD,matrix)
 S3method(SZVDcv,matrix)
 S3method(ZVD,matrix)
 S3method(predict,ASDA)

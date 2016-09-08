@@ -28,7 +28,7 @@ with the following named components
 \describe{
   \item{\code{stats}}{list containing number of misclassified observations,
   l0 and l1 norms of discriminants.}
-  \item{\code{pred}}{predicted class labels according to nearest centroid
+  \item{\code{pred_labs}}{predicted class labels according to nearest centroid
   and the discriminants.}
 }
 }

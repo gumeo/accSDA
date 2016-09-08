@@ -7,17 +7,17 @@
 \usage{
 ZVD(A, ...)
 
-\method{ZVD}{default}(A, scaling, get_DVs)
+\method{ZVD}{default}(A, scaling = FALSE, get_DVs = FALSE)
 }
 \arguments{
-\item{A}{Data matrix, where first column corresponds to class labels.}
+\item{A}{Matrix, where first column corresponds to class labels.}
 
 \item{scaling}{Logical whether to rescale data so each feature has variance 1.}
 
 \item{get_DVs}{Logical whether to obtain unpenalized zero-variance discriminant vectors.}
 }
 \value{
-\code{SZVDcv} returns an object of \code{\link{class}} "\code{ZVD}" 
+\code{SZVDcv} returns an object of \code{\link{class}} "\code{ZVD}"
        including a list with the following named components:
 \describe{
   \item{\code{dvs}}{discriminant vectors (optional).}
@@ -29,6 +29,7 @@ ZVD(A, ...)
   \item{\code{k}}{number of classes in given data set.}
   \item{\code{labels}}{list of classes.}
   \item{\code{obs}}{matrix of data observations.}
+  \item{\code{class_obs}}{Matrices of observations of each class.}
 }
 
 \code{NULL}

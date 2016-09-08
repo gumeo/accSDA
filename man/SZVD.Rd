@@ -5,25 +5,25 @@
 \alias{SZVD.default}
 \title{Sparse Zero Variance Discriminant Analysis}
 \usage{
-SZVD(x, ...)
+SZVD(train, ...)
 
-\method{SZVD}{default}(train, gamma, D, penalty, scaling, tol, maxits, beta,
-  quiet)
+\method{SZVD}{default}(train, gamma, D, penalty = TRUE, scaling = TRUE,
+  tol = list(abs = 1e-04, rel = 1e-04), maxits = 2000, beta = 1,
+  quiet = TRUE)
 }
 \arguments{
 \item{train}{Data matrix where first column is the response class.}
 
-\item{gamma}{Regularization paramter controlling l1-penalty.}
+\item{gamma}{Set of regularization parameters controlling l1-penalty.}
 
-\item{D}{Penalty dictionary basis matrix.}
+\item{D}{dictionary/basis matrix.}
 
-\item{penalty}{Controls wether to apply reweighting of l1-penalty 
-(using sigma = within-class std devs)}
+\item{penalty}{Controls whether to apply reweighting of l1-penalty (using sigma = within-class std devs)}
 
 \item{scaling}{Logical indicating whether to scale data such that each
 feature has variance 1.}
 
-\item{tol}{Stopping tolerances for ADMM algorithm, 
+\item{tol}{Stopping tolerances for ADMM algorithm,
 must include tol$rel and tol$abs.}
 
 \item{maxits}{Maximum number of iterations used in the ADMM algorithm.}
@@ -32,20 +32,22 @@ must include tol$rel and tol$abs.}
 }
 \value{
 \code{SZVD} returns an object of \code{\link{class}} "\code{SZVD}" including a list
-with the following named components
+with the following named components:
 
 \describe{
   \item{\code{DVs}}{Discriminant vectors.}
   \item{\code{its}}{Number of iterations required to find DVs.}
   \item{\code{pen_scal}}{Weights used in reweighted l1-penalty.}
   \item{\code{N}}{Basis for the null-space of the sample within-class covariance.}
+  \item{\code{means}}{Training class-means.}
+  \item{\code{mus}}{Training meand and variance scaling/centring terms.}
   \item{\code{w0}}{unpenalized zero-variance discriminants (initial solutions) plus B and W, etc.}
 }
 
 \code{NULL}
 }
 \description{
-Applies SZVD heuristic for sparse zero-variance discriminant 
+Applies SZVD heuristic for sparse zero-variance discriminant
 analysis to given training set.
 }
 \details{
