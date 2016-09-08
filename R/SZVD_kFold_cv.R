@@ -201,8 +201,7 @@ SZVD_kFold_cv.default <- function(X, Y, folds, gams,  beta,D, q, maxits, tol, zt
         # Use normalized w as initial x.
         x0 = w/norm(w,'f')
 
-      }
-      else{
+      }else{
         x0 = t(N0)%*% t(D) %*%  w0$dvs[,1]
       }
 
