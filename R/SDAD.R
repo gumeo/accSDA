@@ -100,9 +100,11 @@ SDAD.default <- function(Xt, Yt, Om, gam, lam, mu, q, PGsteps, PGtol, maxits, to
     # Initialize beta
     if(SMW == 1){
       btmp <- Xt%*%(Minv*d)/nt
-      beta <- (Minv*d) - 2*Minv*(crossprod(Xt,solve(RS,solve(t(RS),btmp))))
+      #beta <- (Minv*d) - 2*Minv*(crossprod(Xt,solve(RS,solve(t(RS),btmp))))
+      beta <- (Minv*d) - 2*Minv*(crossprod(Xt,backsolve(RS,forwardsolve(t(RS),btmp))))
     }else{
-      beta <- solve(R2,solve(t(R2),d))
+      #beta <- solve(R2,solve(t(R2),d))
+      beta <- backsolve(R2,forwardsolve(t(R2),d))
     }
 
     #+++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -125,8 +127,10 @@ SDAD.default <- function(Xt, Yt, Om, gam, lam, mu, q, PGsteps, PGtol, maxits, to
       if(norm(beta, type="2") > 1e-15){
         # Update theta
         b <- crossprod(Yt, Xt%*%beta)
-        y <- solve(t(R),b)
-        z <- solve(R,y)
+        #y <- solve(t(R),b)
+        #z <- solve(R,y)
+        y <- forwardsolve(t(R),b)
+        z <- backsolve(R,y)
         tt <- Mj(z)
         t_old <- theta
         theta <- tt/sqrt(as.numeric(crossprod(tt,D%*%tt)))

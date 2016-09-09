@@ -54,7 +54,8 @@ ADMM_EN_SMW <- function(Ainv, V,R, d, x0, lam, mu, maxits, tol, quiet){
     btmp <- V%*%(Ainv*b)/n # Ainv is a vector representing a diagonal matrix
 
     # Apply SMW to get x
-    x <- Ainv*b - 2*Ainv*(t(V)%*%(solve(R,solve(t(R),btmp))))
+    #x <- Ainv*b - 2*Ainv*(t(V)%*%(solve(R,solve(t(R),btmp))))
+    x <- Ainv*b - 2*Ainv*(t(V)%*%(backsolve(R,forwardsolve(t(R),btmp))))
 
     #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     # Update y.

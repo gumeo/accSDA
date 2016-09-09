@@ -106,8 +106,10 @@ SDAAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol){
       if(norm(beta, type="2") > 1e-12){
         # Update theta
         b <- crossprod(Yt,Xt%*%beta)
-        y <- solve(t(R),b)
-        z <- solve(R,y)
+        #y <- solve(t(R),b)
+        #z <- solve(R,y)
+        y <- forwardsolve(t(R),b)
+        z <- backsolve(R,y)
         tt <- Mj(z)
         t_old <- theta
         theta <- tt/sqrt(as.numeric(crossprod(tt, D)%*%tt))

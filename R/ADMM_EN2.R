@@ -44,8 +44,10 @@ ADMM_EN2 <- function(R, d, x0, lam, mu, maxits, tol, quiet){
     ###
     # (mu I + A)x = d + mu*y - z
     b <- d + mu*y - z
-    Rx <- solve(t(R),b)
-    x <- solve(R,Rx)
+    #Rx <- solve(t(R),b)
+    #x <- solve(R,Rx)
+    Rx <- forwardsolve(t(R),b)
+    x <- backsolve(R,Rx)
 
     ###
     # Update y
