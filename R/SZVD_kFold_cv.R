@@ -271,10 +271,10 @@ SZVD_kFold_cv.default <- function(X, Y, folds, gams,  beta,D, q, maxits, tol, zt
         DVs[[i]] <- DVs[[i]] * (ceiling(abs(DVs[[i]])-ztol))
 
         # if fraction nonzero features less than feat.
-        if( 1 <= sum(DVs[[i]] != 0) & sum(DVs[[i]] != 0) <= q*p*feat){
+        if( 2 <= sum(DVs[[i]] != 0) & sum(DVs[[i]] != 0) <= q*p*feat){
           # Use misclassification rate as validation score.
           scores[f,i] <- stats$mc
-        } else if(sum(DVs[[i]] != 0) < 0.5){
+        } else if(sum(DVs[[i]] != 0) < 2){
           # Trivial solution
           scores[f,i] <- q*p # Disqualify with largest possible value
           triv = TRUE
