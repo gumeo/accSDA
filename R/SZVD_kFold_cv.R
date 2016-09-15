@@ -215,6 +215,11 @@ SZVD_kFold_cv.default <- function(X, Y, folds, gams,  beta,D, q, maxits, tol, zt
                         gamma=gammas[i,j], beta=beta, tol=tol,
                         maxits=maxits, quiet=TRUE)
 
+        # If we produce NaNs then we break the loop, because the solution is not usable
+        if(any(is.na(tmp$x))){
+          break
+        }
+
         # Extract i-th discriminant vector.
         DVs[[i]][,j] = matrix(D%*%N%*%tmp$x, nrow=p, ncol=1)
         #DVs[[i]][,j] = matrix(tmp$y, nrow=p, ncol=1)
