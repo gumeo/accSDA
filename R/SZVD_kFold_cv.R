@@ -82,9 +82,6 @@ SZVD_kFold_cv.default <- function(X, Y, folds, gams,  beta,D, q, maxits, tol, zt
   # Initial training indices
   tinds <- (nv+1):n
 
-  # Number of params to test
-  ngam <- dim(gams)[1]
-
   # Validation scores
   scores <- q*p*matrix(1,nrow = folds, ncol = num_gammas)
 
