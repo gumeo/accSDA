@@ -272,6 +272,10 @@ SZVD_kFold_cv.default <- function(X, Y, folds, gams,  beta,D, q, maxits, tol, zt
         # Round small entries to zero
         DVs[[i]] <- DVs[[i]] * (ceiling(abs(DVs[[i]])-ztol))
 
+        if(any(is.na(DVs[[i]]))){
+          break
+        }
+
         # if fraction nonzero features less than feat.
         if( 2 <= sum(DVs[[i]] != 0) & sum(DVs[[i]] != 0) <= q*p*feat){
           # Use misclassification rate as validation score.
