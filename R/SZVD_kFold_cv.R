@@ -386,7 +386,14 @@ SZVD_kFold_cv.default <- function(X, Y, folds, gams,  beta,D, q, maxits, tol, zt
         break
       }
       gambest <- gammas[gbest,]
-    } else{
+    }else if(any(!is.finite(DVs))){
+      gbest <- gbest + 1
+      if(gbest > dim(gammas)[1]){
+        gbest <- gbest - 1
+        break
+      }
+      gambest <- gammas[gbest,]
+    }else{
       trivsol <- FALSE
     }
   }
