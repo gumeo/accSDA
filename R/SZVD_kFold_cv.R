@@ -379,7 +379,12 @@ SZVD_kFold_cv.default <- function(X, Y, folds, gams,  beta,D, q, maxits, tol, zt
     # Check for trivial solution
     if(sum(DVs != 0) == 0){
       # If trivial solution, update gbest by one and update gambest.
-      gbest <- gbest - 1
+      #gbest <- gbest - 1
+      gbest <- gbest + 1
+      if(gbest > dim(gammas)[1]){
+        gbest <- gbest - 1
+        break
+      }
       gambest <- gammas[gbest,]
     } else{
       trivsol <- FALSE
