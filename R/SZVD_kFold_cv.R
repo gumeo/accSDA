@@ -377,7 +377,7 @@ SZVD_kFold_cv.default <- function(X, Y, folds, gams,  beta,D, q, maxits, tol, zt
     DVs <- DVs*(ceiling(abs(DVs)-ztol))
 
     # Check for trivial solution
-    if(sum(DVs != 0) == 0){
+    if(any(!is.finite(DVs))){
       # If trivial solution, update gbest by one and update gambest.
       #gbest <- gbest - 1
       gbest <- gbest + 1
@@ -386,7 +386,7 @@ SZVD_kFold_cv.default <- function(X, Y, folds, gams,  beta,D, q, maxits, tol, zt
         break
       }
       gambest <- gammas[gbest,]
-    }else if(any(!is.finite(DVs))){
+    }else if(sum(DVs != 0) == 0){
       gbest <- gbest + 1
       if(gbest > dim(gammas)[1]){
         gbest <- gbest - 1
