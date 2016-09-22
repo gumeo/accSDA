@@ -11,7 +11,11 @@ Title: Accelerated Sparse Discriminant Analysis
 Imports:
     MASS (>= 7.3.45),
     rARPACK (>= 0.10.0),
-    sparseLDA (>= 0.1.7)
+    sparseLDA (>= 0.1.7),
+    ggplot2 (>= 2.1.0),
+    ggthemes (>= 3.2.0),
+    grid (>= 3.2.2),
+    gridExtra (>= 2.2.1)
 Depends:
     R (>= 3.2)
 Description: Implementation of sparse linear discriminant analysis, which is a supervised
