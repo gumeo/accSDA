@@ -146,7 +146,7 @@ SZVD_kFold_cv.default <- function(X, Y, folds, gams,  beta,D, q, maxits, tol, zt
     }
 
     ## Scale gamma.
-    gamma=0.75*gamma
+    max_gamma=0.75*max_gamma
 
 
     # Generate range of gammas to choose from.
@@ -365,8 +365,15 @@ SZVD_kFold_cv.default <- function(X, Y, folds, gams,  beta,D, q, maxits, tol, zt
   # Call ZVD function to solve the unpenalized problem
   w0 <- ZVD(Atrain, scaling = FALSE, get_DVs = TRUE)
 
-  # Extract scaling vector for weighted l1 penalty and diagonal penalty matrix.
-  s = sqrt(diag(w0$W))
+  ## Extract scaling vector for weighted l1 penalty and diagonal penalty matrix.
+  #s = sqrt(diag(w0$W))
+  #w0$s = s
+
+  if (penalty==TRUE){ # scaling vector is the std deviations of each feature.
+    s = sqrt(diag(w0$W))
+  }  else if(penalty==FALSE){ # scaling vector is all-ones (i.e., no scaling)
+    s = rep(1, times=p)
+  }
   w0$s = s
 
   ## Normalize B (divide by the spectral norm)
@@ -376,12 +383,21 @@ SZVD_kFold_cv.default <- function(X, Y, folds, gams,  beta,D, q, maxits, tol, zt
     w0$B = (w0$B + t(w0$B))/eigen((w0$B + t(w0$B)), symmetric=TRUE, only.values=TRUE)$values[1]
   }
 
-  # Compute ratio of max gen eigenvalue and l1 norm of the first ZVD to get "bound" on gamma.
+  ## Compute ratio of max gen eigenvalue and l1 norm of the first ZVD to get "bound" on gamma.
+  #if (dim(w0$B)[2]==1){
+  #  max_gamma =  (t(w0$dvs)%*%w0$B)^2/sum(abs(s*(D %*% w0$dvs)))
+  #}else{
+  #  max_gamma = apply(w0$dvs, 2, function(x){(t(x) %*% w0$B %*% x)/sum(abs(s*(D%*%x)))})
+  #}
+
   if (dim(w0$B)[2]==1){
-    max_gamma =  (t(w0$dvs)%*%w0$B)^2/sum(abs(s*(D %*% w0$dvs)))
-  }else{
-    max_gamma = apply(w0$dvs, 2, function(x){(t(x) %*% w0$B %*% x)/sum(abs(s*(D%*%x)))})
+    max_gamma = (t(w0$B)%*%w0$dvs)^2/sum(abs(s*w0$dvs))
+  }   else{
+    max_gamma = apply(w0$dvs, 2, function(x){(t(x) %*% w0$B %*% x)/sum(abs(s*x))})
   }
+
+  ## Scale gamma.
+  max_gamma=0.75*max_gamma
 
   # Generate range of gammas to choose from.
   gams = sapply(max_gamma, function(x){seq(from=0, to=x, length=num_gammas)})
