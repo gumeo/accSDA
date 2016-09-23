@@ -12,7 +12,8 @@
 #' @param tol Stopping tolerances for ADMM algorithm,
 #'        must include tol$rel and tol$abs.
 #' @param maxits Maximum number of iterations used in the ADMM algorithm.
-#' @param beta Parameter for augmented Lagrangian term in the ADMM algorithm.
+#' @param penalty Controls whether to apply reweighting of l1-penalty (using sigma = within-class std devs).
+#' @param quiet Print intermediate outpur or not.
 #' @return \code{SZVD} returns an object of \code{\link{class}} "\code{SZVD}" including a list
 #' with the following named components:
 #'

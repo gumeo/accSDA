@@ -8,7 +8,7 @@
 SZVD_kFold_cv(X, ...)
 
 \method{SZVD_kFold_cv}{default}(X, Y, folds, gams, beta, D, q, maxits, tol,
-  ztol, feat, quiet)
+  ztol, feat, penalty, quiet)
 }
 \arguments{
 \item{X}{n by p data matrix, variables should be scaled to by sd}
@@ -33,6 +33,8 @@ See details for how max_gamma is computed in the function.}
 \item{ztol}{Rounding tolerance for truncating entries to 0.}
 
 \item{feat}{Maximum fraction of nonzero features desired in validation scheme.}
+
+\item{penalty}{Controls whether to apply reweighting of l1-penalty (using sigma = within-class std devs)}
 
 \item{quiet}{toggles between displaying intermediate statistics.}
 }

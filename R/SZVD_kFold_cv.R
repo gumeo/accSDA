@@ -15,6 +15,7 @@
 #' @param tol Stopping tolerances for ADMM, must have tol$rel and tol$abs.
 #' @param ztol Rounding tolerance for truncating entries to 0.
 #' @param feat Maximum fraction of nonzero features desired in validation scheme.
+#' @param penalty Controls whether to apply reweighting of l1-penalty (using sigma = within-class std devs)
 #' @param quiet toggles between displaying intermediate statistics.
 #' @return \code{SZVDcv} returns an object of \code{\link{class}} "\code{SZVDcv}"
 #'        including a list with the named components \code{DVs} and \code{gambest}.
@@ -33,7 +34,7 @@ SZVD_kFold_cv <- function(X, ...) UseMethod("SZVD_kFold_cv",X)
 #'
 #' @rdname SZVD_kFold_cv
 #' @method SZVD_kFold_cv default
-SZVD_kFold_cv.default <- function(X, Y, folds, gams,  beta,D, q, maxits, tol, ztol, feat, quiet){
+SZVD_kFold_cv.default <- function(X, Y, folds, gams,  beta,D, q, maxits, tol, ztol, feat, penalty, quiet){
 
   # Try to put everything in the style of the old function to make the code for experiments more convenient.
   # Also, let's choose the best parameter in the same way as for the other methods, meaning that we need
@@ -105,8 +106,16 @@ SZVD_kFold_cv.default <- function(X, Y, folds, gams,  beta,D, q, maxits, tol, zt
     # Call ZVD function to solve the unpenalized problem
     w0 <- ZVD(At, scaling = FALSE, get_DVs = TRUE)
 
+    ## Extract scaling vector for weighted l1 penalty and diagonal penalty matrix.
+    #s = sqrt(diag(w0$W))
+    #w0$s = s
+
     # Extract scaling vector for weighted l1 penalty and diagonal penalty matrix.
-    s = sqrt(diag(w0$W))
+    if (penalty==TRUE){ # scaling vector is the std deviations of each feature.
+      s = sqrt(diag(w0$W))
+    }  else if(penalty==FALSE){ # scaling vector is all-ones (i.e., no scaling)
+      s = rep(1, times=p)
+    }
     w0$s = s
 
     # If dictionary D missing, use the identity matri.x
@@ -121,12 +130,24 @@ SZVD_kFold_cv.default <- function(X, Y, folds, gams,  beta,D, q, maxits, tol, zt
       w0$B = (w0$B + t(w0$B))/eigen((w0$B + t(w0$B)), symmetric=TRUE, only.values=TRUE)$values[1]
     }
 
-    # Compute ratio of max gen eigenvalue and l1 norm of the first ZVD to get "bound" on gamma.
+    ## Compute ratio of max gen eigenvalue and l1 norm of the first ZVD to get "bound" on gamma.
+    #if (dim(w0$B)[2]==1){
+    #  max_gamma =  (t(w0$dvs)%*%w0$B)^2/sum(abs(s*(D %*% w0$dvs)))
+    #}else{
+    #  max_gamma = apply(w0$dvs, 2, function(x){(t(x) %*% w0$B %*% x)/sum(abs(s*(D%*%x)))})
+    #}
+
+    # If gamma is missing, use ratio of objectives for the ZVDs to get "good" guess for gamma.
+    # This is the way gamma is constructed in code from Brendan
     if (dim(w0$B)[2]==1){
-      max_gamma =  (t(w0$dvs)%*%w0$B)^2/sum(abs(s*(D %*% w0$dvs)))
-    }else{
-      max_gamma = apply(w0$dvs, 2, function(x){(t(x) %*% w0$B %*% x)/sum(abs(s*(D%*%x)))})
+      max_gamma = (t(w0$B)%*%w0$dvs)^2/sum(abs(s*w0$dvs))
+    }   else{
+      max_gamma = apply(w0$dvs, 2, function(x){(t(x) %*% w0$B %*% x)/sum(abs(s*x))})
     }
+
+    ## Scale gamma.
+    gamma=0.75*gamma
+
 
     # Generate range of gammas to choose from.
     gammas = sapply(max_gamma, function(x){seq(from=0, to=x, length=num_gammas)})
@@ -370,7 +391,7 @@ SZVD_kFold_cv.default <- function(X, Y, folds, gams,  beta,D, q, maxits, tol, zt
   # Loop until nontrivial solution is found
   trivsol <- TRUE
   while(trivsol){
-    szvdObj <- SZVD(Atrain, gambest, D, FALSE, FALSE, tol, maxits, beta, TRUE)
+    szvdObj <- SZVD(Atrain, gambest, D, penalty, FALSE, tol, maxits, beta,TRUE)
     DVs <- szvdObj$DVs
 
     # Round small entried to zero

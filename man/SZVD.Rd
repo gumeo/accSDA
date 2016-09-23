@@ -28,7 +28,9 @@ must include tol$rel and tol$abs.}
 
 \item{maxits}{Maximum number of iterations used in the ADMM algorithm.}
 
-\item{beta}{Parameter for augmented Lagrangian term in the ADMM algorithm.}
+\item{quiet}{Print intermediate outpur or not.}
+
+\item{penalty}{Controls whether to apply reweighting of l1-penalty (using sigma = within-class std devs).}
 }
 \value{
 \code{SZVD} returns an object of \code{\link{class}} "\code{SZVD}" including a list
