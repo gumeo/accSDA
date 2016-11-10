@@ -8,7 +8,7 @@
 SZVDcv(Atrain, ...)
 
 \method{SZVDcv}{default}(Atrain, Aval, k, num_gammas, g_mults, D, sparsity_pen,
-  scaling = FALSE, penalty = FALSE, beta, tol, maxits, quiet)
+  scaling, penalty, beta, tol, ztol, maxits, quiet)
 }
 \arguments{
 \item{Atrain}{Training data set.}
@@ -34,6 +34,8 @@ cardinality of discriminant vectors.}
 \item{beta}{Parameter for augmented Lagrangian term in the ADMM algorithm.}
 
 \item{tol}{Stopping tolerances for the ADMM algorithm, must have tol$rel and tol$abs.}
+
+\item{ztol}{Threshold for truncating values in DVs to zero.}
 
 \item{maxits}{Maximum number of iterations used in the ADMM algorithm.}
 

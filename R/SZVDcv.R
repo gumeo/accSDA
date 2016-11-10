@@ -231,7 +231,7 @@ SZVDcv.default <- function(Atrain, Aval, k, num_gammas, g_mults, D, sparsity_pen
       val_scores[i] = SZVD_res$stats$mc #+ sparsity_pen*sum(SZVD_res$stats$l0)/(p*(k-1))
     } else{
       # Solution is not sparse enough, so amount of sparsity is added as a penalty
-      scores[f,i] <- sum(SZVD_res$stats$l0) + sparsity_pen*sum(SZVD_res$stats$l0)/(p*(k-1))
+      val_scores[f,i] <- sum(SZVD_res$stats$l0) + sparsity_pen*sum(SZVD_res$stats$l0)/(p*(k-1))
     }
 
 

@@ -5,7 +5,7 @@
 \title{Classify test data using nearest centroid classification and
 discriminant vectors leatned from the training set.}
 \usage{
-test_ZVD(w, test, classMeans, mus, scaling)
+test_ZVD(w, test, classMeans, mus, scaling, ztol)
 }
 \arguments{
 \item{w}{Matrix with columns equal to discriminant vectors.}
@@ -20,6 +20,8 @@ test_ZVD(w, test, classMeans, mus, scaling)
 
 \item{scaling}{Logical indicating wether scaling should be done.
 on the test set.}
+
+\item{ztol}{Threshold for setting values in DVs to zero.}
 }
 \value{
 \code{test_ZVD} returns an object of \code{\link{class}} "\code{test_ZVD}" including a list
