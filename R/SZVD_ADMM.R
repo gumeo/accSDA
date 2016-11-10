@@ -28,25 +28,23 @@
 #' debugging purposes.
 #' @keywords internal
 SZVD_ADMM <- function(B,  N, D, sols0, pen_scal, gamma, beta, tol, maxits, quiet = TRUE){
-  #====================================================================
+  ######################################################################################
   # Precomputes quantities that will be used repeatedly by the algorithm.
-  #====================================================================
-  # Dimension of decision variable
-  p <- dim(D)[1]
+  ######################################################################################
 
-  # Compute D%*%N
-  if(all(D == diag(p))){
-    DN <- N
-  } else{
-    DN <- D%*%N
-  }
+  # Dimension of decision variables.
+  p = dim(D)[1];
 
-  #====================================================================
+  # Compute D*N.
+  DN = D%*%N
+
+  ##################################################################
   # Initialize x solution and constants for x update.
-  #====================================================================
-  if(dim(B)[2] == 1){ # Case where K = 2
+  ##################################################################
+  if (dim(B)[2] == 1){ ## K = 2 case.
+
     # Compute (DN)'*(mu1-mu2)
-    w <- crossprod(DN,B)
+    w = t(DN) %*% B
 
     # Compute initial x if omitted.
     if (missing(sols0)){
@@ -56,12 +54,15 @@ SZVD_ADMM <- function(B,  N, D, sols0, pen_scal, gamma, beta, tol, maxits, quiet
       x = sols0$x
     }
 
-    # Constant for x update step
-    Xup <- beta - crossprod(w)
-    Xup <- as.numeric(Xup[1,1])
-  } else{ # K > 2 case
+    # constant for x update step.
+    Xup = beta - t(w)%*%w
+    Xup = Xup[1,1]
+
+
+  }  else{    ## K > 2 Case.
+
     # Dimension of the null-space of W.
-    l <- dim(N)[2]
+    l= dim(N)[2]
 
     # Compute initial x if omitted.
     if (missing(sols0)){
@@ -73,11 +74,14 @@ SZVD_ADMM <- function(B,  N, D, sols0, pen_scal, gamma, beta, tol, maxits, quiet
 
     # Take Cholesky of beta I - B (for use in update of x)
     L = t(chol((beta*diag(l) - B)));
+
+    # Presolve the x-update system.
+    #Xup = solve(beta*diag(l) - B) %*% t(DN)
   }
 
-  #====================================================================
+  ##############################################################################################
   # Initialize decision variables y and z.
-  #====================================================================
+  ##############################################################################################
 
   # If omitted, set initial y equal to unpenalized ZVD, and z = 0 to start.
   if (missing(sols0)){
@@ -89,20 +93,23 @@ SZVD_ADMM <- function(B,  N, D, sols0, pen_scal, gamma, beta, tol, maxits, quiet
     z = sols0$z
   }
 
-  #====================================================================
-  # Call the algorithm.
-  #====================================================================
 
-  for(iter in 1:maxits){
-    #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  ##############################################################################################
+  ## Call the algorithm.
+  ##############################################################################################
+
+  for (iter in 1:maxits){
+
+
+    ##############################################################################################
     # Step 1: Perform shrinkage to update y_k+1.
-    #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    ##############################################################################################
 
-    # Save previous iterate
-    yold <- y
+    # Save previous iterate.
+    yold = y
 
-    # Call soft-thresholding
-    y <- vec_shrink(beta*DN%*%x + z, gamma*pen_scal)
+    # Call soft-thresholding.
+    y = vec_shrink(beta*DN %*% x + z, gamma * pen_scal)
 
     # Normalize y (if necessary).
     tmp = max(c(0, norm(as.matrix(y), 'f') - beta ))
@@ -111,86 +118,87 @@ SZVD_ADMM <- function(B,  N, D, sols0, pen_scal, gamma, beta, tol, maxits, quiet
     # Truncate complex part (if have +0i terms appearing.)
     y = Re(y)
 
-    #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+    ##############################################################################################
     # Step 2: Update x_k+1 by solving
     # x_k+1 = argmin { -x'*A*x + beta/2 l2(x - y_k+1 + z_k)^2}
-    #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    ##############################################################################################
 
-    # Compute RHS
-    b <- crossprod(DN,beta*y-z)
+    # Compute RHS.
+    b = t(DN)%*%(beta*y - z)
 
-    if(dim(B)[2] == 1){ # K = 2
-      # Update using Sherman-Morrison formula
-      x <- (b + ((t(b)%*%w)[1,1]/Xup)*w)/beta
-    } else{ # K > 2
-      # Update by solving the system L*t(L)*x = b
-      btmp <- forwardsolve(L,b)
-      x <- backsolve(t(L),btmp)
+    if (dim(B)[2]==1){    ## K=2
+
+      # Update using Sherman-Morrison formula.
+      x = (b + ((t(b)%*%w)[1,1]/Xup)*w)/beta
+
+    }
+    else{  ## K > 2.
+      # Update using by solving the system LL'x = b.
+      btmp = forwardsolve(L, b)
+      x = backsolve(t(L), btmp)
+
+      #x = Xup %*% (beta*y - z)
     }
 
     # Truncate complex part (if have +0i terms appearing.)
     x = Re(x)
 
-    #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    ##############################################################################################
     #  Step 3: Update the Lagrange multipliers
     # (according to the formula z_k+1 = z_k + beta*(N*x_k+1 - y_k+1) ).
-    #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    zold <- z
-    z <- Re(z + beta*(DN%*%x - y))
+    ##############################################################################################
+    zold = z
+    z = Re(z + beta*(DN%*%x - y))
 
-    #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    # Check stopping criteria.
-    #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    #----------------------------------------------------------------
-    # Primal constraint violation.
-    #----------------------------------------------------------------
+
+    ##############################################################################################
+    ### Check stopping criteria.
+    ##############################################################################################
+
+
+    ### Primal constraint violation.
+
     # Primal residual.
-    r <- DN%*%x - y
-    # l2 norm of the residual
-    dr <- norm(as.matrix(r), type = "f")
+    r = DN%*%x-y;
 
-    #----------------------------------------------------------------
-    # Dual constraint violation.
-    #----------------------------------------------------------------
+    # l2 norm of the residual.
+    dr = norm(as.matrix(r),'f');
+
+    ### Dual constraint violation.
+
     # Dual residual.
-    s <- beta*(y-yold)
-    # l2 norm of the residual
-    ds <- norm(as.matrix(s), type = "f")
+    s = beta*(y - yold)
 
-    #----------------------------------------------------------------
-    # Check if the stopping criteria are satisfied.
-    #----------------------------------------------------------------
+    # l2 norm of the residual.
+    ds = norm(as.matrix(s), 'f')
 
-    # Compute absolute and relative tolerances
-    ep <- sqrt(p)*tol$abs + tol$rel*max(norm(as.matrix(x), type = "f"), norm(as.matrix(y), type = "f"))
-    es <- sqrt(p)*tol$abs + tol$rel*norm(as.matrix(y), type = "f")
+    ###  Check if the stopping criteria are satisfied.
+
+    # Compute absolute and relative tolerances.
+    ep = sqrt(p)*tol$abs + tol$rel*max(c(norm(as.matrix(x), 'f'), norm(as.matrix(y), 'f') ))
+    es = sqrt(p)*tol$abs + tol$rel*norm(as.matrix(y), 'f')
 
     # Display current iteration stats.
     if (quiet==FALSE){
-      print(sprintf("it = %g, dr = %e, dr-ep = %e, ds = %e, ds-es = %e, normy = %e",
-                    iter, dr, dr-ep, ds, ds-es, norm(as.matrix(y), 'F')), quote=F)
-      cat("\n")
+      print(sprintf("it = %g, dr = %e, dr-ep = %e, ds = %e, ds-es = %e, normy = %e", iter, dr, dr-ep, ds, ds-es, norm(as.matrix(y), 'F')), quote=F)
     }
 
-    # Check if the residual norms are less than the given tolerance
+    # Check if the residual norms are less than the given tolerance.
     if (max(c(dr - ep, ds - es, 0), na.rm=TRUE)==0 & iter > 10){
       break # The algorithm has converged.
     }
+
   }
 
-  #====================================================================
-  # Output results.
-  #====================================================================
 
-  return(structure(
-    list(call = match.call(),
-         x = x,
-         y = y,
-         z = z,
-         its = iter,
-         errtol = min(c(ep,es))),
-    class = "SZVD_ADMM"))
+  ##############################################################################################
+  # Output results.
+  ##############################################################################################
+  results = list(x=x, y=y, its = iter, z=z, errtol = min(c(ep,es)))
+  return(results)
 }
 
 #' Softmax for SZVD ADMM iterations
@@ -214,5 +222,6 @@ SZVD_ADMM <- function(B,  N, D, sols0, pen_scal, gamma, beta, tol, maxits, quiet
 #' debugging purposes.
 #' @keywords internal
 vec_shrink <- function(v,a){
-  return(sign(v)*pmax(abs(v)-a, rep(0, length(v))))
+  s = sign(v)*pmax(abs(v)-a, rep(0, length(v)))
+  return(s)
 }

@@ -16,6 +16,7 @@
 #' @param penalty Controls whether to apply reweighting of l1-penalty (using sigma = within-class std devs)
 #' @param beta Parameter for augmented Lagrangian term in the ADMM algorithm.
 #' @param tol Stopping tolerances for the ADMM algorithm, must have tol$rel and tol$abs.
+#' @param ztol Threshold for truncating values in DVs to zero.
 #' @param maxits Maximum number of iterations used in the ADMM algorithm.
 #' @param quiet Controls display of intermediate results.
 #' @return \code{SZVDcv} returns an object of \code{\link{class}} "\code{SZVDcv}"
@@ -42,8 +43,8 @@ SZVDcv <- function(Atrain, ...) UseMethod("SZVDcv",Atrain)
 #'
 #' @rdname SZVDcv
 #' @method SZVDcv default
-SZVDcv.default <- function(Atrain, Aval, k, num_gammas, g_mults, D, sparsity_pen, scaling = FALSE, penalty = FALSE, beta, tol, maxits, quiet){
-  # get dimensions of the training set
+SZVDcv.default <- function(Atrain, Aval, k, num_gammas, g_mults, D, sparsity_pen, scaling, penalty, beta, tol, ztol, maxits, quiet){
+  # Get dimensions of the training set.
   N = dim(Atrain)[1]
   p = dim(Atrain)[2]-1
 
@@ -98,7 +99,7 @@ SZVDcv.default <- function(Atrain, Aval, k, num_gammas, g_mults, D, sparsity_pen
   ##################################################################################
   # Initialize the validation scores.
   ##################################################################################
-  val_scores = rep(0, times=num_gammas)
+  val_scores = rep(100*dim(Aval)[1]*dim(Aval)[2], times=num_gammas)
   mc_ind = 1
   l0_ind = 1
   best_ind = 1
@@ -137,8 +138,6 @@ SZVDcv.default <- function(Atrain, Aval, k, num_gammas, g_mults, D, sparsity_pen
   # For each gamma, calculate ZVDs and corresponding validation scores.
 
   for (i in (1:num_gammas)){
-
-
     ##################################################################################
     # Initialization.
     ##################################################################################
@@ -147,11 +146,9 @@ SZVDcv.default <- function(Atrain, Aval, k, num_gammas, g_mults, D, sparsity_pen
     DVs[[i]] = matrix(0, nrow = p, ncol = (k-1))
     its[[i]] = rep(0, times=(k-1))
 
-
     # Initialize B and N.
     B = B0
     N = N0
-
 
     # Set x0 to be the unpenalized zero-variance discriminant vectors in Null(W0)
     if (dim(B0)[2] == 1){
@@ -172,7 +169,6 @@ SZVDcv.default <- function(Atrain, Aval, k, num_gammas, g_mults, D, sparsity_pen
     ##################################################################################
 
     for (j in 1:(k-1)){
-
       ## Call ADMM solver.
       tmp = SZVD_ADMM(B = B,  N = N, D=D, pen_scal=s,
                       sols0 = list(x = x0, y = w0$dvs[,j], z= as.matrix(rep(0,p))),
@@ -192,7 +188,6 @@ SZVDcv.default <- function(Atrain, Aval, k, num_gammas, g_mults, D, sparsity_pen
       ##################################################################################
 
       if (j < (w0$k-1)) {
-
         # Project columns of N onto orthogonal complement of Nx.
         x = as.matrix(DVs[[i]][,j])
         x = x/norm(as.matrix(x), 'f')
@@ -213,32 +208,30 @@ SZVDcv.default <- function(Atrain, Aval, k, num_gammas, g_mults, D, sparsity_pen
         B = t(N) %*% w0$B %*% N
         B = 0.5*(B+t(B))
 
-
         # Update initial solutions in x direction by projecting next unpenalized ZVD vector.
         x0 = t(N)%*% t(D) %*%  w0$dvs[,(j+1)]
-
       }
-
     }
 
     ##################################################################################
     # Get performance scores on the validation set.
     ##################################################################################
     # Call test_ZVD to get predictions, etc.
-    SZVD_res = test_ZVD(DVs[[i]], Aval, w0$means, w0$mu, scaling=scaling)
+    SZVD_res = test_ZVD(DVs[[i]], Aval, w0$means, w0$mu, scaling=scaling, ztol)
 
     ## Update the cross-validation score for this choice of gamma.
 
     # If gamma induces the trivial solution, disqualify gamma by assigning
     # large enough penalty that it can't possibly be chosen.
     if (sum(SZVD_res$stats$l0) < 3){
-      val_scores[i] = 100*dim(Aval)[1]
+      # We found a trivial solution and stop
       triv=TRUE
-    }
-    else{
-      # if all discriminant vectors are nontrivial use the formula:
-      # e_q = %misclassified + % nonzero.
-      val_scores[i] = SZVD_res$stats$mc + sparsity_pen*sum(SZVD_res$stats$l0)/(p*(k-1))
+    } else if(sum(SZVD_res$stats$l0) < (k-1)*p*sparsity_pen){
+      # Solution is sparse enough so we measure by classification performance
+      val_scores[i] = SZVD_res$stats$mc #+ sparsity_pen*sum(SZVD_res$stats$l0)/(p*(k-1))
+    } else{
+      # Solution is not sparse enough, so amount of sparsity is added as a penalty
+      scores[f,i] <- sum(SZVD_res$stats$l0) + sparsity_pen*sum(SZVD_res$stats$l0)/(p*(k-1))
     }
 
 
@@ -281,26 +274,15 @@ SZVDcv.default <- function(Atrain, Aval, k, num_gammas, g_mults, D, sparsity_pen
   val_x = DVs[[best_ind]]
 
   # Return best ZVD, gamma, lists of gammas and validation scores, etc.
-  return(structure(list(call = match.call(),
-                        DVs = val_x,
-                        all_DVs = DVs,
-                        l0_DVs = l0_x,
-                        mc_DVs = mc_x,
-                        gamma = gammas[best_ind,],
-                        gammas = gammas,
-                        max_g = max_gamma,
-                        ind=best_ind,
-                        scores=val_scores,
-                        w0=w0,
-                        x0=x0),
-              class="SZVDcv"))
+  return(list(DVs = val_x, all_DVs = DVs, l0_DVs = l0_x, mc_DVs = mc_x, gamma = gammas[best_ind,], gammas = gammas, max_g = max_gamma,
+              ind=best_ind, scores=val_scores, w0=w0, x0=x0))
 }
 
 #' @export
 SZVDcv.matrix <- function(Atrain, ...){
   res <- SZVDcv.default(Atrain, ...)
-  cl <- match.call()
-  cl[[1L]] <- as.name("SZVDcv")
-  res$call <- cl
+  #cl <- match.call()
+  #cl[[1L]] <- as.name("SZVDcv")
+  #res$call <- cl
   res
 }

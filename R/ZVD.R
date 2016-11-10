@@ -31,11 +31,6 @@ ZVD <- function (A, ...) UseMethod("ZVD",A)
 #' @rdname ZVD
 #' @method ZVD default
 ZVD.default <- function(A, scaling = FALSE, get_DVs = FALSE){
-  ######################################################################
-  # Extract class labels from observed signals.
-  # Training data is represented as matrix A with observations as rows. First row is vector of class labels.
-  ######################################################################
-
   classes = factor(A[,1])
   X = as.matrix(data.frame(A[,2:dim(A)[2]]))
 
@@ -59,6 +54,10 @@ ZVD.default <- function(A, scaling = FALSE, get_DVs = FALSE){
     # Divide each feature by its standard deviation to ensure each feature has variance equal to one.
     X = X%*% diag(1/sig)
   }
+
+
+
+
 
   #########################################################
   #### Extract classes from the observations.
@@ -136,7 +135,7 @@ ZVD.default <- function(A, scaling = FALSE, get_DVs = FALSE){
   #######################################################
   if (get_DVs){
     # Find the null-vectors of W.
-    S = eigen(W, symmetric=TRUE)
+    S = eigen(W, symmetric=TRUE,)
     ds = sort(S$values, index.return=TRUE, decreasing=TRUE)
     V = as.matrix(S$vectors[,ds$ix])
     zeros = (ds$x < 1e-6)
@@ -153,6 +152,8 @@ ZVD.default <- function(A, scaling = FALSE, get_DVs = FALSE){
       # Project back to the original space.
       w = N %*% w
     }
+
+
   }
 
   #######################################################
@@ -166,33 +167,13 @@ ZVD.default <- function(A, scaling = FALSE, get_DVs = FALSE){
 
   # Output list.
   if (get_DVs){
-    ZVDout = structure(list(call = match.call(),
-                            dvs=w,
-                            B=B,
-                            W=W,
-                            N=N,
-                            mu=mu,
-                            means=classMeans,
-                            k=K,
-                            labels=classes,
-                            obs=X,
-                            class_obs=class_obs,
-                            sizes=sizes),
-                       class="ZVD")
+    ZVD = list(dvs=w, B=B, W=W, N=N, mu=mu, means=classMeans, k=K, labels=classes, obs=X, class_obs=class_obs, sizes=sizes)
   } else{
-    ZVDout = structure(list(call = match.call(),
-                            B=B,
-                            W=W,
-                            mu=mu,
-                            means=classMeans,
-                            k=K, labels=classes,
-                            obs=X,
-                            class_obs=class_obs,
-                            sizes=sizes),
-                       class = "ZVD")
+    ZVD = list(B=B, W=W, mu=mu, means=classMeans, k=K, labels=classes, obs=X, class_obs=class_obs, sizes=sizes)
   }
+
   ## Return output.
-  return(ZVDout)
+  return(ZVD)
 }
 
 #' @export

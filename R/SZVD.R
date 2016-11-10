@@ -40,43 +40,42 @@ SZVD <- function (train, ...) UseMethod("SZVD",train)
 #' @rdname SZVD
 #' @method SZVD default
 SZVD.default <- function(train, gamma, D, penalty=TRUE, scaling=TRUE, tol = list(abs=1e-4, rel=1e-4), maxits = 2000, beta=1, quiet=TRUE){
-  #==============================================================================================
+  ######################################################################
   # Preprocess the training set.
-  #==============================================================================================
+  ######################################################################
 
-  #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  ######################################################################
   # Get covariance matrices and initial solutions.
-  #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  ######################################################################
 
-  # Get dimensions of the training set
-  n <- dim(train)[1]
-  p <- dim(train)[2]-1
+  # Get dimensions of the training set.
+  n = dim(train)[1]
+  p = dim(train)[2] - 1
 
-  # Call ZVD to process the training data
-  w0 <- ZVD(train, scaling = scaling, get_DVs = TRUE)
+  # Call ZVD to process training data.
+  w0 = ZVD(train, scaling=scaling, get_DVs = TRUE)
 
-  # Normalize B (divide by the spectral norm)
-  if(dim(w0$B)[2] == 1){
-    w0$B <- w0$B/norm(w0$B, type = "f")
-  } else{
+  ## Normalize B (divide by the spectral norm)
+  if (dim(w0$B)[2]==1){
+    w0$B = w0$B/norm(w0$B, type='f')
+  }  else{
     w0$B = 0.5*(w0$B + t(w0$B))/eigen(0.5*(w0$B + t(w0$B)), symmetric=TRUE, only.values=TRUE)$values[1]
   }
 
-  # Force N to be a matrix
-  w0$N <- as.matrix(w0$N)
+  # Force N to be a matrix.
+  w0$N = as.matrix(w0$N)
 
-  # Extract scaling vector for weighted l1 penalty and diagonal penalty matrix
-  if(penalty == TRUE){
-    # scaling vector is the standard deviations of each feature.
-    s <- sqrt(diag(w0$W))
-  } else{
-    # scaling vector is all-ones (i.e., no scaling)
+  # Extract scaling vector for weighted l1 penalty and diagonal penalty matrix.
+  if (penalty==TRUE){ # scaling vector is the std deviations of each feature.
+    s = sqrt(diag(w0$W))
+  }  else if(penalty==FALSE){ # scaling vector is all-ones (i.e., no scaling)
     s = rep(1, times=p)
   }
 
-  #==============================================================================================
-  # Initialize missing arguments
-  #==============================================================================================
+
+  ######################################################################
+  # Initialize missing arguments.
+  ######################################################################
 
   # If gamma is missing, use ratio of objectives for the ZVDs to get "good" guess for gamma.
   if (missing(gamma)){
@@ -85,18 +84,23 @@ SZVD.default <- function(train, gamma, D, penalty=TRUE, scaling=TRUE, tol = list
     }   else{
       gamma = apply(w0$dvs, 2, function(x){(t(x) %*% w0$B %*% x)/sum(abs(s*x))})
     }
+
     ## Scale gamma.
     gamma=0.75*gamma
+
   }
+
+
 
   # If dictionary D missing, use the identity matrix.
   if (missing(D)){
     D = diag(p)
   }
 
-  #==============================================================================================
+
+  ######################################################################
   # Initialization for the algorithm.
-  #==============================================================================================
+  ######################################################################
 
   # Initialize output.
   DVs = matrix(0, nrow = p, ncol = (w0$k-1))
@@ -113,19 +117,16 @@ SZVD.default <- function(train, gamma, D, penalty=TRUE, scaling=TRUE, tol = list
   # Initialize nullspace matrix.
   N = w0$N
 
-  #==============================================================================================
-  # Find the DVs sequentially using ADMM.
-  #==============================================================================================
 
-  for(i in 1:(w0$k-1)){
-    # Initial solution
-    sols0 <- list(x = t(N)%*%crossprod(D,w0$dvs[,i]),
-                  y = w0$dvs[,i],
-                  z = matrix(0,p,1))
+  ######################################################################
+  # Find the DVs iteratively using ADMM.
 
-    #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    # Call ADMM solver.
-    #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+  for (i in 1:(w0$k-1)){
+
+    ######################################################################
+    ## Call ADMM solver.
+    ######################################################################
     tmp = SZVD_ADMM(B = B0,  N = N, D=D, pen_scal=s,
                     gamma=gamma[i], beta=beta, tol=tol, maxits=maxits, quiet=TRUE)
 
@@ -138,9 +139,11 @@ SZVD.default <- function(train, gamma, D, penalty=TRUE, scaling=TRUE, tol = list
 
     }
 
-    #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    # Update N using QR.
-    #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+    ######################################################################
+    ## Update N using QR.
+    ######################################################################
     if (i < (w0$k-1)) {
       # Project columns of N onto orthogonal complement of Nx.
       x = DVs[,i]
@@ -160,21 +163,19 @@ SZVD.default <- function(train, gamma, D, penalty=TRUE, scaling=TRUE, tol = list
       # Update B0 according to the new basis N.
       B0 = t(N) %*% w0$B %*% N
       B0 = 0.5*(B0+t(B0))
-    } # End if.
-  } # End for.
 
-  #==============================================================================================
+    } # End if.
+
+
+    ######################################################################
+
+
+  } # End for.
+  ######################################################################
   # Prep output.
-  #==============================================================================================
-  return(structure(list(call = match.call(),
-                        DVs = DVs,
-                        its = its,
-                        pen_scal = s,
-                        N = N,
-                        means = w0$means,
-                        mus = w0$mu,
-                        w0 = w0),
-                   class = "SZVD"))
+  ######################################################################
+
+  return(list(DVs=DVs, its=its, gamma=gamma, pen_scal=s, D=D, N = N, means = w0$means, mus = w0$mu, w0 = w0))
 }
 
 #' @export
