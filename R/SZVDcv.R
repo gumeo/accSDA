@@ -171,8 +171,8 @@ SZVDcv.default <- function(Atrain, Aval, k, num_gammas, g_mults, D, sparsity_pen
       ## Call ADMM solver.
       tmp = SZVD_ADMM(B = B,  N = N, D=D, pen_scal=s,
                       sols0 = list(x = x0, y = w0$dvs[,j], z= as.matrix(rep(0,p))),
-                      gamma=gammas[12,j], beta=1.1, tol=tol,
-                      maxits=maxits, quiet=FALSE)
+                      gamma=gammas[i,j], beta=beta, tol=tol,
+                      maxits=maxits, quiet=TRUE)
 
       # Extract i-th discriminant vector.
       DVs[[i]][,j] = matrix(D%*%N%*%tmp$x, nrow=p, ncol=1)
