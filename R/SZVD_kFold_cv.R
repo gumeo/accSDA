@@ -151,7 +151,7 @@ SZVD_kFold_cv.default <- function(X, Y, folds, gams, beta, D, q, maxits, tol, zt
   ###
 
   # Call ZVD function to solve the unpenalized problem.
-  w0 = ZVD(Atrain, scaling=scaling, get_DVs=TRUE)
+  w0 = ZVD(Atrain, scaling=FALSE, get_DVs=TRUE)
 
   # Extract scaling vector for weighted l1 penalty and diagonal penalty matrix.
   if (penalty==TRUE){ # scaling vector is the std deviations of each feature.
