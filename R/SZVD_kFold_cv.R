@@ -90,6 +90,11 @@ SZVD_kFold_cv.default <- function(X, Y, folds, gams, beta, D, q, maxits, tol, zt
   mc <- matrix(0,nrow = folds, ncol = num_gammas)
 
   for(f in 1:folds){
+    if(!quiet){
+      print("-------------------------------------------")
+      print(paste("Fold number:",f))
+      print("-------------------------------------------")
+    }
     ## Initialization
 
     # Extract X and Y data
@@ -116,7 +121,7 @@ SZVD_kFold_cv.default <- function(X, Y, folds, gams, beta, D, q, maxits, tol, zt
                     tol = tol,
                     ztol = ztol,
                     maxits = maxits,
-                    quiet = TRUE)
+                    quiet = quiet)
 
     scores[f,] <- resCV$scores
   } # End folds
