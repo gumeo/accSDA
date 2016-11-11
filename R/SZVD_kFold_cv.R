@@ -180,6 +180,7 @@ SZVD_kFold_cv.default <- function(X, Y, folds, gams, beta, D, q, maxits, tol, zt
   }
 
   # Generate range of gammas to choose from.
+  g_mults <- c(0,1) # hardcoded for now
   gammas = sapply(max_gamma, function(x){seq(from=g_mults[1]*x, to=g_mults[2]*x, length=num_gammas)})
   gambest = gammas[gbest,]
   ###
