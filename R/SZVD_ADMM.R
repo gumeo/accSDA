@@ -49,8 +49,7 @@ SZVD_ADMM <- function(B,  N, D, sols0, pen_scal, gamma, beta, tol, maxits, quiet
     # Compute initial x if omitted.
     if (missing(sols0)){
       x = w/norm(w,'f')
-    }
-    else{
+    } else{
       x = sols0$x
     }
 

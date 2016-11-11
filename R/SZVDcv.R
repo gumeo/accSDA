@@ -159,21 +159,20 @@ SZVDcv.default <- function(Atrain, Aval, k, num_gammas, g_mults, D, sparsity_pen
       # Use normalized w as initial x.
       x0 = w/norm(w,'f')
 
-    }
-    else{
+    }else{
       x0 = t(N0)%*% t(D) %*%  w0$dvs[,1]
     }
 
     ##################################################################################
     ### Get DVs
     ##################################################################################
-
+    # Some low gamma values produce NaNs from SZVD_ADMM, so we need to handle that
     for (j in 1:(k-1)){
       ## Call ADMM solver.
       tmp = SZVD_ADMM(B = B,  N = N, D=D, pen_scal=s,
                       sols0 = list(x = x0, y = w0$dvs[,j], z= as.matrix(rep(0,p))),
-                      gamma=gammas[i,j], beta=beta, tol=tol,
-                      maxits=maxits, quiet=TRUE)
+                      gamma=gammas[12,j], beta=1.1, tol=tol,
+                      maxits=maxits, quiet=FALSE)
 
       # Extract i-th discriminant vector.
       DVs[[i]][,j] = matrix(D%*%N%*%tmp$x, nrow=p, ncol=1)
@@ -211,7 +210,7 @@ SZVDcv.default <- function(Atrain, Aval, k, num_gammas, g_mults, D, sparsity_pen
         # Update initial solutions in x direction by projecting next unpenalized ZVD vector.
         x0 = t(N)%*% t(D) %*%  w0$dvs[,(j+1)]
       }
-    }
+    } # end DVs
 
     ##################################################################################
     # Get performance scores on the validation set.
@@ -267,7 +266,7 @@ SZVDcv.default <- function(Atrain, Aval, k, num_gammas, g_mults, D, sparsity_pen
       break
     }
 
-  }
+  } # end folds
   ##################################################################################
 
   # Export discriminant vectors found using validation.
