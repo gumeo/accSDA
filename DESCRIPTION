@@ -2,10 +2,7 @@ Package: accSDA
 Version: 0.1
 Date: 2016-01-26
 Authors@R: c(
-    person("Gudmundur", "Einarsson", , "gumeo140688@gmail.com", role = c("aut", "cre", "trl")),
-    person("Line", "Clemmensen", , "lkhc@dtu.dk", role = c("aut","ths")),
-    person("Brendan", "Ames", , "bpames@ua.edu", role = c("aut")),
-    person("Summer", "Atkins", , "sratkins@crimson.ua.edu", role = c("aut"))
+    person("Anon", "Anonymous", , "anon@anon.anon", role = c("aut", "cre", "trl"))
     )
 Title: Accelerated Sparse Discriminant Analysis
 Imports:
