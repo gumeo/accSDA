@@ -25,4 +25,3 @@ debugging purposes.
 \seealso{
 Alternative \code{\link[MASS]{Null}} function in MASS package.
 }
-

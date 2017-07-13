@@ -55,4 +55,3 @@ by Clemmensen et al. 2011.
 \code{SDADcv}, \code{\link{SDAAP}} and \code{\link{SDAP}}
 }
 \keyword{internal}
-

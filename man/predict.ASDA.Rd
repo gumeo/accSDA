@@ -40,7 +40,7 @@ The input matrix newdata should be normalized w.r.t. the normalization
     Xtest <- iris[-train,1:4]
     Xtest <- normalizetest(Xtest,nX)
     Ytest <- iris[-train,5]
-    
+
     # Define parameters for SDAD
     Om <- diag(4)+0.1*matrix(1,4,4) #elNet coef mat
     gam <- 0.01
@@ -53,7 +53,7 @@ The input matrix newdata should be normalized w.r.t. the normalization
                     maxits = 100,
                     tol = 1e-3,
                     quiet = FALSE)
-    
+
     # Run the algorithm
     res <- ASDA(Xt = Xtrain,
                 Yt = Ytrain,
@@ -63,11 +63,10 @@ The input matrix newdata should be normalized w.r.t. the normalization
                 q = q,
                 method = method,
                 control = control)
-                
+
     # Do the predictions on the test set
     preds <- predict(object = res, newdata = Xtest)
 }
 \seealso{
 \code{\link{SDAAP}}, \code{\link{SDAP}} and \code{\link{SDAD}}
 }
-

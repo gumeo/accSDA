@@ -36,9 +36,6 @@ print(Nm$Xc)
 ## See if any variables have been removed
 which(!Nm$Id)
 }
-\author{
-Line Clemmensen
-}
 \references{
 Clemmensen, L., Hastie, T. and Ersboell, K. (2008)
 "Sparse discriminant analysis", Technical report, IMM, Technical University of Denmark
@@ -46,4 +43,6 @@ Clemmensen, L., Hastie, T. and Ersboell, K. (2008)
 \seealso{
 \code{\link{normalizetest}}, \code{\link{predict.ASDA}}, \code{\link{ASDA}}
 }
-
+\author{
+Line Clemmensen
+}

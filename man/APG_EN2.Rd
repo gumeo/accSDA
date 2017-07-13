@@ -42,4 +42,3 @@ debugging purposes.
 Used by: \code{\link{SDAAP}} and the \code{SDAAPcv} cross-validation version.
 }
 \keyword{internal}
-

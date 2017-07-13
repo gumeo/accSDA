@@ -91,7 +91,7 @@ SDAD.default <- function(Xt, Yt, Om, gam, lam, mu, q, PGsteps, PGtol, maxits, to
     }
 
     # Initialize theta
-    theta <- Mj(matrix(runif(K),nrow=K,ncol=1))
+    theta <- Mj(matrix(stats::runif(K),nrow=K,ncol=1))
     theta <- theta/as.numeric(sqrt(crossprod(theta, D)%*%theta))
 
     # Initialize coefficient vector for elastic net step

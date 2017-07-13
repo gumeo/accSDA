@@ -60,4 +60,3 @@ Maybe call it ASZDA. For that purpose the individual ZVD function will need to b
 \seealso{
 Used by: \code{\link{SZVDcv}}.
 }
-

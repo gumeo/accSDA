@@ -135,7 +135,7 @@ SDAAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxit
         }
 
         # Initialize theta
-        theta <- Mj(matrix(runif(K),nrow=K,ncol=1))
+        theta <- Mj(matrix(stats::runif(K),nrow=K,ncol=1))
         theta <- theta/as.numeric(sqrt(t(theta)%*%D%*%theta))
 
         # Initialize beta

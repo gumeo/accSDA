@@ -58,4 +58,3 @@ This function might require a wrapper similar to ASDA.
 \seealso{
 Used by: \code{\link{SZVDcv}}.
 }
-

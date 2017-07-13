@@ -109,7 +109,7 @@ The input matrix Xt should be normalized, i.e. each column corresponding to
     Xtest <- iris[-train,1:4]
     Xtest <- normalizetest(Xtest,nX)
     Ytest <- iris[-train,5]
-    
+
     # Define parameters for SDAD
     Om <- diag(4)+0.1*matrix(1,4,4) #elNet coef mat
     gam <- 0.01
@@ -122,7 +122,7 @@ The input matrix Xt should be normalized, i.e. each column corresponding to
                     maxits = 100,
                     tol = 1e-3,
                     quiet = FALSE)
-    
+
     # Run the algorithm
     res <- ASDA(Xt = Xtrain,
                 Yt = Ytrain,
@@ -132,11 +132,10 @@ The input matrix Xt should be normalized, i.e. each column corresponding to
                 q = q,
                 method = method,
                 control = control)
-    
+
     # Can also just use the defaults, which is SDAAP:
     resDef <- ASDA(Xtrain,Ytrain)
 }
 \seealso{
 \code{\link{SDAAP}}, \code{\link{SDAP}} and \code{\link{SDAD}}
 }
-

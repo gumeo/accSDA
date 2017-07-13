@@ -70,4 +70,3 @@ This function is used as a quick diagnostics tool for the output from the ASDA f
 \seealso{
 \code{\link{ASDA}}
 }
-

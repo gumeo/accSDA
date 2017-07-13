@@ -47,4 +47,3 @@ debugging purposes.
 Used by: \code{\link{SDAD}} and the \code{SDADcv} cross-validation version.
 }
 \keyword{internal}
-

@@ -83,7 +83,7 @@
 #'     Xtest <- iris[-train,1:4]
 #'     Xtest <- normalizetest(Xtest,nX)
 #'     Ytest <- iris[-train,5]
-#'     
+#'
 #'     # Define parameters for SDAD
 #'     Om <- diag(4)+0.1*matrix(1,4,4) #elNet coef mat
 #'     gam <- 0.01
@@ -96,7 +96,7 @@
 #'                     maxits = 100,
 #'                     tol = 1e-3,
 #'                     quiet = FALSE)
-#'     
+#'
 #'     # Run the algorithm
 #'     res <- ASDA(Xt = Xtrain,
 #'                 Yt = Ytrain,
@@ -106,7 +106,7 @@
 #'                 q = q,
 #'                 method = method,
 #'                 control = control)
-#'     
+#'
 #'     # Can also just use the defaults, which is SDAAP:
 #'     resDef <- ASDA(Xtrain,Ytrain)
 #' @rdname ASDA
@@ -122,27 +122,27 @@ ASDA.default <- function(Xt, Yt, Om = diag(p), gam = 1e-3, lam = 1e-6, q = K-1, 
 
   # Similar to the use of the optim function in stats from base
   ## Defaults for the control variables:
-  con <- list(PGsteps = 1000, 
-              PGtol = 1e-5, 
+  con <- list(PGsteps = 1000,
+              PGtol = 1e-5,
               maxits = 250,
               tol = 1e-3,
-              mu = NA, 
-              CV = FALSE, 
+              mu = NA,
+              CV = FALSE,
               folds = 5,
-              feat = 0.15, 
+              feat = 0.15,
               quiet = TRUE)
   nmsC <- names(con)
   if(method == "SDAD"){
     # Set special defaults for SDAD
     con$mu <- 1
     PGtol = c(1e-5,1e-5)
-  } 
+  }
   # Overwrite with user supplied input!
   con[(namc <- names(control))] <- control
   # Warn user of input that cannot be used!
   if(length(noNms <- namc[!namc %in% nmsC]))
     warning("unknown names in control: ", paste(noNms,collapse=", "))
-  
+
   # This is straight from nnet:::formula
   # This is used later to handle Yt as a factor
   class.ind <- function(cl) {
@@ -219,7 +219,7 @@ ASDA.default <- function(Xt, Yt, Om = diag(p), gam = 1e-3, lam = 1e-6, q = K-1, 
       stop("PGtol must be a single numeric value when method is not SDAD!")
     }
   }
-  
+
   maxits <- con$maxits
   if(maxits < 0){
     stop("maxits must be positive")
@@ -307,7 +307,7 @@ ASDA.default <- function(Xt, Yt, Om = diag(p), gam = 1e-3, lam = 1e-6, q = K-1, 
   } else{
     lambest <- lam
   }
-  
+
   # Check if we get the trivial solution
   if (all(B==0)){
     # lda will throw error in this case
@@ -380,7 +380,7 @@ ASDA.matrix <- function(Xt, ...){
 #'     Xtest <- iris[-train,1:4]
 #'     Xtest <- normalizetest(Xtest,nX)
 #'     Ytest <- iris[-train,5]
-#'     
+#'
 #'     # Define parameters for SDAD
 #'     Om <- diag(4)+0.1*matrix(1,4,4) #elNet coef mat
 #'     gam <- 0.01
@@ -393,7 +393,7 @@ ASDA.matrix <- function(Xt, ...){
 #'                     maxits = 100,
 #'                     tol = 1e-3,
 #'                     quiet = FALSE)
-#'     
+#'
 #'     # Run the algorithm
 #'     res <- ASDA(Xt = Xtrain,
 #'                 Yt = Ytrain,
@@ -403,7 +403,7 @@ ASDA.matrix <- function(Xt, ...){
 #'                 q = q,
 #'                 method = method,
 #'                 control = control)
-#'                 
+#'
 #'     # Do the predictions on the test set
 #'     preds <- predict(object = res, newdata = Xtest)
 #' @rdname predict.ASDA
@@ -420,7 +420,7 @@ predict.ASDA <- function(object, newdata = NULL, ...)
 
   }
   xnew <- newdata %*% object$beta
-  pred <- predict(object$fit,xnew)
+  pred <- MASS::predict.lda(object$fit,xnew)
   pred
 }
 
@@ -433,7 +433,7 @@ predict.ASDA <- function(object, newdata = NULL, ...)
 #' @param digits Number of digits to show in printed numbers.
 #' @param numshow Number of best ranked variables w.r.t. to their absolute coeffiecients.
 #' @param ... arguments passed to or from other methods.
-#' 
+#'
 #' @return An invisible copy of \code{x}.
 #' @seealso \code{\link{ASDA}}, \code{\link{predict.ASDA}} and \code{\link{SDAD}}
 #' @examples
@@ -446,11 +446,11 @@ predict.ASDA <- function(object, newdata = NULL, ...)
 #'     Xtest <- iris[-train,1:4]
 #'     Xtest <- normalizetest(Xtest,nX)
 #'     Ytest <- iris[-train,5]
-#'     
+#'
 #'     # Run the algorithm
 #'     resDef <- ASDA(Xtrain,Ytrain)
-#'     
-#'     # Print 
+#'
+#'     # Print
 #'     print(resDef)
 #' @rdname print.ASDA
 #' @export
@@ -460,27 +460,27 @@ print.ASDA <- function(x, digits = max(3, getOption("digits") - 3), numshow = 5,
   cat("\nCall:\n", deparse(x$call), "\n\n", sep = "")
   # Gather classes into a string
   classInfo <- paste(x$classes, collapse = ", ")
-  
+
   cat("lambda =", format(x$lambda, digits = digits),
       "\nclasses =", classInfo,
       "\n\n")
-  
+
   top <- if(!is.null(x$varNames)) x$varNames else paste("Predictor", 1:dim(x$beta)[1], sep = "")
   varOrder <- if(is.matrix(x$beta)) order(apply(abs(x$beta), 1, sum)) else order(abs(x$beta))
   top <- top[varOrder]
   top <- top[1:min(numshow, length(top))]
   top <- paste(top, collapse = ", ")
   topStr <- paste("Top", min(numshow, dim(x$beta)[1]),"predictors:\t")
-  
+
   cat(topStr,
       top,
       "\n",
       sep = "")
-  
+
   invisible(x)
 }
 
-# TODO: 
+# TODO:
 #-----------------------------------------------------------------------------------------------
 #       Implement barplot
 #-----------------------------------------------------------------------------------------------

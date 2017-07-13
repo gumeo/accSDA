@@ -68,4 +68,3 @@ This function might require a wrapper similar to ASDA.
 \seealso{
 Non CV version: \code{\link{SZVD}}.
 }
-

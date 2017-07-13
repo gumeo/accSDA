@@ -46,8 +46,8 @@ ZVD.default <- function(A, scaling = FALSE, get_DVs = FALSE){
   if (scaling){
     # Compute standard deviation of each feature.
     sig = apply(X=X,MARGIN=2, FUN = function(y){
-      if(sd(y)==0) {return(1)}
-      else{return(sd(y))}
+      if(stats::sd(y)==0) {return(1)}
+      else{return(stats::sd(y))}
     }
     )
 

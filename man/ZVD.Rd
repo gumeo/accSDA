@@ -43,4 +43,3 @@ This function should potentially be made internal for the release.
 \seealso{
 Used by: \code{\link{SZVDcv}}.
 }
-

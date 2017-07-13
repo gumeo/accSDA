@@ -23,4 +23,3 @@ same class as the name of the function and provide the lda
 solution, along with the projected data, thus other kinds
 of discriminant analysis can be performed on the projected data.
 }
-

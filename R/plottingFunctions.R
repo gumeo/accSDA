@@ -74,7 +74,7 @@ barplot.ASDA <- function(asdaObj, numDVs = 1, xlabel, ylabel, getList = FALSE, m
              legend.position = "bottom",
              legend.direction = "horizontal",
              legend.key.size= unit(0.2, "cm"),
-             legend.margin = unit(0, "cm"),
+             legend.spacing = unit(0, "cm"),
              legend.title = element_text(face="italic"),
              plot.margin=unit(c(10,5,5,5),"mm"),
              strip.background=element_rect(colour="#f0f0f0",fill="#f0f0f0"),

@@ -33,14 +33,13 @@ output summarizes the dicriminant analysis in human readable format.
     Xtest <- iris[-train,1:4]
     Xtest <- normalizetest(Xtest,nX)
     Ytest <- iris[-train,5]
-    
+
     # Run the algorithm
     resDef <- ASDA(Xtrain,Ytrain)
-    
-    # Print 
+
+    # Print
     print(resDef)
 }
 \seealso{
 \code{\link{ASDA}}, \code{\link{predict.ASDA}} and \code{\link{SDAD}}
 }
-
