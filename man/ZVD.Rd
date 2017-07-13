@@ -12,6 +12,8 @@ ZVD(A, ...)
 \arguments{
 \item{A}{Matrix, where first column corresponds to class labels.}
 
+\item{...}{Parameters passed to ZVD.default.}
+
 \item{scaling}{Logical whether to rescale data so each feature has variance 1.}
 
 \item{get_DVs}{Logical whether to obtain unpenalized zero-variance discriminant vectors.}

@@ -17,6 +17,7 @@
 #' @param feat Maximum fraction of nonzero features desired in validation scheme.
 #' @param penalty Controls whether to apply reweighting of l1-penalty (using sigma = within-class std devs)
 #' @param quiet toggles between displaying intermediate statistics.
+#' @param ... Parameters passed to SZVD.default.
 #' @return \code{SZVDcv} returns an object of \code{\link{class}} "\code{SZVDcv}"
 #'        including a list with the named components \code{DVs} and \code{gambest}.
 #'        Where \code{DVs} are the discriminant vectors for the best l1 regularization

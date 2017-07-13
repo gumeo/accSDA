@@ -420,7 +420,7 @@ predict.ASDA <- function(object, newdata = NULL, ...)
 
   }
   xnew <- newdata %*% object$beta
-  pred <- predict(object$fit,xnew)
+  pred <- predict(object$fit,xnew, ...)
   pred
 }
 

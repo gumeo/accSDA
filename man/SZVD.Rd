@@ -14,11 +14,13 @@ SZVD(train, ...)
 \arguments{
 \item{train}{Data matrix where first column is the response class.}
 
+\item{...}{Parameters passed to SZVD.default.}
+
 \item{gamma}{Set of regularization parameters controlling l1-penalty.}
 
 \item{D}{dictionary/basis matrix.}
 
-\item{penalty}{Controls whether to apply reweighting of l1-penalty (using sigma = within-class std devs)}
+\item{penalty}{Controls whether to apply reweighting of l1-penalty (using sigma = within-class std devs).}
 
 \item{scaling}{Logical indicating whether to scale data such that each
 feature has variance 1.}
@@ -28,9 +30,9 @@ must include tol$rel and tol$abs.}
 
 \item{maxits}{Maximum number of iterations used in the ADMM algorithm.}
 
-\item{quiet}{Print intermediate outpur or not.}
+\item{beta}{penalty term controlling the splitting constraint.}
 
-\item{penalty}{Controls whether to apply reweighting of l1-penalty (using sigma = within-class std devs).}
+\item{quiet}{Print intermediate outpur or not.}
 }
 \value{
 \code{SZVD} returns an object of \code{\link{class}} "\code{SZVD}" including a list

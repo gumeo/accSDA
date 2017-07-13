@@ -19,6 +19,7 @@
 #' @param ztol Threshold for truncating values in DVs to zero.
 #' @param maxits Maximum number of iterations used in the ADMM algorithm.
 #' @param quiet Controls display of intermediate results.
+#' @param ... Parameters passed to SZVD.default.
 #' @return \code{SZVDcv} returns an object of \code{\link{class}} "\code{SZVDcv}"
 #'        including a list with the following named components:
 #' \describe{

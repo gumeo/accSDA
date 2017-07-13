@@ -6,14 +6,15 @@
 #' @param train Data matrix where first column is the response class.
 #' @param gamma Set of regularization parameters controlling l1-penalty.
 #' @param D dictionary/basis matrix.
-#' @param penalty Controls whether to apply reweighting of l1-penalty (using sigma = within-class std devs)
 #' @param scaling Logical indicating whether to scale data such that each
 #'        feature has variance 1.
 #' @param tol Stopping tolerances for ADMM algorithm,
 #'        must include tol$rel and tol$abs.
+#' @param beta penalty term controlling the splitting constraint.
 #' @param maxits Maximum number of iterations used in the ADMM algorithm.
 #' @param penalty Controls whether to apply reweighting of l1-penalty (using sigma = within-class std devs).
 #' @param quiet Print intermediate outpur or not.
+#' @param ... Parameters passed to SZVD.default.
 #' @return \code{SZVD} returns an object of \code{\link{class}} "\code{SZVD}" including a list
 #' with the following named components:
 #'
@@ -33,7 +34,7 @@
 #' Maybe call it ASZDA. For that purpose the individual ZVD function will need to be implemented.
 #' @rdname SZVD
 #' @export SZVD
-SZVD <- function (train, ...) UseMethod("SZVD",train)
+SZVD <- function (train, ...) UseMethod("SZVD")
 
 #' @return \code{NULL}
 #'

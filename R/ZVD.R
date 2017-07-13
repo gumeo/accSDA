@@ -5,6 +5,7 @@
 #' @param A Matrix, where first column corresponds to class labels.
 #' @param scaling Logical whether to rescale data so each feature has variance 1.
 #' @param get_DVs Logical whether to obtain unpenalized zero-variance discriminant vectors.
+#' @param ... Parameters passed to ZVD.default.
 #' @return \code{SZVDcv} returns an object of \code{\link{class}} "\code{ZVD}"
 #'        including a list with the following named components:
 #' \describe{

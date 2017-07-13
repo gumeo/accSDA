@@ -13,6 +13,8 @@ SZVD_kFold_cv(X, ...)
 \arguments{
 \item{X}{n by p data matrix, variables should be scaled to by sd}
 
+\item{...}{Parameters passed to SZVD.default.}
+
 \item{Y}{n by K indicator matrix.}
 
 \item{folds}{number of folds to use in K-fold cross-validation.}

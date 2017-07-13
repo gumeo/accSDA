@@ -13,6 +13,8 @@ SZVDcv(Atrain, ...)
 \arguments{
 \item{Atrain}{Training data set.}
 
+\item{...}{Parameters passed to SZVD.default.}
+
 \item{Aval}{Validation set.}
 
 \item{k}{Number of classes within training and validation sets.}
