@@ -1,3 +1,6 @@
+
+![alt tag](https://travis-ci.org/gumeo/accSDA.svg?branch=master)
+
 # accSDA
 ## Accelerated Sparse Discriminant Analysis
 
