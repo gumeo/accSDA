@@ -48,11 +48,11 @@
 #'     resIris <- ASDA(Xtrain,Ytrain)
 #'
 #'     # Look at the barplots of the DVs
-#'     barplot(resIris)
+#'     ASDABarPlot(resIris)
 #'   }
-#' @rdname barplot.ASDA
-#' @export barplot.ASDA
-barplot.ASDA <- function(asdaObj, numDVs = 1, xlabel, ylabel, getList = FALSE, main, ...){
+#' @rdname ASDABarPlot
+#' @export ASDABarPlot
+ASDABarPlot <- function(asdaObj, numDVs = 1, xlabel, ylabel, getList = FALSE, main, ...){
   # Found on: https://rpubs.com/Koundy/71792
   theme_Publication <- function(base_size=14, base_family="helvetica") {
     (ggthemes::theme_foundation(base_size=base_size, base_family=base_family)
