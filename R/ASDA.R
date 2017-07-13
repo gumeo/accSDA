@@ -419,7 +419,7 @@ predict.ASDA <- function(object, newdata = NULL, ...)
     #newdata <- newdata[, object$varIndex, drop = FALSE]
 
   }
-  xnew <- newdata %*% object$beta
+  xnew <- newdata %*%object$beta
   pred <- predict(object$fit,xnew, ...)
   pred
 }
