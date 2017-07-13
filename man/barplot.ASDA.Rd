@@ -14,6 +14,12 @@
 number of DVs outputted from the \code{ASDA} function or k-1 DVs where k
 is the number of classes. The first 1 to numDVs are plotted.}
 
+\item{xlabel}{Label to put under every plot}
+
+\item{ylabel}{Vector of y-axis labels for each plot, e.g. if there are three DVs, then
+\code{ylab = c('Discriminant Vector 1', 'Discriminant Vector 2', 'Discriminant Vector 3')}
+is a valid option.}
+
 \item{getList}{Logical value indicating whether the output should be a list of the plots
 or the plots stacked in one plot using the gridExtra package. By default the function
 produces a single plot combining all plots of the DVs.}
@@ -21,12 +27,6 @@ produces a single plot combining all plots of the DVs.}
 \item{main}{Main title for the plots, this is not used if getList is set to \code{TRUE}.}
 
 \item{...}{Extra arguments to \code{grid.arrange}.}
-
-\item{xlab}{Label to put under every plot}
-
-\item{ylab}{Vector of y-axis labels for each plot, e.g. if there are three DVs, then
-\code{ylab = c('Discriminant Vector 1', 'Discriminant Vector 2', 'Discriminant Vector 3')}
-is a valid option.}
 }
 \value{
 \code{barplot.ASDA} returns either a single combined plot or a list of

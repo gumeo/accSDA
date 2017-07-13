@@ -13,8 +13,8 @@
 #' @param numDVs Number of discriminant vectors (DVs) to plot. This is limited by the
 #'        number of DVs outputted from the \code{ASDA} function or k-1 DVs where k
 #'        is the number of classes. The first 1 to numDVs are plotted.
-#' @param xlab Label to put under every plot
-#' @param ylab Vector of y-axis labels for each plot, e.g. if there are three DVs, then
+#' @param xlabel Label to put under every plot
+#' @param ylabel Vector of y-axis labels for each plot, e.g. if there are three DVs, then
 #'        \code{ylab = c('Discriminant Vector 1', 'Discriminant Vector 2', 'Discriminant Vector 3')}
 #'        is a valid option.
 #' @param getList Logical value indicating whether the output should be a list of the plots
@@ -55,40 +55,40 @@
 barplot.ASDA <- function(asdaObj, numDVs = 1, xlabel, ylabel, getList = FALSE, main, ...){
   # Found on: https://rpubs.com/Koundy/71792
   theme_Publication <- function(base_size=14, base_family="helvetica") {
-    (theme_foundation(base_size=base_size, base_family=base_family)
-     + theme(plot.title = element_text(face = "bold",
-                                       size = rel(1.2), hjust = 0.5),
-             text = element_text(),
-             panel.background = element_rect(colour = NA),
-             plot.background = element_rect(colour = NA),
-             panel.border = element_rect(colour = NA),
-             axis.title = element_text(face = "bold",size = rel(1)),
-             axis.title.y = element_text(angle=90,vjust =2),
-             axis.title.x = element_text(vjust = -0.2),
-             axis.text = element_text(),
-             axis.line = element_line(colour="black"),
-             axis.ticks = element_line(),
-             panel.grid.major = element_line(colour="#f0f0f0"),
-             panel.grid.minor = element_blank(),
-             legend.key = element_rect(colour = NA),
+    (ggthemes::theme_foundation(base_size=base_size, base_family=base_family)
+     + ggplot2::theme(plot.title = ggplot2::element_text(face = "bold",
+                                       size = ggplot2::rel(1.2), hjust = 0.5),
+             text = ggplot2::element_text(),
+             panel.background = ggplot2::element_rect(colour = NA),
+             plot.background = ggplot2::element_rect(colour = NA),
+             panel.border = ggplot2::element_rect(colour = NA),
+             axis.title = ggplot2::element_text(face = "bold",size = ggplot2::rel(1)),
+             axis.title.y = ggplot2::element_text(angle=90,vjust =2),
+             axis.title.x = ggplot2::element_text(vjust = -0.2),
+             axis.text = ggplot2::element_text(),
+             axis.line = ggplot2::element_line(colour="black"),
+             axis.ticks = ggplot2::element_line(),
+             panel.grid.major = ggplot2::element_line(colour="#f0f0f0"),
+             panel.grid.minor = ggplot2::element_blank(),
+             legend.key = ggplot2::element_rect(colour = NA),
              legend.position = "bottom",
              legend.direction = "horizontal",
-             legend.key.size= unit(0.2, "cm"),
-             legend.spacing = unit(0, "cm"),
-             legend.title = element_text(face="italic"),
-             plot.margin=unit(c(10,5,5,5),"mm"),
-             strip.background=element_rect(colour="#f0f0f0",fill="#f0f0f0"),
-             strip.text = element_text(face="bold")
+             legend.key.size= ggplot2::unit(0.2, "cm"),
+             legend.spacing = ggplot2::unit(0, "cm"),
+             legend.title = ggplot2::element_text(face="italic"),
+             plot.margin=ggplot2::unit(c(10,5,5,5),"mm"),
+             strip.background=ggplot2::element_rect(colour="#f0f0f0",fill="#f0f0f0"),
+             strip.text = ggplot2::element_text(face="bold")
      ))
 
   }
   DVs <- as.data.frame(asdaObj$beta)
   if(numDVs)
-    if(missing(ylabel) || length(ylab)!=numDVs){
+    if(missing(ylabel) || length(ylabel)!=numDVs){
       colnames(DVs) <- paste('DV',1:numDVs, sep='')
       ylabel <- colnames(DVs)
     }else{
-      colnames(DVs) <- ylab
+      colnames(DVs) <- ylabel
     }
   if(missing(xlabel)){
     xLab <- "Feature number"
@@ -98,29 +98,29 @@ barplot.ASDA <- function(asdaObj, numDVs = 1, xlabel, ylabel, getList = FALSE, m
   DVs$featureNum <- 1:dim(DVs)[1]
   plotList <- list()
   for(i in 1:numDVs){
-    ggObj <- ggplot(data = DVs, aes_string(x = 'featureNum', y=colnames(DVs)[i]))+
-      geom_bar(stat='identity',position='identity') +
-      ylab(ylabel[i]) +
+    ggObj <- ggplot2::ggplot(data = DVs, ggplot2::aes_string(x = 'featureNum', y=colnames(DVs)[i]))+
+      ggplot2::geom_bar(stat='identity',position='identity') +
+      ggplot2::ylab(ylabel[i]) +
       theme_Publication() +
-      geom_hline(aes(yintercept=0))
+      ggplot2::geom_hline(ggplot2::aes(yintercept=0))
     if(i == numDVs || getList){
-      ggObj <- ggObj + xlab(xLab)
+      ggObj <- ggObj + ggplot2::xlab(xLab)
     }else{
-      ggObj <- ggObj + xlab('')
+      ggObj <- ggObj + ggplot2::xlab('')
     }
     plotList[[i]] <- ggObj
   }
   if(missing(main)){
     # Calculate the proportion of nonzero features
-    rS <- rowSums(abs(DVs[,-dim(DVs)[2]]))
-    propNZ <- sum(rS!=0)/dim(DVs)[1]
-    main = textGrob(paste('Total sparsity:', round(propNZ,3)), gp=gpar(fontfamily = "helvetica", fontface = "bold", fontsize = 16))
+    rS <- base::rowSums(abs(DVs[,-base::dim(DVs)[2]]))
+    propNZ <- base::sum(rS!=0)/base::dim(DVs)[1]
+    main = grid::textGrob(paste('Total sparsity:', round(propNZ,3)), gp=grid::gpar(fontfamily = "helvetica", fontface = "bold", fontsize = 16))
   }else{
-    main = textGrob(main, gp=gpar(fontfamily = "helvetica", fontface = "bold", fontsize = 16))
+    main = grid::textGrob(main, gp=grid::gpar(fontfamily = "helvetica", fontface = "bold", fontsize = 16))
   }
   if(getList){
     return(plotList)
   }
-  ml <- marrangeGrob(plotList, nrow=numDVs, ncol=1, top=NULL)
-  return(grid.arrange(grobs = ml, top = main))
+  ml <- gridExtra::marrangeGrob(plotList, nrow=numDVs, ncol=1, top=NULL)
+  return(gridExtra::grid.arrange(grobs = ml, top = main))
 }
