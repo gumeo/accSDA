@@ -1,7 +1,7 @@
 #' Cross-validation of sparse zero variance discriminant analysis
 #'
 #' Applies alternating direction methods of multipliers to solve sparse
-#' zero variance descriminant analysis.
+#' zero variance discriminant analysis.
 #'
 #' @param X n by p data matrix, variables should be scaled to by sd
 #' @param Y n by K indicator matrix.
@@ -11,7 +11,7 @@
 #' @param beta Augmented Lagrangian parameter. Must be greater than zero.
 #' @param D Penalty dictionary basis matrix.
 #' @param q Desired number of discriminant vectors.
-#' @param maxits Number of iterations to runn ADMM algorithm.
+#' @param maxits Number of iterations to run ADMM algorithm.
 #' @param tol Stopping tolerances for ADMM, must have tol$rel and tol$abs.
 #' @param ztol Rounding tolerance for truncating entries to 0.
 #' @param feat Maximum fraction of nonzero features desired in validation scheme.

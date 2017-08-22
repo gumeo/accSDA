@@ -1,5 +1,5 @@
 #' Classify test data using nearest centroid classification and
-#' discriminant vectors leatned from the training set.
+#' discriminant vectors learned from the training set.
 #'
 #' This function is used in SZVDcv and is only meant for internal
 #' use at this stage. Will potentially be released in future versions.
@@ -10,7 +10,7 @@
 #'        (used for computing centroids for classification).
 #' @param mus means/standard devs of the training set,
 #'        (used for centering/normalizing the test data appropriately).
-#' @param scaling Logical indicating wether scaling should be done.
+#' @param scaling Logical indicating whether scaling should be done.
 #'        on the test set.
 #' @param ztol Threshold for setting values in DVs to zero.
 #' @return \code{test_ZVD} returns an object of \code{\link{class}} "\code{test_ZVD}" including a list
