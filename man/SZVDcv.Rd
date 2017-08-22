@@ -48,7 +48,7 @@ cardinality of discriminant vectors.}
        including a list with the following named components:
 \describe{
   \item{\code{DVs}}{Discriminant vectors for the best choice of gamma.}
-  \item{\code{all_DVs}}{Dicriminant vectors for all choices of gamma.}
+  \item{\code{all_DVs}}{Discriminant vectors for all choices of gamma.}
   \item{\code{l0_DVs}}{Discriminant vectors for gamma minimizing cardinality.}
   \item{\code{mc_DVs}}{Discriminant vector minimizing misclassification.}
   \item{\code{gamma}}{Choice of gamma minimizing validation criterion.}
@@ -62,7 +62,7 @@ cardinality of discriminant vectors.}
 }
 \description{
 Applies alternating direction methods of multipliers to solve sparse
-zero variance descriminant analysis.
+zero variance discriminant analysis.
 }
 \details{
 This function might require a wrapper similar to ASDA.

@@ -12,7 +12,7 @@
 
 \item{digits}{Number of digits to show in printed numbers.}
 
-\item{numshow}{Number of best ranked variables w.r.t. to their absolute coeffiecients.}
+\item{numshow}{Number of best ranked variables w.r.t. to their absolute coefficients.}
 
 \item{...}{arguments passed to or from other methods.}
 }
@@ -21,7 +21,7 @@ An invisible copy of \code{x}.
 }
 \description{
 Prints a summary of the output from the \code{\link{ASDA}} function. The
-output summarizes the dicriminant analysis in human readable format.
+output summarizes the discriminant analysis in human readable format.
 }
 \examples{
     # Prepare training and test set

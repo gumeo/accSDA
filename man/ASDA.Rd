@@ -35,7 +35,7 @@ It is specified as a character vector which can be one of the three values
 \describe{
   \item{\code{SDAP}}{Proximal gradient algorithm.}
   \item{\code{SDAAP}}{Accelerated proximal gradient algorithm.}
-  \item{\code{SDAD}}{Alternating directions method of multipliers algortihm.}
+  \item{\code{SDAD}}{Alternating directions method of multipliers algorithm.}
 }}
 
 \item{control}{List of control arguments. See Details.}
@@ -48,7 +48,7 @@ with the following named components:
   \item{\code{call}}{The matched call.}
   \item{\code{B}}{p by q matrix of discriminant vectors, i.e. sparse loadings.}
   \item{\code{Q}}{K by q matrix of scoring vectors, i.e. optimal scores.}
-  \item{\code{varNames}}{Names of the precitors used, i.e. column names of Xt.}
+  \item{\code{varNames}}{Names of the predictors used, i.e. column names of Xt.}
   \item{\code{origP}}{Number of variables in Xt.}
   \item{\code{fit}}{Output from function \code{\link[MASS]{lda}} on projected data.
   This is \code{NULL} the trivial solution is found, i.e. B is all zeroes. Use
@@ -80,7 +80,7 @@ The control list contains the following entries to further tune the
            relative tolerances.}
            \item{\code{maxits}}{Number of iterations to run. Default value is 250.}
            \item{\code{tol}}{Stopping tolerance. Default value is 1e-3.}
-           \item{\code{mu}}{Penalty parameter for augmented lagrangian term,
+           \item{\code{mu}}{Penalty parameter for augmented Lagrangian term,
            must be greater than zero and only needs to be specified when using
            method \code{SDAD}. Default value is 1.}
            \item{\code{CV}}{Logical value which is \code{TRUE} if cross validation is supposed to be

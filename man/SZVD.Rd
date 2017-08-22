@@ -44,7 +44,7 @@ with the following named components:
   \item{\code{pen_scal}}{Weights used in reweighted l1-penalty.}
   \item{\code{N}}{Basis for the null-space of the sample within-class covariance.}
   \item{\code{means}}{Training class-means.}
-  \item{\code{mus}}{Training meand and variance scaling/centring terms.}
+  \item{\code{mus}}{Training meand and variance scaling/centering terms.}
   \item{\code{w0}}{unpenalized zero-variance discriminants (initial solutions) plus B and W, etc.}
 }
 

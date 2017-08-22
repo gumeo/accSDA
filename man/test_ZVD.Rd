@@ -3,7 +3,7 @@
 \name{test_ZVD}
 \alias{test_ZVD}
 \title{Classify test data using nearest centroid classification and
-discriminant vectors leatned from the training set.}
+discriminant vectors learned from the training set.}
 \usage{
 test_ZVD(w, test, classMeans, mus, scaling, ztol)
 }
@@ -18,7 +18,7 @@ test_ZVD(w, test, classMeans, mus, scaling, ztol)
 \item{mus}{means/standard devs of the training set,
 (used for centering/normalizing the test data appropriately).}
 
-\item{scaling}{Logical indicating wether scaling should be done.
+\item{scaling}{Logical indicating whether scaling should be done.
 on the test set.}
 
 \item{ztol}{Threshold for setting values in DVs to zero.}

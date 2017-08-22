@@ -28,7 +28,7 @@ See details for how max_gamma is computed in the function.}
 
 \item{q}{Desired number of discriminant vectors.}
 
-\item{maxits}{Number of iterations to runn ADMM algorithm.}
+\item{maxits}{Number of iterations to run ADMM algorithm.}
 
 \item{tol}{Stopping tolerances for ADMM, must have tol$rel and tol$abs.}
 
@@ -51,7 +51,7 @@ See details for how max_gamma is computed in the function.}
 }
 \description{
 Applies alternating direction methods of multipliers to solve sparse
-zero variance descriminant analysis.
+zero variance discriminant analysis.
 }
 \details{
 Add how max_gamma is calculated from the ZVD solution.

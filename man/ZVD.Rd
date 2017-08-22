@@ -26,7 +26,7 @@ ZVD(A, ...)
   \item{\code{B}}{sample between-class covariance.}
   \item{\code{W}}{sample within-class covariance.}
   \item{\code{N}}{basis for the null space of the sample within-class covariance.}
-  \item{\code{mu}}{training mean and variance scaling/centring terms}
+  \item{\code{mu}}{training mean and variance scaling/centering terms}
   \item{\code{means}}{vectors of sample class-means.}
   \item{\code{k}}{number of classes in given data set.}
   \item{\code{labels}}{list of classes.}
