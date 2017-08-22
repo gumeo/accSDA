@@ -4,10 +4,15 @@
 # accSDA
 ## Accelerated Sparse Discriminant Analysis
 
+This is the `R`-package accompanying the paper [Proximal Methods for Sparse Optimal Scoring and Discriminant Analysis](https://arxiv.org/pdf/1705.07194.pdf).
+
 This package is currently under development, although most of the functionality is there already! You can now do sparse discriminant analysis with the package, but the visualization tools are being implemented and tested.
 
 # Installation
-To install the package from github you first need the `devtools` package. So install that if you haven't gotten it already!
+
+You can install the package from CRAN or for the development version, you can install directly from github.
+
+To install packages from github you need the `devtools` package. So install that if you haven't gotten it already!
 
 Now you can proceed to install the package:
 ```R
@@ -69,3 +74,6 @@ Now that you have gotten some results, you want to test the performance on the t
 preds <- predict(res, newdata = Xtest)
 ```
 
+# Future plans
+
+Coming releases will include more plotting and printing functionality for the `ASDA` objects. A C++ backend is also in the pipeline along with some further extensions to handle different types of data.
