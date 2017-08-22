@@ -4,4 +4,4 @@
 
 * This version of the package contains implementation of novel optimization approaches to solve the *sparse optimal scoring problem*. Future releases will focus on further improvements and additional tools to work with the results.
 
-* If you have any questions please send a mail to: (guei@dtu.dk)
+* If you have any questions please send a mail to: (gumeo140688@gmail.com)
