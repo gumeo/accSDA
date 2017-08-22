@@ -5,4 +5,5 @@ citEntry(entry = "article",
   title = "Proximal Methods for Sparse Optimal Scoring and Discriminant Analysis",
   journal = "arXiv preprint arXiv:1705.07194",
   year = "2017"
+  textVersion = "Atkins et al. Proximal Methods for Sparse Optimal Scoring and Discriminant Analysis. arXiv preprint arXiv:1705.07194, 2017."
 )
