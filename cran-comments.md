@@ -8,3 +8,6 @@
 There were no ERRORs, WARNINGs.
 
 There was 1 note regarding pandoc for README.md and NEWS.md, pandoc is not available for the used version of R.
+
+## Last submission
+I got feedback from the last submission that I needed to add more to the description and add more examples. This has been fixed.
