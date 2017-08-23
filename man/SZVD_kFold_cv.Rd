@@ -57,6 +57,43 @@ zero variance discriminant analysis.
 Add how max_gamma is calculated from the ZVD solution.
 This function might require a wrapper similar to ASDA.
 }
+\examples{
+  P <- 300 # Number of variables
+  N <- 50 # Number of samples per class
+
+  # Mean for classes, they are zero everywhere except the first 3 coordinates
+  m1 <- rep(0,P)
+  m1[1] <- 3
+
+  m2 <- rep(0,P)
+  m2[2] <- 3
+
+  m3 <- rep(0,P)
+  m3[3] <- 3
+
+  # Sample dummy data
+  Xtrain <- rbind(MASS::mvrnorm(n=N,mu = m1, Sigma = diag(P)),
+                 MASS::mvrnorm(n=N,mu = m2, Sigma = diag(P)),
+                MASS::mvrnorm(n=N,mu = m3, Sigma = diag(P)))
+
+
+  # Generate the labels
+  Ytrain <- cbind(c(rep(1,50),rep(0,100)),
+                  c(rep(0,50),rep(1,50),rep(0,50)),
+                  c(rep(0,100),rep(1,50)))
+
+  # Normalize the data
+  Xt <- accSDA::normalize(Xtrain)
+  Xtrain <- Xt$Xc
+
+  # Train the classifier and increase the sparsity parameter from the default
+  # so we penalize more for non-sparse solutions.
+ \dontrun{
+    res <- accSDA::SZVD_kFold_cv(Xtrain,Ytrain,folds=10,gams=10,beta=2.5,q=2, D=diag(P),
+                              maxits=1000,tol=list(abs=1e-3,rel=1e-3),
+                              ztol=1e-4,feat=0.3,quiet=FALSE,penalty=TRUE)
+ }
+}
 \seealso{
 Used by: \code{\link{SZVDcv}}.
 }

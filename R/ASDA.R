@@ -74,6 +74,7 @@
 #'     a variable should have its mean subtracted and scaled to unit length. The functions
 #'     \code{\link{normalize}} and \code{\link{normalizetest}} are supplied for this purpose in the package.
 #' @examples
+#'     set.seed(123)
 #'     # Prepare training and test set
 #'     train <- c(1:40,51:90,101:140)
 #'     Xtrain <- iris[train,1:4]
@@ -169,8 +170,10 @@
 #'     # Plot projected test data with predicted and correct labels
 #'     XtestProjected <- Xtest%*%res$beta
 #'     \dontrun{
-#'     plot(XtestProjected[,1],XtestProjected[,2],col=Ytest, main="Projected test data with original labels")
-#'     plot(XtestProjected[,1],XtestProjected[,2],col=preds$class, main="Projected test data with predicted labels")
+#'     plot(XtestProjected[,1],XtestProjected[,2],col=Ytest,
+#'          main="Projected test data with original labels")
+#'     plot(XtestProjected[,1],XtestProjected[,2],col=preds$class,
+#'          main="Projected test data with predicted labels")
 #'     }
 #'     # Calculate accuracy
 #'     sum(preds$class == Ytest)/(3*N) # We have N samples per class, so total 3*N
