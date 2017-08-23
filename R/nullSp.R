@@ -11,8 +11,7 @@
 #' @details
 #' This function is used by other functions and should only be called explicitly for
 #' debugging purposes.
-#' @rdname nullSp
-#' @export nullSp
+#' @keywords internal
 nullSp <- function(A){
   m <- dim(A)[1]
   n <- dim(A)[2]

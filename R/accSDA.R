@@ -15,7 +15,7 @@
 #' in the MASS package. The functions return an object of the
 #' same class as the name of the function and provide the lda
 #' solution, along with the projected data, thus other kinds
-#' of discriminant analysis can be performed on the projected data.
+#' of classification algorithms can be employed on the projected data.
 #'
 #'
 #' @docType package
