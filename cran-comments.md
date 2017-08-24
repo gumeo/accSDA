@@ -16,3 +16,5 @@ This has been fixed.
 2) Second feedback was adding angle brackets to arxiv references in the description, that has been fixed. 
 Also all dontruns within examples have been removed and the examples have been changed, such that none takes 
 more than 5 seconds to run.
+
+3) Double spaces remove from description.
