@@ -46,11 +46,11 @@ This function is used as a quick diagnostics tool for the output from the ASDA f
       Feel free to look at the code to customize the plots in any way you like.
 }
 \examples{
-  \dontrun{
     # Generate and ASDA object with your data, e.g.
     # Prepare training and test set
     # This is a very small data set, I advise you to try it on something with more
     # variables, e.g. something from this source: http://www.cs.ucr.edu/~eamonn/time_series_data/
+    # or possibly run this on the Gaussian data example from the ASDA function
     train <- c(1:40,51:90,101:140)
     Xtrain <- iris[train,1:4]
     nX <- normalize(Xtrain)
@@ -64,7 +64,6 @@ This function is used as a quick diagnostics tool for the output from the ASDA f
 
     # Look at the barplots of the DVs
     ASDABarPlot(resIris)
-  }
 }
 \seealso{
 \code{\link{ASDA}}

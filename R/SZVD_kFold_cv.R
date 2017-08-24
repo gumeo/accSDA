@@ -25,8 +25,8 @@
 #'        in the cross-validation.
 #' @seealso Used by: \code{\link{SZVDcv}}.
 #' @examples
-#'   P <- 300 # Number of variables
-#'   N <- 50 # Number of samples per class
+#'   P <- 150 # Number of variables
+#'   N <- 20 # Number of samples per class
 #'
 #'   # Mean for classes, they are zero everywhere except the first 3 coordinates
 #'   m1 <- rep(0,P)
@@ -45,9 +45,9 @@
 #'
 #'
 #'   # Generate the labels
-#'   Ytrain <- cbind(c(rep(1,50),rep(0,100)),
-#'                   c(rep(0,50),rep(1,50),rep(0,50)),
-#'                   c(rep(0,100),rep(1,50)))
+#'   Ytrain <- cbind(c(rep(1,N),rep(0,2*N)),
+#'                   c(rep(0,N),rep(1,N),rep(0,N)),
+#'                   c(rep(0,2*N),rep(1,N)))
 #'
 #'   # Normalize the data
 #'   Xt <- accSDA::normalize(Xtrain)
@@ -55,11 +55,9 @@
 #'
 #'   # Train the classifier and increase the sparsity parameter from the default
 #'   # so we penalize more for non-sparse solutions.
-#'  \dontrun{
-#'     res <- accSDA::SZVD_kFold_cv(Xtrain,Ytrain,folds=10,gams=10,beta=2.5,q=2, D=diag(P),
-#'                               maxits=1000,tol=list(abs=1e-3,rel=1e-3),
-#'                               ztol=1e-4,feat=0.3,quiet=FALSE,penalty=TRUE)
-#'  }
+#'   res <- accSDA::SZVD_kFold_cv(Xtrain,Ytrain,folds=2,gams=2,beta=2.5,q=1, D=diag(P),
+#'                               maxits=50,tol=list(abs=1e-2,rel=1e-2),
+#'                               ztol=1e-3,feat=0.3,quiet=FALSE,penalty=TRUE)
 #' @details
 #' Add how max_gamma is calculated from the ZVD solution.
 #' This function might require a wrapper similar to ASDA.

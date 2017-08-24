@@ -31,11 +31,11 @@
 #' @note This function is used as a quick diagnostics tool for the output from the ASDA function.
 #'       Feel free to look at the code to customize the plots in any way you like.
 #' @examples
-#'   \dontrun{
 #'     # Generate and ASDA object with your data, e.g.
 #'     # Prepare training and test set
 #'     # This is a very small data set, I advise you to try it on something with more
 #'     # variables, e.g. something from this source: http://www.cs.ucr.edu/~eamonn/time_series_data/
+#'     # or possibly run this on the Gaussian data example from the ASDA function
 #'     train <- c(1:40,51:90,101:140)
 #'     Xtrain <- iris[train,1:4]
 #'     nX <- normalize(Xtrain)
@@ -49,12 +49,11 @@
 #'
 #'     # Look at the barplots of the DVs
 #'     ASDABarPlot(resIris)
-#'   }
 #' @rdname ASDABarPlot
 #' @export ASDABarPlot
 ASDABarPlot <- function(asdaObj, numDVs = 1, xlabel, ylabel, getList = FALSE, main, ...){
   # Found on: https://rpubs.com/Koundy/71792
-  theme_Publication <- function(base_size=14, base_family="helvetica") {
+  theme_Publication <- function(base_size=14, base_family="Helvetica") {
     (ggthemes::theme_foundation(base_size=base_size, base_family=base_family)
      + ggplot2::theme(plot.title = ggplot2::element_text(face = "bold",
                                        size = ggplot2::rel(1.2), hjust = 0.5),
@@ -114,9 +113,9 @@ ASDABarPlot <- function(asdaObj, numDVs = 1, xlabel, ylabel, getList = FALSE, ma
     # Calculate the proportion of nonzero features
     rS <- base::rowSums(abs(DVs[,-base::dim(DVs)[2]]))
     propNZ <- base::sum(rS!=0)/base::dim(DVs)[1]
-    main = grid::textGrob(paste('Total sparsity:', round(propNZ,3)), gp=grid::gpar(fontfamily = "helvetica", fontface = "bold", fontsize = 16))
+    main = grid::textGrob(paste('Total sparsity:', round(propNZ,3)), gp=grid::gpar(fontfamily = "Helvetica", fontface = "bold", fontsize = 16))
   }else{
-    main = grid::textGrob(main, gp=grid::gpar(fontfamily = "helvetica", fontface = "bold", fontsize = 16))
+    main = grid::textGrob(main, gp=grid::gpar(fontfamily = "Helvetica", fontface = "bold", fontsize = 16))
   }
   if(getList){
     return(plotList)

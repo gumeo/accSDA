@@ -161,20 +161,20 @@
 #'     # 2-dimension because we have 3 classes. The number of discriminant
 #'     # vectors is maximum number of classes minus 1.
 #'     XtrainProjected <- Xtrain%*%res$beta
-#'     \dontrun{
+#'
 #'     plot(XtrainProjected[,1],XtrainProjected[,2],col=Ytrain)
-#'     }
+#'
 #'     # Predict on the test data
 #'     preds <- predict(res, newdata = Xtest)
 #'
 #'     # Plot projected test data with predicted and correct labels
 #'     XtestProjected <- Xtest%*%res$beta
-#'     \dontrun{
+#'
 #'     plot(XtestProjected[,1],XtestProjected[,2],col=Ytest,
 #'          main="Projected test data with original labels")
 #'     plot(XtestProjected[,1],XtestProjected[,2],col=preds$class,
 #'          main="Projected test data with predicted labels")
-#'     }
+#'
 #'     # Calculate accuracy
 #'     sum(preds$class == Ytest)/(3*N) # We have N samples per class, so total 3*N
 #'

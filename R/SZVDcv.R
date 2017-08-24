@@ -62,12 +62,11 @@
 #'
 #'   # Train the classifier and increase the sparsity parameter from the default
 #'   # so we penalize more for non-sparse solutions.
-#'  \dontrun{
-#'     res <- accSDA::SZVDcv(cbind(Ytrain,Xtrain),cbind(Yval,Xval),num_gammas=10,
-#'                           g_mults = c(0,1),beta=2.5,
-#'                           D=diag(P), maxits=1000,tol=list(abs=1e-3,rel=1e-3), k = 3,
-#'                           ztol=1e-4,sparsity_pen=0.3,quiet=FALSE,penalty=TRUE,scaling=TRUE)
-#'  }
+#'
+#'   res <- accSDA::SZVDcv(cbind(Ytrain,Xtrain),cbind(Yval,Xval),num_gammas=4,
+#'                         g_mults = c(0,1),beta=2.5,
+#'                         D=diag(P), maxits=100,tol=list(abs=1e-3,rel=1e-3), k = 3,
+#'                         ztol=1e-4,sparsity_pen=0.3,quiet=FALSE,penalty=TRUE,scaling=TRUE)
 #' @seealso Non CV version: \code{\link{SZVD}}.
 #' @details
 #' This function might require a wrapper similar to ASDA.
