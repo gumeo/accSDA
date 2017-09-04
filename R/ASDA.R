@@ -360,7 +360,7 @@ ASDA.default <- function(Xt, Yt, Om = diag(p), gam = 1e-3, lam = 1e-6, q = K-1, 
     } else if(method == "SDAAP"){
       selector <- rep(1,dim(Xt)[2])
       if(con$ordinal == TRUE){
-        selector[(N-K+2):dim(Xt)[2]] <- rep(0,length((N-K+2):dim(Xt)[2]))
+        selector[(dim(Xt)[2]-K+2):dim(Xt)[2]] <- rep(0,length((dim(Xt)[2]-K+2):dim(Xt)[2]))
       }
       res <- SDAAP(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, selector=selector)
     } else{ # method is SDAD, input has been checked
