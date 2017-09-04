@@ -17,6 +17,9 @@
 #' @param PGtol Stopping tolerance for inner APG method.
 #' @param maxits Number of iterations to run
 #' @param tol Stopping tolerance for proximal gradient algorithm.
+#' @param selector Vector to choose which parameters in the discriminant vector will be used to calculate the
+#'                 regularization terms. The size of the vector must be *p* the number of predictors. The
+#'                 default value is a vector of all ones. This is currently only used for ordinal classification.
 #' @return \code{SDAAP} returns an object of \code{\link{class}} "\code{SDAAP}" including a list
 #' with the following named components: (More will be added later to handle the predict function)
 #'
@@ -34,13 +37,17 @@ SDAAP <- function(x, ...) UseMethod("SDAAP")
 #'
 #' @rdname SDAAP
 #' @method SDAAP default
-SDAAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol){
+SDAAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, selector = rep(1,dim(Xt)[2])){
   # TODO: Handle Yt as a factor and generate dummy matrix from it
 
   # Get training data size
   nt <- dim(Xt)[1] # num. samples
   p <- dim(Xt)[2]  # num. features
   K <- dim(Yt)[2]  # num. classes
+
+  if(length(selector) != dim(Xt)[2]){
+    stop('The length of selector must be the same as that of Xt')
+  }
 
   # Structure to store elements for matrix A used
   # later on, i.e. precomputed values for speed.
@@ -99,7 +106,7 @@ SDAAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol){
 
       # Update beta using proximal gradient step
       b_old <- beta
-      betaOb <- APG_EN2(A, d, beta, lam, alpha, PGsteps, PGtol)
+      betaOb <- APG_EN2(A, d, beta, lam, alpha, PGsteps, PGtol, selector)
       beta <- betaOb$x
 
       # Update theta using the projected solution

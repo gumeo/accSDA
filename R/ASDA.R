@@ -199,12 +199,13 @@ ASDA.default <- function(Xt, Yt, Om = diag(p), gam = 1e-3, lam = 1e-6, q = K-1, 
               CV = FALSE,
               folds = 5,
               feat = 0.15,
-              quiet = TRUE)
+              quiet = TRUE,
+              ordinal = FALSE)
   nmsC <- names(con)
   if(method == "SDAD"){
     # Set special defaults for SDAD
     con$mu <- 1
-    PGtol = c(1e-5,1e-5)
+    con$PGtol <- c(1e-5,1e-5)
   }
   # Overwrite with user supplied input!
   con[(namc <- names(control))] <- control
@@ -219,6 +220,17 @@ ASDA.default <- function(Xt, Yt, Om = diag(p), gam = 1e-3, lam = 1e-6, q = K-1, 
     x=Ik[as.numeric(cl),]
     dimnames(x) <- list(names(cl), levels(cl))
     x
+  }
+
+  # Make sure that the method is acelerated proximal gradient if we have ordinal data
+  # Also inform that the CV version has not yet been implemented
+  if(con$ordinal == TRUE){
+    if(method != "SDAAP"){
+      stop('Ordinal SDA is only implemented for Accelerated Proximal Gradient optimization!')
+    }
+    if(con$CV == TRUE){
+      stop('A cross-validation functionality has not been implemented for Ordinal SDA!')
+    }
   }
 
   # Go through the inputs to verify that they are correct.
@@ -308,7 +320,7 @@ ASDA.default <- function(Xt, Yt, Om = diag(p), gam = 1e-3, lam = 1e-6, q = K-1, 
     stop("mu must be positive")
   }
   if(method == "SDAD" & length(PGtol)!=2){
-    stop("When using SDAD you need to specify PGtol as a vector with
+    stop("When using SDAD you can specify PGtol as a vector with
          two components, absolute and relative tolerance. E.g. PGtol <- c(1e-5,1e-5)")
   }
   CV <- con$CV

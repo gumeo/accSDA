@@ -10,6 +10,9 @@
 #' @param alpha Step length.
 #' @param maxits Number of iterations to run
 #' @param tol Stopping tolerance for proximal gradient algorithm.
+#' @param selector Vector to choose which parameters in the discriminant vector will be used to calculate the
+#'                 regularization terms. The size of the vector must be *p* the number of predictors. The
+#'                 default value is a vector of all ones. This is currently only used for ordinal classification.
 #' @return \code{APG_EN2} returns an object of \code{\link{class}} "\code{APG_EN2}" including a list
 #' with the following named components
 #'
@@ -23,7 +26,7 @@
 #' This function is used by other functions and should only be called explicitly for
 #' debugging purposes.
 #' @keywords internal
-APG_EN2 <- function(A, d, x0, lam, alpha,  maxits, tol){
+APG_EN2 <- function(A, d, x0, lam, alpha,  maxits, tol, selector = rep(1,dim(x0)[1])){
   ###
   # Initialization
   ###
@@ -77,7 +80,7 @@ APG_EN2 <- function(A, d, x0, lam, alpha,  maxits, tol){
         card <- card + 1
 
         # Update error vector
-        err[i] <- -dfx[i]-lam*sign(x[i])
+        err[i] <- (-dfx[i]-lam*sign(x[i]))*(selector[i])
       }
     }
 
@@ -104,7 +107,8 @@ APG_EN2 <- function(A, d, x0, lam, alpha,  maxits, tol){
 
       # Take proximal gradient step from y
       xold <- x
-      x <- sign(y-alpha*dfy)*pmax(abs(y-alpha*dfy) - lam*alpha*matrix(1,p,1),matrix(0,p,1))
+      xx <- sign(y-alpha*dfy)*pmax(abs(y-alpha*dfy) - lam*alpha*matrix(1,p,1),matrix(0,p,1))
+      x <- selector*xx + abs(selector-1)*(y-alpha*dfy)
     }
   }
   retOb <- structure(
