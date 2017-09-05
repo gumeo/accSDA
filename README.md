@@ -24,7 +24,7 @@ To install directly from CRAN simply type the following into your R console:
 ```R
 install.packages("accSDA")
 ```
-This should be enough for most users.
+This should be enough for most users!
 
 To install packages from github you need the `devtools` package. So install that if you haven't gotten it already!
 
