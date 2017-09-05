@@ -20,9 +20,15 @@ This package includes functions that allow you to train such a classifier in a s
 
 You can install the package from CRAN or for the development version, you can install directly from github.
 
+To install directly from CRAN simply type the following into your R console:
+```R
+install.packages("accSDA")
+```
+This should be enough for most users.
+
 To install packages from github you need the `devtools` package. So install that if you haven't gotten it already!
 
-Now you can proceed to install the package:
+Now you can proceed to install the development version of the package package:
 ```R
 library(devtools)
 install_github("gumeo/accSDA")
