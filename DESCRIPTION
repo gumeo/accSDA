@@ -15,8 +15,7 @@ Imports:
     ggplot2 (>= 2.1.0),
     ggthemes (>= 3.2.0),
     grid (>= 3.2.2),
-    gridExtra (>= 2.2.1),
-    stats (>= 3.4.1)
+    gridExtra (>= 2.2.1)
 Depends:
     R (>= 3.2)
 Description: Implementation of sparse linear discriminant analysis, which is a supervised
