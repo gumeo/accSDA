@@ -83,7 +83,7 @@ The input matrix Xt is normalized in the function, so no prior normalization is 
 
     # Train the ordinal based model
     res <- accSDA::ordASDA(train$X,train$Y,s=2,h=1, gam=1e-6, lam=1e-3)
-    vals <- stats::predict(res,test$X) # Takes a while to run ~ 10 seconds
+    vals <- predict(object = res,newdata = test$X) # Takes a while to run ~ 10 seconds
     sum(vals==test$Y)/length(vals) # Get accuracy on test set
     plot(test$X[,1],test$X[,2],col = factor(test$Y),asp=1,
          main="Test Data with correct labels")

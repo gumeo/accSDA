@@ -1,73 +1,3 @@
-#########################################################################
-# Implementation of :
-# http://www.jmlr.org/papers/volume8/cardoso07a/cardoso07a.pdf
-# for accelerated SDA and other utility functions
-# For later: Explore how pairwise comparisons can be encoded as a regularizer
-#########################################################################
-
-#' Predict method for ordinal sparse discriminant analysis
-#'
-#' Predicted values based on fit from the function \code{\link{ordASDA}}. This
-#' function is used to classify new observations based on their explanatory variables/features.
-#' There is no need to normalize the data, the data is normalized based on the normalization
-#' data from the ordASDA object.
-#'
-#' @param object Object of class ordASDA. This object is returned from the function \code{\link{ordASDA}}.
-#' @param newdata A matrix of new observations to classify.
-#' @param ... Arguments passed to \code{\link[MASS]{predict.lda}}.
-#' @return A vector of predictions.
-#' @seealso \code{\link{ordASDA}}
-#' @note
-#' @examples
-#'     set.seed(123)
-#'
-#'     # You can play around with these values to generate some 2D data to test one
-#'     numClasses <- 15
-#'     sigma <- matrix(c(1,-0.2,-0.2,1),2,2)
-#'     mu <- c(0,0)
-#'     numObsPerClass <- 5
-#'
-#'     # Generate the data, can access with train$X and train$Y
-#'     train <- accSDA::genDat(numClasses,numObsPerClass,mu,sigma)
-#'     test <- accSDA::genDat(numClasses,numObsPerClass*2,mu,sigma)
-#'
-#'     # Visualize it, only using the first variable gives very good separation
-#'     plot(train$X[,1],train$X[,2],col = factor(train$Y),asp=1,main="Training Data")
-#'
-#'     # Train the ordinal based model
-#'     res <- accSDA::ordASDA(train$X,train$Y,s=2,h=1, gam=1e-6, lam=1e-3)
-#'     vals <- stats::predict(res,test$X) # Takes a while to run ~ 10 seconds
-#'     sum(vals==test$Y)/length(vals) # Get accuracy on test set
-#'     plot(test$X[,1],test$X[,2],col = factor(test$Y),asp=1,
-#'          main="Test Data with correct labels")
-#'     plot(test$X[,1],test$X[,2],col = factor(vals),asp=1,
-#'          main="Test Data with predictions from ordinal classifier")
-#' @rdname predict.ordASDA
-#' @export
-predict.ordASDA <- function(object, newdata = NULL, ...){
-  newdata <- accSDA::normalizetest(newdata,object$XN)
-  K <- object$K
-  h <- object$h
-  pred <- c()
-  class(object) <- "ASDA"
-  # Now we make all possible copies of the data, predict for
-  # each and count the number of 2's
-  for(i in 1:dim(newdata)[1]){
-    classes <- c()
-    for(j in 1:(K-1)){
-      extra <- rep(0,K-1)
-      extra[j] <- h
-      obs <- matrix(c(newdata[i,],extra),nrow = 1)
-      classes <- c(classes,predict(object,newdata = obs)$class)
-    }
-    #print(i)
-    #print(classes)
-    k <- sum(classes=="2")+1
-    pred <- c(pred,k)
-  }
-  return(pred)
-}
-
 #' @title Ordinal Accelerated Sparse Discriminant Analysis
 #'
 #' @description Applies accelerated proximal gradient algorithm to
@@ -130,7 +60,7 @@ predict.ordASDA <- function(object, newdata = NULL, ...){
 #'
 #'     # Train the ordinal based model
 #'     res <- accSDA::ordASDA(train$X,train$Y,s=2,h=1, gam=1e-6, lam=1e-3)
-#'     vals <- stats::predict(res,test$X) # Takes a while to run ~ 10 seconds
+#'     vals <- predict(object = res,newdata = test$X) # Takes a while to run ~ 10 seconds
 #'     sum(vals==test$Y)/length(vals) # Get accuracy on test set
 #'     plot(test$X[,1],test$X[,2],col = factor(test$Y),asp=1,
 #'          main="Test Data with correct labels")
@@ -235,6 +165,68 @@ ordASDA.matrix <- function(Xt, ...){
   cl[[1L]] <- as.name("ASDA")
   res$call <- cl
   res
+}
+
+#' Predict method for ordinal sparse discriminant analysis
+#'
+#' Predicted values based on fit from the function \code{\link{ordASDA}}. This
+#' function is used to classify new observations based on their explanatory variables/features.
+#' There is no need to normalize the data, the data is normalized based on the normalization
+#' data from the ordASDA object.
+#'
+#' @param object Object of class ordASDA. This object is returned from the function \code{\link{ordASDA}}.
+#' @param newdata A matrix of new observations to classify.
+#' @param ... Arguments passed to \code{\link[MASS]{predict.lda}}.
+#' @return A vector of predictions.
+#' @seealso \code{\link{ordASDA}}
+#' @examples
+#'     set.seed(123)
+#'
+#'     # You can play around with these values to generate some 2D data to test one
+#'     numClasses <- 15
+#'     sigma <- matrix(c(1,-0.2,-0.2,1),2,2)
+#'     mu <- c(0,0)
+#'     numObsPerClass <- 5
+#'
+#'     # Generate the data, can access with train$X and train$Y
+#'     train <- accSDA::genDat(numClasses,numObsPerClass,mu,sigma)
+#'     test <- accSDA::genDat(numClasses,numObsPerClass*2,mu,sigma)
+#'
+#'     # Visualize it, only using the first variable gives very good separation
+#'     plot(train$X[,1],train$X[,2],col = factor(train$Y),asp=1,main="Training Data")
+#'
+#'     # Train the ordinal based model
+#'     res <- accSDA::ordASDA(train$X,train$Y,s=2,h=1, gam=1e-6, lam=1e-3)
+#'     vals <- predict(object = res,newdata = test$X) # Takes a while to run ~ 10 seconds
+#'     sum(vals==test$Y)/length(vals) # Get accuracy on test set
+#'     plot(test$X[,1],test$X[,2],col = factor(test$Y),asp=1,
+#'          main="Test Data with correct labels")
+#'     plot(test$X[,1],test$X[,2],col = factor(vals),asp=1,
+#'          main="Test Data with predictions from ordinal classifier")
+#' @rdname predict.ordASDA
+#' @export
+predict.ordASDA <- function(object, newdata = NULL, ...){
+  newdata <- accSDA::normalizetest(newdata,object$XN)
+  K <- object$K
+  h <- object$h
+  pred <- c()
+  class(object) <- "ASDA"
+  # Now we make all possible copies of the data, predict for
+  # each and count the number of 2's
+  for(i in 1:dim(newdata)[1]){
+    classes <- c()
+    for(j in 1:(K-1)){
+      extra <- rep(0,K-1)
+      extra[j] <- h
+      obs <- matrix(c(newdata[i,],extra),nrow = 1)
+      classes <- c(classes,predict(object,newdata = obs)$class)
+    }
+    #print(i)
+    #print(classes)
+    k <- sum(classes=="2")+1
+    pred <- c(pred,k)
+  }
+  return(pred)
 }
 
 #' Generate data for ordinal examples in the package
