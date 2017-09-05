@@ -5,9 +5,46 @@
 # For later: Explore how pairwise comparisons can be encoded as a regularizer
 #########################################################################
 
-# Refactor this later, so we do not have to do this change class hack
-# Can also probably improve the speed
-predict.ordASDA <- function(object,newdata){
+#' Predict method for ordinal sparse discriminant analysis
+#'
+#' Predicted values based on fit from the function \code{\link{ordASDA}}. This
+#' function is used to classify new observations based on their explanatory variables/features.
+#' There is no need to normalize the data, the data is normalized based on the normalization
+#' data from the ordASDA object.
+#'
+#' @param object Object of class ordASDA. This object is returned from the function \code{\link{ordASDA}}.
+#' @param newdata A matrix of new observations to classify.
+#' @param ... Arguments passed to \code{\link[MASS]{predict.lda}}.
+#' @return A vector of predictions.
+#' @seealso \code{\link{ordASDA}}
+#' @note
+#' @examples
+#'     set.seed(123)
+#'
+#'     # You can play around with these values to generate some 2D data to test one
+#'     numClasses <- 15
+#'     sigma <- matrix(c(1,-0.2,-0.2,1),2,2)
+#'     mu <- c(0,0)
+#'     numObsPerClass <- 5
+#'
+#'     # Generate the data, can access with train$X and train$Y
+#'     train <- accSDA::genDat(numClasses,numObsPerClass,mu,sigma)
+#'     test <- accSDA::genDat(numClasses,numObsPerClass*2,mu,sigma)
+#'
+#'     # Visualize it, only using the first variable gives very good separation
+#'     plot(train$X[,1],train$X[,2],col = factor(train$Y),asp=1,main="Training Data")
+#'
+#'     # Train the ordinal based model
+#'     res <- accSDA::ordASDA(train$X,train$Y,s=2,h=1, gam=1e-6, lam=1e-3)
+#'     vals <- stats::predict(res,test$X) # Takes a while to run ~ 10 seconds
+#'     sum(vals==test$Y)/length(vals) # Get accuracy on test set
+#'     plot(test$X[,1],test$X[,2],col = factor(test$Y),asp=1,
+#'          main="Test Data with correct labels")
+#'     plot(test$X[,1],test$X[,2],col = factor(vals),asp=1,
+#'          main="Test Data with predictions from ordinal classifier")
+#' @rdname predict.ordASDA
+#' @export
+predict.ordASDA <- function(object, newdata = NULL, ...){
   newdata <- accSDA::normalizetest(newdata,object$XN)
   K <- object$K
   h <- object$h
@@ -44,7 +81,8 @@ predict.ordASDA <- function(object,newdata){
 #' result. The first *p* entries correspond to the variables/coefficients for
 #' the predictors, while the following K-1 entries correspond to biases for the
 #' found hyperplane, to separate the classes. The resulting object is of class ordASDA
-#' and has an accompanying predict function.
+#' and has an accompanying predict function. The paper by Cardoso and dat Costa can
+#' be found here: (http://www.jmlr.org/papers/volume8/cardoso07a/cardoso07a.pdf).
 #'
 #' @param Xt n by p data matrix, (can also be a data.frame that can be coerced to a matrix)
 #' @param Yt vector of length n, equal to the number of samples. The classes should be
@@ -84,18 +122,20 @@ predict.ordASDA <- function(object,newdata){
 #'     numObsPerClass <- 5
 #'
 #'     # Generate the data, can access with train$X and train$Y
-#'     train <- accSDA::genDat(numClasses,numObsPerClass,mu,Sigma)
-#'     test <- accSDAgenDat(numClasses,numObsPerClass*2,mu,Sigma)
+#'     train <- accSDA::genDat(numClasses,numObsPerClass,mu,sigma)
+#'     test <- accSDA::genDat(numClasses,numObsPerClass*2,mu,sigma)
 #'
 #'     # Visualize it, only using the first variable gives very good separation
 #'     plot(train$X[,1],train$X[,2],col = factor(train$Y),asp=1,main="Training Data")
 #'
 #'     # Train the ordinal based model
-#'     res <- accSDA::ordSDA(train$X,train$Y,s=2,h=1, gam=1e-6, lam=1e-3)
-#'     vals <- predict(res,test$X) # Takes a while to run ~ 10 seconds
+#'     res <- accSDA::ordASDA(train$X,train$Y,s=2,h=1, gam=1e-6, lam=1e-3)
+#'     vals <- stats::predict(res,test$X) # Takes a while to run ~ 10 seconds
 #'     sum(vals==test$Y)/length(vals) # Get accuracy on test set
-#'     plot(test$X[,1],test$X[,2],col = factor(test$Y),asp=1,main="Test Data with correct labels")
-#'     plot(test$X[,1],test$X[,2],col = factor(vals),asp=1,main="Test Data with predictions from ordinal classifier")
+#'     plot(test$X[,1],test$X[,2],col = factor(test$Y),asp=1,
+#'          main="Test Data with correct labels")
+#'     plot(test$X[,1],test$X[,2],col = factor(vals),asp=1,
+#'          main="Test Data with predictions from ordinal classifier")
 #'
 #' @rdname ordASDA
 #' @export ordASDA
@@ -207,7 +247,7 @@ ordASDA.matrix <- function(Xt, ...){
 #'                   dataset.
 #' @param numObsPerClass Number of observations sampled per class.
 #' @param mu Mean of the first class.
-#' @param Sigma 2 by 2 covariance matrix
+#' @param sigma 2 by 2 covariance matrix
 #'
 #' @return \code{genDat} Returns a list with the following attributes:
 #'     \describe{
@@ -228,15 +268,15 @@ ordASDA.matrix <- function(Xt, ...){
 #'     numObsPerClass <- 5
 #'
 #'     # Generate the data, can access with train$X and train$Y
-#'     train <- accSDA::genDat(numClasses,numObsPerClass,mu,Sigma)
-#'     test <- accSDAgenDat(numClasses,numObsPerClass*2,mu,Sigma)
+#'     train <- accSDA::genDat(numClasses,numObsPerClass,mu,sigma)
+#'     test <- accSDA::genDat(numClasses,numObsPerClass*2,mu,sigma)
 #'
 #'     # Visualize it, only using the first variable gives very good separation
 #'     plot(train$X[,1],train$X[,2],col = factor(train$Y),asp=1,main="Training Data")
 #'
 #' @rdname genDat
 #' @export genDat
-genDat <- function(numClasses,numObsPerClass,mu,Sigma){
+genDat <- function(numClasses,numObsPerClass,mu,sigma){
   Xt <- matrix(0,0,2)
   Yt <- c()
   for(i in 1:numClasses){
