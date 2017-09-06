@@ -139,7 +139,7 @@ ordASDA.default <- function(Xt, Yt, s=1, Om, gam = 1e-3, lam = 1e-6, control,...
   }
   augY <- factor(augY)
   # Train the model
-  res <- accSDA::ASDA(Xt = augX, Yt = augY, Om= Om, control=list(ordinal=TRUE),...)
+  res <- accSDA::ASDA(Xt = augX, Yt = augY, Om= Om, gam = gam, lam = lam, q = 1, method='SDAAP',control=list(ordinal=TRUE),...)
   res$XN <- XN
   class(res) <- 'ordASDA'
   res$call <- match.call()
