@@ -219,6 +219,7 @@ predict.ordASDA <- function(object, newdata = NULL, ...){
       extra <- rep(0,K-1)
       extra[j] <- h
       obs <- matrix(c(newdata[i,],extra),nrow = 1)
+      colnames(obs) <- object$varNames
       classes <- c(classes,stats::predict(object,newdata = obs)$class)
     }
     #print(i)
