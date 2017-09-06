@@ -140,7 +140,7 @@ ordASDA.default <- function(Xt, Yt, s=1, Om, gam = 1e-3, lam = 1e-6, control,...
   augY <- factor(augY)
   # Train the model
   res <- accSDA::ASDA(Xt = augX, Yt = augY, Om= Om, gam = gam, lam = lam, q = 1, method='SDAAP',control=list(ordinal=TRUE),...)
-  res$varNames <- c(res$varNames,paste0('bias',1:(K-1)))
+  res$varNames[(length(res$varNames)-(K-1)):(length(res$varNames))] <- paste0('bias',1:(K-1))
   res$XN <- XN
   class(res) <- 'ordASDA'
   res$call <- match.call()
