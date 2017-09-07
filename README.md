@@ -88,6 +88,76 @@ Now that you have gotten some results, you want to test the performance on the t
 preds <- predict(res, newdata = Xtest)
 ```
 
+# A larger example
+
+The Iris data is not very convincing, so let's take a look at a simulated example, that is a bit more convincing, and is more relevant w.r.t. sparsity.
+
+The goal here is to demonstrate how we setup the data, how we normalize, train, predict, plot projected data and assess accuracy.
+
+```R
+# You can play around with these parameters
+P <- 300 # Number of variables
+N <- 100 # Number of samples per class
+K <- 5 # Number of classes
+
+# Mean for classes, they are zero everywhere except that coordinate i has
+# value 3 for class i, each column of the means matrix represents a mean
+# for a specific class.
+means <- matrix(0,nrow=P,ncol=K)
+for(i in 1:K){
+  means[i,i] <- 5
+}
+
+
+# Sample dummy data
+Xtrain <- matrix(0,nrow=0,ncol=P)
+Xtest <- matrix(0,nrow=0,ncol=P)
+for(i in 1:K){
+  Xtrain <- rbind(Xtrain,MASS::mvrnorm(n=N,mu = means[,i], Sigma = diag(P)))
+  Xtest <- rbind(Xtest,MASS::mvrnorm(n=N,mu = means[,i], Sigma = diag(P)))
+}
+
+# Generate the labels
+Ytrain <- factor(rep(1:K,each=N))
+Ytest <- Ytrain
+
+# Normalize the data
+Xt <- accSDA::normalize(Xtrain)
+Xtrain <- Xt$Xc # Use the centered and scaled data
+Xtest <- accSDA::normalizetest(Xtest,Xt)
+
+# Train the classifier and increase the sparsity parameter from the default
+# so we penalize more for non-sparse solutions.
+res <- accSDA::ASDA(Xtrain,Ytrain,lam=0.01)
+
+# Plot the projected training data, it is projected to
+# 2-dimension because we have 3 classes. The number of discriminant
+# vectors is maximum number of classes minus 1.
+XtrainProjected <- Xtrain%*%res$beta
+
+plot(XtrainProjected[,1],XtrainProjected[,2],col=Ytrain,
+     main='Training data projected with discriminant vectors')
+```
+![Picture of plot above](./inst/pic1.png)
+```R
+
+# Predict on the test data
+preds <- predict(res, newdata = Xtest)
+
+# Plot projected test data with predicted and correct labels
+XtestProjected <- Xtest%*%res$beta
+
+plot(XtestProjected[,1],XtestProjected[,2],col=Ytest,
+     main="Projected test data with original labels")
+plot(XtestProjected[,1],XtestProjected[,2],col=preds$class,
+     main="Projected test data with predicted labels")
+
+# Calculate accuracy
+sum(preds$class == Ytest)/(K*N) # We have N samples per class, so total K*N
+
+# Inspect the res$beta vector to see that the discriminant vector is sparse
+```
+
 # Future plans
 
 Coming releases will include more plotting and printing functionality for the `ASDA` objects. A C++ backend is also in the pipeline along with some further extensions to handle different types of data.
