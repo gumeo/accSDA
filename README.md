@@ -132,9 +132,9 @@ Xtest <- accSDA::normalizetest(Xtest,Xt)
 # so we penalize more for non-sparse solutions.
 res <- accSDA::ASDA(Xtrain,Ytrain,lam=0.01)
 
-# Plot the projected training data, it is projected to
-# 2-dimension because we have 3 classes. The number of discriminant
-# vectors is maximum number of classes minus 1.
+# Plot the projected training data, it is projected to the first
+# 2-dimensions, this is possible because the number of discriminant
+# vectors is the number of classes minus 1.
 XtrainProjected <- Xtrain%*%res$beta
 
 # Plot using the first two discriminant directions
