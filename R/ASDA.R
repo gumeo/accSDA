@@ -496,7 +496,7 @@ ASDA.matrix <- function(Xt, ...){
 predict.ASDA <- function(object, newdata = NULL, ...)
 {
   if(!is.matrix(newdata)) newdata <- as.matrix(newdata)
-  if(!is.null(object$varNames))
+  if(!is.null(object$varNames) & length(object$varNames) > 0)
   {
     newdata <- newdata[, object$varNames, drop = FALSE]
   } else {
