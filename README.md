@@ -134,7 +134,9 @@ res <- accSDA::ASDA(Xtrain,Ytrain,lam=0.01)
 
 # Plot the projected training data, it is projected to the first
 # 2-dimensions, this is possible because the number of discriminant
-# vectors is the number of classes minus 1.
+# vectors is the number of classes minus 1. So for a binary
+# Classification task, we project to one dimension, and can't produce
+# a plot like this. 
 XtrainProjected <- Xtrain%*%res$beta
 
 # Plot using the first two discriminant directions
