@@ -38,7 +38,7 @@ And now you can start playing around with the package!
 
 # Iris tutorial
 
-The following is an example on how one could use the package on Fisher's Iris dataset. I choose the Iris dataset because most people are familiar with it. Other examples with *p>>n* examples will arive later!
+The following is an example on how one could use the package on Fisher's Iris dataset. I choose the Iris dataset because most people are familiar with it. Check also the *p>>n* example below!
 
 ```R
 # Prepare training and test set
@@ -90,9 +90,11 @@ preds <- predict(res, newdata = Xtest)
 
 # A larger example
 
-The Iris data is not very convincing, so let's take a look at a simulated example, that is a bit more convincing, and is more relevant w.r.t. sparsity.
+The Iris data is not very convincing, so let's take a look at a simulated example that is more relevant w.r.t. sparsity.
 
 The goal here is to demonstrate how we setup the data, how we normalize, train, predict, plot projected data and assess accuracy.
+
+Try running the following code in an R-session with `accSDA` loaded.
 
 ```R
 # You can play around with these parameters
@@ -135,6 +137,7 @@ res <- accSDA::ASDA(Xtrain,Ytrain,lam=0.01)
 # vectors is maximum number of classes minus 1.
 XtrainProjected <- Xtrain%*%res$beta
 
+# Plot using the first two discriminant directions
 plot(XtrainProjected[,1],XtrainProjected[,2],col=Ytrain,
      main='Training data projected with discriminant vectors')
 ```
