@@ -31,6 +31,8 @@ p is the number of variables.}
 
 \item{lam}{Regularization parameter for l1 penalty, must be greater than zero.}
 
+\item{method}{String to select method, now either SDAD or SDAAP, see ?ASDA for more info.}
+
 \item{control}{List of control arguments further passed to ASDA. See \code{\link{ASDA}}.}
 }
 \value{
