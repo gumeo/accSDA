@@ -85,6 +85,16 @@ ordASDA.default <- function(Xt, Yt, s=1, Om, gam = 1e-3, lam = 1e-6, control,...
   if(K==2){
     stop("Only two types of labels, just use a binary classifier!")
   }
+
+  if(missing(control)){
+    control <- list(ordinal=TRUE)
+  }else{
+    control$ordinal <- TRUE
+  }
+
+  # Normalize the data
+  XN <- accSDA::normalize(Xt)
+  Xt <- XN$Xc
   if(missing(Om)){
     Om <- matrix(0,dim(Xt)[2]+K-1,dim(Xt)[2]+K-1)
     for(i in 1:(dim(Xt)[2])){
@@ -98,16 +108,6 @@ ordASDA.default <- function(Xt, Yt, s=1, Om, gam = 1e-3, lam = 1e-6, control,...
     regMat[1:dim(Xt)[2],1:dim(Xt)[2]] <- Om
     Om <- regMat
   }
-
-  if(missing(control)){
-    control <- list(ordinal=TRUE)
-  }else{
-    control$ordinal <- TRUE
-  }
-
-  # Normalize the data
-  XN <- accSDA::normalize(Xt)
-  Xt <- XN$Xc
   # Augment the data
   augX <- matrix(0,0,dim(Xt)[2]+K-1)
   augY <- c()
