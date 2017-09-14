@@ -18,6 +18,9 @@
 #' @param PGtol Two stopping tolerances for inner ADMM method, first is absolute tolerance, second is relative.
 #' @param maxits Number of iterations to run
 #' @param tol Stopping tolerance for proximal gradient algorithm.
+#' @param selector Vector to choose which parameters in the discriminant vector will be used to calculate the
+#'                 regularization terms. The size of the vector must be *p* the number of predictors. The
+#'                 default value is a vector of all ones. This is currently only used for ordinal classification.
 #' @return \code{SDAD} returns an object of \code{\link{class}} "\code{SDAD}" including a list
 #' with the following named components: (More will be added later to handle the predict function)
 #' \describe{
@@ -33,7 +36,7 @@ SDAD <- function (x, ...) UseMethod("SDAD")
 #'
 #' @rdname SDAD
 #' @method SDAD default
-SDAD.default <- function(Xt, Yt, Om, gam, lam, mu, q, PGsteps, PGtol, maxits, tol){
+SDAD.default <- function(Xt, Yt, Om, gam, lam, mu, q, PGsteps, PGtol, maxits, tol, selector = rep(1,dim(Xt)[2])){
   # TODO: Handle Yt as a factor and generate dummy matrix from it
 
   ###
@@ -116,10 +119,10 @@ SDAD.default <- function(Xt, Yt, Om, gam, lam, mu, q, PGsteps, PGtol, maxits, to
 
       if(SMW == 1){
         # Use SMW-based ADMM
-        betaOb <- ADMM_EN_SMW(Minv, Xt, RS, d, beta, lam, mu, PGsteps, PGtol, TRUE)
+        betaOb <- ADMM_EN_SMW(Minv, Xt, RS, d, beta, lam, mu, PGsteps, PGtol, TRUE, selector)
         beta <- betaOb$y
       } else{
-        betaOb <- ADMM_EN2(R2, d, beta, lam, mu, PGsteps, PGtol, TRUE)
+        betaOb <- ADMM_EN2(R2, d, beta, lam, mu, PGsteps, PGtol, TRUE, selector)
         beta <- betaOb$y
       }
 

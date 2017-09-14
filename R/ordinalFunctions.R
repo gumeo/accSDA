@@ -76,7 +76,7 @@ ordASDA <- function (Xt, ...) UseMethod("ordASDA")
 #'
 #' @rdname ordASDA
 #' @method ordASDA default
-ordASDA.default <- function(Xt, Yt, s=1, Om, gam = 1e-3, lam = 1e-6, control,...){
+ordASDA.default <- function(Xt, Yt, s=1, Om, gam = 1e-3, lam = 1e-6, method='SDAAP', control,...){
   h <- 1
   if(missing(Yt)){
     stop('We need the ordinal labels Yt to run this function!')
@@ -139,7 +139,7 @@ ordASDA.default <- function(Xt, Yt, s=1, Om, gam = 1e-3, lam = 1e-6, control,...
   }
   augY <- factor(augY)
   # Train the model
-  res <- accSDA::ASDA(Xt = augX, Yt = augY, Om= Om, gam = gam, lam = lam, q = 1, method='SDAAP',control=list(ordinal=TRUE),...)
+  res <- accSDA::ASDA(Xt = augX, Yt = augY, Om= Om, gam = gam, lam = lam, q = 1, method=method,control=list(ordinal=TRUE),...)
   res$varNames[(length(res$varNames)-(K-2)):(length(res$varNames))] <- paste0('bias',1:(K-1))
   res$XN <- XN
   class(res) <- 'ordASDA'
