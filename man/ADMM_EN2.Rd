@@ -4,7 +4,7 @@
 \alias{ADMM_EN2}
 \title{ADMM on l1 regularized quadratic program}
 \usage{
-ADMM_EN2(R, d, x0, lam, mu, maxits, tol, quiet, selector = rep(1, dim(R)[1]))
+ADMM_EN2(R, d, x0, lam, mu, maxits, tol, quiet, selector = rep(1, dim(x)[1]))
 }
 \arguments{
 \item{R}{Upper triangular matrix in Chol decomp \eqn{\mu I + A = R^T R}{mu*I + A = R'*R}.}
