@@ -66,7 +66,8 @@ ADMM_EN_SMW <- function(Ainv, V,R, d, x0, lam, mu, maxits, tol, quiet, selector 
     # Update y using soft-thresholding.
     yold <- y
     tmp <- x + z/mu
-    y <- sign(tmp)*pmax(abs(tmp) - lam*matrix(1,p,1),matrix(0,p,1))
+    yy <- sign(tmp)*pmax(abs(tmp) - lam*matrix(1,p,1),matrix(0,p,1))
+    y <-  selector*yy + abs(selector-1)*(tmp)
 
     #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     # Update z.
