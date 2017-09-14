@@ -7,7 +7,8 @@
 \usage{
 SDAD(x, ...)
 
-\method{SDAD}{default}(Xt, Yt, Om, gam, lam, mu, q, PGsteps, PGtol, maxits, tol)
+\method{SDAD}{default}(Xt, Yt, Om, gam, lam, mu, q, PGsteps, PGtol, maxits, tol,
+  selector = rep(1, dim(Xt)[2]))
 }
 \arguments{
 \item{Xt}{n by p data matrix, (not a data frame, but a matrix)}
@@ -34,6 +35,10 @@ only one element is 1 and the rest is 0.}
 \item{maxits}{Number of iterations to run}
 
 \item{tol}{Stopping tolerance for proximal gradient algorithm.}
+
+\item{selector}{Vector to choose which parameters in the discriminant vector will be used to calculate the
+regularization terms. The size of the vector must be *p* the number of predictors. The
+default value is a vector of all ones. This is currently only used for ordinal classification.}
 }
 \value{
 \code{SDAD} returns an object of \code{\link{class}} "\code{SDAD}" including a list

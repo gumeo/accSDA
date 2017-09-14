@@ -8,7 +8,7 @@
 ordASDA(Xt, ...)
 
 \method{ordASDA}{default}(Xt, Yt, s = 1, Om, gam = 0.001, lam = 1e-06,
-  control, ...)
+  method = "SDAAP", control, ...)
 }
 \arguments{
 \item{Xt}{n by p data matrix, (can also be a data.frame that can be coerced to a matrix)}

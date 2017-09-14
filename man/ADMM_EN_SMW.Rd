@@ -4,7 +4,8 @@
 \alias{ADMM_EN_SMW}
 \title{ADMM on l1 regularized quadratic program}
 \usage{
-ADMM_EN_SMW(Ainv, V, R, d, x0, lam, mu, maxits, tol, quiet)
+ADMM_EN_SMW(Ainv, V, R, d, x0, lam, mu, maxits, tol, quiet, selector = rep(1,
+  dim(Ainv)[1]))
 }
 \arguments{
 \item{Ainv}{Diagonal of \eqn{A^{-1}}{A^{-1}} term in SMW formula, where A is an n by n
@@ -25,6 +26,10 @@ positive definite coefficient matrix.}
 \item{tol}{Vector of stopping tolerances, first value is absolute, second is relative tolerance.}
 
 \item{quiet}{Logical controlling display of intermediate statistics.}
+
+\item{selector}{Vector to choose which parameters in the discriminant vector will be used to calculate the
+regularization terms. The size of the vector must be *p* the number of predictors. The
+default value is a vector of all ones. This is currently only used for ordinal classification.}
 
 \item{alpha}{Step length.}
 }

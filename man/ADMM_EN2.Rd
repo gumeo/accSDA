@@ -4,7 +4,7 @@
 \alias{ADMM_EN2}
 \title{ADMM on l1 regularized quadratic program}
 \usage{
-ADMM_EN2(R, d, x0, lam, mu, maxits, tol, quiet)
+ADMM_EN2(R, d, x0, lam, mu, maxits, tol, quiet, selector = rep(1, dim(R)[1]))
 }
 \arguments{
 \item{R}{Upper triangular matrix in Chol decomp \eqn{\mu I + A = R^T R}{mu*I + A = R'*R}.}
@@ -20,6 +20,10 @@ ADMM_EN2(R, d, x0, lam, mu, maxits, tol, quiet)
 \item{tol}{Vector of stopping tolerances, first value is absolute, second is relative tolerance.}
 
 \item{quiet}{Logical controlling display of intermediate statistics.}
+
+\item{selector}{Vector to choose which parameters in the discriminant vector will be used to calculate the
+regularization terms. The size of the vector must be *p* the number of predictors. The
+default value is a vector of all ones. This is currently only used for ordinal classification.}
 
 \item{alpha}{Step length.}
 }
