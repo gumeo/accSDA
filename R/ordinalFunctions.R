@@ -25,6 +25,7 @@
 #'          that more data will be copied in the data augmentation step. BY default s is 1.
 #' @param gam Regularization parameter for elastic net penalty, must be greater than zero.
 #' @param lam Regularization parameter for l1 penalty, must be greater than zero.
+#' @param method String to select method, now either SDAD or SDAAP, see ?ASDA for more info.
 #' @param control List of control arguments further passed to ASDA. See \code{\link{ASDA}}.
 #' @param ... Additional arguments for \code{\link{ASDA}} and \code{\link[MASS]{lda}}
 #'            function in package MASS.
