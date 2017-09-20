@@ -35,14 +35,11 @@
 #' with the same components as an ASDA objects and:
 #'
 #' \describe{
-#'   \item{\code{XN}}{Normalized data, used in the predict function to normalize test data.}
 #'   \item{\code{h}}{Scalar value for biases.}
 #'   \item{\code{K}}{Number of classes.}
 #' }
 #' @seealso \code{\link{ASDA}}.
-#' @note The input matrix Xt is normalized in the function, so no prior normalization is needed.
-#'      The functions \code{\link{normalize}} and \code{\link{normalizetest}} are used
-#'      for this purpose and are supplied in the package.
+#' @note Remember to normalize the data.
 #' @examples
 #'     set.seed(123)
 #'
@@ -93,9 +90,6 @@ ordASDA.default <- function(Xt, Yt, s=1, Om, gam = 1e-3, lam = 1e-6, method='SDA
     control$ordinal <- TRUE
   }
 
-  # Normalize the data
-  XN <- accSDA::normalize(Xt)
-  Xt <- XN$Xc
   if(missing(Om)){
     Om <- matrix(0,dim(Xt)[2]+K-1,dim(Xt)[2]+K-1)
     for(i in 1:(dim(Xt)[2])){
@@ -142,7 +136,6 @@ ordASDA.default <- function(Xt, Yt, s=1, Om, gam = 1e-3, lam = 1e-6, method='SDA
   # Train the model
   res <- accSDA::ASDA(Xt = augX, Yt = augY, Om= Om, gam = gam, lam = lam, q = 1, method=method,control=list(ordinal=TRUE),...)
   res$varNames[(length(res$varNames)-(K-2)):(length(res$varNames))] <- paste0('bias',1:(K-1))
-  res$XN <- XN
   class(res) <- 'ordASDA'
   res$call <- match.call()
   res$K <- K
@@ -208,7 +201,6 @@ ordASDA.matrix <- function(Xt, ...){
 #' @rdname predict.ordASDA
 #' @export
 predict.ordASDA <- function(object, newdata = NULL, ...){
-  newdata <- accSDA::normalizetest(newdata,object$XN)
   K <- object$K
   h <- object$h
   pred <- c()
