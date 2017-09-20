@@ -40,7 +40,6 @@ p is the number of variables.}
 with the same components as an ASDA objects and:
 
 \describe{
-  \item{\code{XN}}{Normalized data, used in the predict function to normalize test data.}
   \item{\code{h}}{Scalar value for biases.}
   \item{\code{K}}{Number of classes.}
 }
@@ -63,9 +62,7 @@ and has an accompanying predict function. The paper by Cardoso and dat Costa can
 be found here: (http://www.jmlr.org/papers/volume8/cardoso07a/cardoso07a.pdf).
 }
 \note{
-The input matrix Xt is normalized in the function, so no prior normalization is needed.
-     The functions \code{\link{normalize}} and \code{\link{normalizetest}} are used
-     for this purpose and are supplied in the package.
+Remember to normalize the data.
 }
 \examples{
     set.seed(123)
