@@ -6,7 +6,7 @@
 
 This is the `R`-package accompanying the paper [Proximal Methods for Sparse Optimal Scoring and Discriminant Analysis](https://arxiv.org/pdf/1705.07194.pdf).
 
-This package is currently under development, although most of the functionality is there already! You can now do sparse discriminant analysis with the package, but the visualization tools are being implemented and tested.
+This package is under continuous development and most of the basic functionality is available! You can now apply sparse discriminant analysis with `accSDA`, see the tutorials below to get started.
 
 # Why should you use this package?
 
@@ -26,19 +26,17 @@ install.packages("accSDA")
 ```
 This should be enough for most users!
 
-To install packages from github you need the `devtools` package. So install that if you haven't gotten it already!
-
-Now you can proceed to install the development version of the package package:
+You can also install the development version of the package from github:
 ```R
-library(devtools)
-install_github("gumeo/accSDA")
-library(accSDA)
+if (!"devtools" %in% installed.packages()[,1]) {
+    install.packages("devtools")
+}
+devtools::install_github("gumeo/accSDA")
 ```
-And now you can start playing around with the package!
 
 # Iris tutorial
 
-The following is an example on how one could use the package on Fisher's Iris dataset. I choose the Iris dataset because most people are familiar with it. Check also the *p>>n* example below!
+The following is a simple example on how one could use the package on Fisher's Iris dataset. I choose the Iris dataset because most people are familiar with it. Check also the *p>>n* example below!
 
 ```R
 # Prepare training and test set
