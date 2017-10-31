@@ -1,5 +1,5 @@
 
-![alt tag](https://travis-ci.org/gumeo/accSDA.svg?branch=master)
+![alt tag](https://travis-ci.org/gumeo/accSDA.svg?branch=master) [![CRAN](http://www.r-pkg.org/badges/version/accSDA)](https://cran.r-project.org/package=accSDA) [![Downloads](http://cranlogs.r-pkg.org/badges/accSDA?color=brightgreen)](http://www.r-pkg.org/pkg/accSDA)
 
 # accSDA
 ## Accelerated Sparse Discriminant Analysis
