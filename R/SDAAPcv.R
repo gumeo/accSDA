@@ -1,6 +1,6 @@
 SDAAPcv <- function (x, ...) UseMethod("SDAAPcv")
 
-SDAAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits, tol, feat, quiet){
+SDAAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits, tol, feat, quiet, initTheta){
   #
   # HERE WE NEED A DESCRIPTION
   # Use Roxygen2 to create the desired documentation, internal function
@@ -135,8 +135,12 @@ SDAAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxit
         }
 
         # Initialize theta
-        theta <- Mj(matrix(stats::runif(K),nrow=K,ncol=1))
-        theta <- theta/as.numeric(sqrt(t(theta)%*%D%*%theta))
+        theta <- matrix(stats::runif(K),nrow=K,ncol=1)
+        theta <- Mj(theta)
+        if(j == 1 & !missing(initTheta)){
+          theta=initTheta
+        }
+        theta <- theta/as.numeric(sqrt(crossprod(theta,D%*%theta)))
 
         # Initialize beta
         beta <- matrix(0,p,1)

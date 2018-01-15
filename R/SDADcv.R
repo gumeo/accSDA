@@ -1,6 +1,6 @@
 SDADcv <- function (x, ...) UseMethod("SDADcv")
 
-SDADcv.default <- function(X, Y, folds, Om, gam, lams, mu, q, PGsteps, PGtol, maxits, tol, feat, quiet){
+SDADcv.default <- function(X, Y, folds, Om, gam, lams, mu, q, PGsteps, PGtol, maxits, tol, feat, quiet, initTheta){
   #
   # HERE WE NEED A DESCRIPTION
   # Use Roxygen2 to create the desired documentation
@@ -135,8 +135,12 @@ SDADcv.default <- function(X, Y, folds, Om, gam, lams, mu, q, PGsteps, PGtol, ma
         }
 
         # Initialize theta
-        theta <- Mj(matrix(stats::runif(K),nrow=K,ncol=1))
-        theta <- theta/as.numeric(sqrt(t(theta)%*%D%*%theta))
+        theta <- matrix(stats::runif(K),nrow=K,ncol=1)
+        theta <- Mj(theta)
+        if(j == 1 & !missing(initTheta)){
+          theta=initTheta
+        }
+        theta <- theta/as.numeric(sqrt(crossprod(theta,D%*%theta)))
 
         # Initialize coefficient vector for elastic net step
         d <- 2*t(Xt)%*%(Yt%*%theta)

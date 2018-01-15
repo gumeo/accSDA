@@ -21,6 +21,7 @@
 #' @param selector Vector to choose which parameters in the discriminant vector will be used to calculate the
 #'                 regularization terms. The size of the vector must be *p* the number of predictors. The
 #'                 default value is a vector of all ones. This is currently only used for ordinal classification.
+#' @param initTheta Initial first theta, default value is a vector of ones.
 #' @return \code{SDAD} returns an object of \code{\link{class}} "\code{SDAD}" including a list
 #' with the following named components: (More will be added later to handle the predict function)
 #' \describe{
@@ -36,7 +37,7 @@ SDAD <- function (x, ...) UseMethod("SDAD")
 #'
 #' @rdname SDAD
 #' @method SDAD default
-SDAD.default <- function(Xt, Yt, Om, gam, lam, mu, q, PGsteps, PGtol, maxits, tol, selector = rep(1,dim(Xt)[2])){
+SDAD.default <- function(Xt, Yt, Om, gam, lam, mu, q, PGsteps, PGtol, maxits, tol, selector = rep(1,dim(Xt)[2]), initTheta){
   # TODO: Handle Yt as a factor and generate dummy matrix from it
 
   ###
@@ -94,8 +95,12 @@ SDAD.default <- function(Xt, Yt, Om, gam, lam, mu, q, PGsteps, PGtol, maxits, to
     }
 
     # Initialize theta
-    theta <- Mj(matrix(stats::runif(K),nrow=K,ncol=1))
-    theta <- theta/as.numeric(sqrt(crossprod(theta, D)%*%theta))
+    theta <- matrix(stats::runif(K),nrow=K,ncol=1)
+    theta <- Mj(theta)
+    if(j == 1 & !missing(initTheta)){
+      theta=initTheta
+    }
+    theta <- theta/as.numeric(sqrt(crossprod(theta,D%*%theta)))
 
     # Initialize coefficient vector for elastic net step
     d <- 2*crossprod(Xt,Yt%*%theta)

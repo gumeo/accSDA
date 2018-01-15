@@ -92,6 +92,10 @@ The control list contains the following entries to further tune the
            if CV is not specified. Default value is 0.15.}
            \item{\code{quiet}}{Set to \code{FALSE} if status updates are supposed to be printed to the R console.
            Default value is \code{TRUE}. Note that this triggers a lot of printing to the console.}
+           \item{\code{ordinal}}{Set to \code{TRUE} if the labels are ordinal. Only available for methods
+           \code{SDAAP} and \code{SDAD}.}
+           \item{\code{initTheta}}{Option to set the initial theta vector, by default it is a vector of all ones
+           for the first theta.}
          }
 }
 \note{
@@ -113,8 +117,8 @@ The input matrix Xt should be normalized, i.e. each column corresponding to
 
     # Define parameters for Alternating Direction Method of Multipliers (SDAD)
     Om <- diag(4)+0.1*matrix(1,4,4) #elNet coef mat
-    gam <- 0.01
-    lam <- 0.01
+    gam <- 0.0001
+    lam <- 0.0001
     method <- "SDAD"
     q <- 2
     control <- list(PGsteps = 100,

@@ -17,6 +17,7 @@
 #' @param PGtol Stopping tolerance for inner APG method.
 #' @param maxits Number of iterations to run
 #' @param tol Stopping tolerance for proximal gradient algorithm.
+#' @param initTheta Initial first theta, default value is a vector of ones.
 #' @return \code{SDAP} returns an object of \code{\link{class}} "\code{SDAP}" including a list
 #' with the following named components: (More will be added later to handle the predict function)
 #'
@@ -33,12 +34,7 @@ SDAP <- function (x, ...) UseMethod("SDAP")
 #'
 #' @rdname SDAP
 #' @method SDAP default
-SDAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol){
-  #
-  # HERE WE NEED A DESCRIPTION
-  # Use Roxygen2 to create the desired documentation
-  #
-  # TODO: Handle Yt as a factor and generate dummy matrix from it
+SDAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, initTheta){
 
   # Read training data size
   n <- dim(Xt)[1]
@@ -71,8 +67,14 @@ SDAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol){
     }
 
     # Initialize theta
-    theta <- Mj(matrix(stats::runif(K),nrow=K,ncol=1))
+    theta <- matrix(stats::runif(K),nrow=K,ncol=1)
+    theta <- Mj(theta)
+    if(j == 1 & !missing(initTheta)){
+      theta=initTheta/10
+    }
     theta <- theta/as.numeric(sqrt(crossprod(theta,D%*%theta)))
+
+    # In case we want to initialize the theta
 
     # Initialize beta
     beta <- matrix(0,p,1)

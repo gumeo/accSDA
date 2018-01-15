@@ -7,7 +7,8 @@
 \usage{
 SDAP(x, ...)
 
-\method{SDAP}{default}(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol)
+\method{SDAP}{default}(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol,
+  initTheta)
 }
 \arguments{
 \item{Xt}{n by p data matrix, (not a data frame, but a matrix)}
@@ -32,6 +33,8 @@ only one element is 1 and the rest is 0.}
 \item{maxits}{Number of iterations to run}
 
 \item{tol}{Stopping tolerance for proximal gradient algorithm.}
+
+\item{initTheta}{Initial first theta, default value is a vector of ones.}
 }
 \value{
 \code{SDAP} returns an object of \code{\link{class}} "\code{SDAP}" including a list
