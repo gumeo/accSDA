@@ -232,8 +232,7 @@ ASDA.default <- function(Xt, Yt, Om = diag(p), gam = 1e-3, lam = 1e-6, q = K-1, 
               feat = 0.15,
               quiet = TRUE,
               ordinal = FALSE,
-              initTheta = matrix(1,nrow=K,ncol=1))
-  con$initTheta[1,1] <- 2*con$initTheta[1,1]
+              initTheta = matrix(1:K,nrow=K,ncol=1))
   nmsC <- names(con)
   if(method == "SDAD"){
     # Set special defaults for SDAD
