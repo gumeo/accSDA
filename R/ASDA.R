@@ -26,6 +26,8 @@
 #'       \item{\code{SDAAP}}{Accelerated proximal gradient algorithm.}
 #'       \item{\code{SDAD}}{Alternating directions method of multipliers algorithm.}
 #'     }
+#'     Note that further parameters are passed to the function in the argument \code{control},
+#'     which is a list with named components.
 #' @param ... Additional arguments for \code{\link[MASS]{lda}} function in package MASS.
 #'
 #' @details The control list contains the following entries to further tune the
@@ -55,6 +57,10 @@
 #'            \code{SDAAP} and \code{SDAD}.}
 #'            \item{\code{initTheta}}{Option to set the initial theta vector, by default it is a vector of all ones
 #'            for the first theta.}
+#'            \item{\code{bt}}{Logical indicating whether backtracking should be used, only applies to
+#'            the Proximal Gradient based methods. By default, backtracking is not used.}
+#'            \item{\code{L}}{Initial estimate for Lipshitz constant used for backtracking. Default value is 0.25.}
+#'            \item{\code{eta}}{Scalar for Lipshitz constant. Default value is 1.25.}
 #'          }
 #'
 #' @return \code{ASDA} returns an object of \code{\link{class}} "\code{ASDA}" including a list
@@ -232,7 +238,10 @@ ASDA.default <- function(Xt, Yt, Om = diag(p), gam = 1e-3, lam = 1e-6, q = K-1, 
               feat = 0.15,
               quiet = TRUE,
               ordinal = FALSE,
-              initTheta = matrix(1:K,nrow=K,ncol=1))
+              initTheta = matrix(1:K,nrow=K,ncol=1),
+              bt = FALSE,
+              L = 0.25,
+              eta = 1.25)
   nmsC <- names(con)
   if(method == "SDAD"){
     # Set special defaults for SDAD
@@ -249,6 +258,11 @@ ASDA.default <- function(Xt, Yt, Om = diag(p), gam = 1e-3, lam = 1e-6, q = K-1, 
     stop('The initTheta parameter supplied must be a matrix with one
          column and the number of rows equal to the number fo classes.')
   }
+
+  if(con$eta < 0){
+    stop('Backtracking multiplier must be positive!')
+  }
+
   # Make sure that the method is acelerated proximal gradient if we have ordinal data
   # Also inform that the CV version has not yet been implemented
   if(con$ordinal == TRUE){
@@ -365,17 +379,31 @@ ASDA.default <- function(Xt, Yt, Om = diag(p), gam = 1e-3, lam = 1e-6, q = K-1, 
   ###
   if(!CV){
     if(method == "SDAP"){
-      res <- SDAP(Xt=Xt, Yt=Yt, Om=Om, gam=gam, lam=lam, q=q,
-                  PGsteps=PGsteps, PGtol=PGtol, maxits=maxits,
-                  tol=tol, initTheta=con$initTheta)
+      if(con$bt == FALSE){
+        res <- SDAP(Xt=Xt, Yt=Yt, Om=Om, gam=gam, lam=lam, q=q,
+                    PGsteps=PGsteps, PGtol=PGtol, maxits=maxits,
+                    tol=tol, initTheta=con$initTheta)
+      }else{
+        res <- SDAP(Xt=Xt, Yt=Yt, Om=Om, gam=gam, lam=lam, q=q,
+                    PGsteps=PGsteps, PGtol=PGtol, maxits=maxits,
+                    tol=tol, initTheta=con$initTheta, bt=con$bt,
+                    L=con$L, eta=con$eta)
+      }
     } else if(method == "SDAAP"){
       selector <- rep(1,dim(Xt)[2])
       if(con$ordinal == TRUE){
         selector[(dim(Xt)[2]-K+2):dim(Xt)[2]] <- rep(0,length((dim(Xt)[2]-K+2):dim(Xt)[2]))
       }
-      res <- SDAAP(Xt=Xt, Yt=Yt, Om=Om, gam=gam, lam=lam, q=q, PGsteps=PGsteps,
-                   PGtol=PGtol, maxits=maxits, tol=tol, selector=selector,
-                   initTheta=con$initTheta)
+      if(con$bt==FALSE){
+        res <- SDAAP(Xt=Xt, Yt=Yt, Om=Om, gam=gam, lam=lam, q=q, PGsteps=PGsteps,
+                     PGtol=PGtol, maxits=maxits, tol=tol, selector=selector,
+                     initTheta=con$initTheta)
+      }else{
+        res <- SDAAP(Xt=Xt, Yt=Yt, Om=Om, gam=gam, lam=lam, q=q, PGsteps=PGsteps,
+                     PGtol=PGtol, maxits=maxits, tol=tol, selector=selector,
+                     initTheta=con$initTheta, bt=con$bt,
+                     L=con$L, eta=con$eta)
+      }
     } else{ # method is SDAD, input has been checked
       selector <- rep(1,dim(Xt)[2])
       if(con$ordinal == TRUE){
@@ -387,15 +415,31 @@ ASDA.default <- function(Xt, Yt, Om = diag(p), gam = 1e-3, lam = 1e-6, q = K-1, 
     }
   } else{
     if(method == "SDAP"){
-      res <- SDAPcv(Xt=Xt, Yt=Yt, folds=folds, Om=Om, gam=gam,
-                    lam=lam, q=q, PGsteps=PGsteps, PGtol=PGtol,
-                    maxits=maxits, tol=tol, feat=feat,
-                    quiet=quiet, initTheta=con$initTheta)
+      if(con$bt == FALSE){
+        res <- SDAPcv(Xt=Xt, Yt=Yt, folds=folds, Om=Om, gam=gam,
+                      lam=lam, q=q, PGsteps=PGsteps, PGtol=PGtol,
+                      maxits=maxits, tol=tol, feat=feat,
+                      quiet=quiet, initTheta=con$initTheta)
+      }else{
+        res <- SDAPcv(Xt=Xt, Yt=Yt, folds=folds, Om=Om, gam=gam,
+                      lam=lam, q=q, PGsteps=PGsteps, PGtol=PGtol,
+                      maxits=maxits, tol=tol, feat=feat,
+                      quiet=quiet, initTheta=con$initTheta, bt=con$bt,
+                      L=con$L, eta=con$eta)
+      }
     } else if(method == "SDAAP"){
-      res <- SDAAPcv(Xt=Xt, Yt=Yt, folds=folds, Om=Om, gam=gam,
-                     lam=lam, q=q, PGsteps=PGsteps, PGtol=PGtol,
-                     maxits=maxits, tol=tol, feat=feat,
-                     quiet=quiet, initTheta=con$initTheta)
+      if(con$bt == FALSE){
+        res <- SDAAPcv(Xt=Xt, Yt=Yt, folds=folds, Om=Om, gam=gam,
+                       lam=lam, q=q, PGsteps=PGsteps, PGtol=PGtol,
+                       maxits=maxits, tol=tol, feat=feat,
+                       quiet=quiet, initTheta=con$initTheta)
+      }else{
+        res <- SDAAPcv(Xt=Xt, Yt=Yt, folds=folds, Om=Om, gam=gam,
+                       lam=lam, q=q, PGsteps=PGsteps, PGtol=PGtol,
+                       maxits=maxits, tol=tol, feat=feat,
+                       quiet=quiet, initTheta=con$initTheta, bt=con$bt,
+                       L=con$L, eta=con$eta)
+      }
     } else{ # method is SDAD
       res <- SDADcv(Xt=Xt, Yt=Yt, folds=folds, Om=Om, gam=gam,
                     lam=lam, mu=mu, q=q, PGsteps=PGsteps, PGtol=PGtol,

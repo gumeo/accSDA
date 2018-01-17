@@ -8,7 +8,7 @@
 SDAAP(x, ...)
 
 \method{SDAAP}{default}(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol,
-  selector = rep(1, dim(Xt)[2]), initTheta)
+  selector = rep(1, dim(Xt)[2]), initTheta, bt = FALSE, L, eta)
 }
 \arguments{
 \item{Xt}{n by p data matrix, (not a data frame, but a matrix)}
@@ -40,6 +40,12 @@ default value is a vector of all ones. This is currently only used for ordinal c
 
 \item{initTheta}{Option to set the initial theta vector, by default it is a vector of all ones
 for the first theta.}
+
+\item{bt}{Boolean to indicate whether backtracking should be used, default false.}
+
+\item{L}{Initial estimate for Lipshitz constant used for backtracking.}
+
+\item{eta}{Scalar for Lipshitz constant.}
 }
 \value{
 \code{SDAAP} returns an object of \code{\link{class}} "\code{SDAAP}" including a list

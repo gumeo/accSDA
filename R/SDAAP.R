@@ -22,6 +22,9 @@
 #'                 default value is a vector of all ones. This is currently only used for ordinal classification.
 #' @param initTheta Option to set the initial theta vector, by default it is a vector of all ones
 #'                  for the first theta.
+#' @param bt Boolean to indicate whether backtracking should be used, default false.
+#' @param L Initial estimate for Lipshitz constant used for backtracking.
+#' @param eta Scalar for Lipshitz constant.
 #' @return \code{SDAAP} returns an object of \code{\link{class}} "\code{SDAAP}" including a list
 #' with the following named components: (More will be added later to handle the predict function)
 #'
@@ -39,7 +42,7 @@ SDAAP <- function(x, ...) UseMethod("SDAAP")
 #'
 #' @rdname SDAAP
 #' @method SDAAP default
-SDAAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, selector = rep(1,dim(Xt)[2]), initTheta){
+SDAAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, selector = rep(1,dim(Xt)[2]), initTheta, bt=FALSE, L, eta){
   # TODO: Handle Yt as a factor and generate dummy matrix from it
 
   # Get training data size
@@ -112,8 +115,13 @@ SDAAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, 
 
       # Update beta using proximal gradient step
       b_old <- beta
-      betaOb <- APG_EN2(A, d, beta, lam, alpha, PGsteps, PGtol, selector)
-      beta <- betaOb$x
+      if(bt == FALSE){
+        betaOb <- APG_EN2(A, d, beta, lam, alpha, PGsteps, PGtol, selector)
+        beta <- betaOb$x
+      }else{
+        betaOb <- APG_EN2bt(A, d, beta, lam, L, eta, PGsteps, PGtol, selector)
+        beta <- betaOb$x
+      }
 
       # Update theta using the projected solution
       if(norm(beta, type="2") > 1e-12){

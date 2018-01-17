@@ -1,16 +1,17 @@
-#' Accelerated Proximal Gradient on l1 regularized quadratic program
+#' Accelerated Proximal Gradient on l1 regularized quadratic program with backtracking
 #'
-#' Applies accelerated proximal gradient algorithm to the l1-regularized quadratic program
+#' Applies accelerated proximal gradient (with backtracking) algorithm to the l1-regularized quadratic program
 #' \deqn{f(\mathbf{x}) + g(\mathbf{x}) = \frac{1}{2}\mathbf{x}^TA\mathbf{x} - d^T\mathbf{x} + \lambda |\mathbf{x}|_1}{f(x) + g(x) = 0.5*x^T*A*x - d^T*x + lambda*|x|_l1}
 #'
 #' @param A p by p positive definite coefficient matrix
 #' \deqn{A = (\gamma Om + X^T X/n)}{A = (gamma Om + X^T X/n)}.
 #' @param d nx1 dimensional column vector.
 #' @param lam Regularization parameter for l1 penalty, must be greater than zero.
-#' @param alpha Step length.
+#' @param L Initial value of backtracking Lipshitz constant.
+#' @param eta Backtracking scaling parameter.
 #' @param maxits Number of iterations to run
 #' @param tol Stopping tolerance for proximal gradient algorithm.
-#' @return \code{prox_EN} returns an object of \code{\link{class}} "\code{prox_EN}" including a list
+#' @return \code{prox_ENbt} returns an object of \code{\link{class}} "\code{prox_ENbt}" including a list
 #' with the following named components
 #'
 #' \describe{
@@ -23,7 +24,7 @@
 #' This function is used by other functions and should only be called explicitly for
 #' debugging purposes.
 #' @keywords internal
-prox_EN <- function(A, d, x0, lam, alpha, maxits, tol){
+prox_ENbt <- function(A, d, x0, lam, L, eta, maxits, tol){
   # Make sure these are not a matrix with
   # one element
   lam <- as.numeric(lam)
@@ -74,16 +75,31 @@ prox_EN <- function(A, d, x0, lam, alpha, maxits, tol){
         list(call = match.call(),
              x = x,
              k = k),
-        class = "prox_EN"))
+        class = "prox_ENbt"))
     } else{
-      # Update x using soft-thresholding.
-      x <- sign(x-alpha*df)*pmax(abs(x-alpha*df) - lam*alpha*matrix(1,n,1),matrix(0,n,1))
+      #--------------------------------------------------------------------------------------
+      # Backtracking line search update
+      #--------------------------------------------------------------------------------------
+      alpha <- 1/L # step length
+      # Evaluate proximal gradient
+      pL <- sign(x-alpha*df)*pmax(abs(x-alpha*df) - lam*alpha*matrix(1,n,1),matrix(0,n,1))
+      gap <- as.numeric((1/2)*t(pL-x)%*%(L*diag(n)-A)%*%(pL-x))
+
+      # backtrack
+      while(gap < -tol){
+        L <- eta*L
+        alpha <- 1/L # step length
+        # Evaluate proximal gradient
+        pL <- sign(x-alpha*df)*pmax(abs(x-alpha*df) - lam*alpha*matrix(1,n,1),matrix(0,n,1))
+        gap <- as.numeric((1/2)*t(pL-x)%*%(L*diag(n)-A)%*%(pL-x))
+      }
+      x <- pL
     }
   }
   retOb <- structure(
     list(call = match.call(),
          x = x,
          k = k),
-    class = "prox_EN")
+    class = "prox_ENbt")
   return(retOb)
 }

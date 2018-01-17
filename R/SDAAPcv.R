@@ -1,6 +1,6 @@
 SDAAPcv <- function (x, ...) UseMethod("SDAAPcv")
 
-SDAAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits, tol, feat, quiet, initTheta){
+SDAAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits, tol, feat, quiet, initTheta, bt=FALSE, L, eta){
   #
   # HERE WE NEED A DESCRIPTION
   # Use Roxygen2 to create the desired documentation, internal function
@@ -154,8 +154,13 @@ SDAAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxit
 
           # Update beta using proximal gradient step
           b_old <- beta
-          beta <- APG_EN2(A, d, beta, lams[ll], alpha, PGsteps, PGtol)
-          beta <- beta$x
+          if(bt == FALSE){
+            betaOb <- APG_EN2(A, d, beta, lams[ll], alpha, PGsteps, PGtol)
+            beta <- betaOb$x
+          }else{
+            betaOb <- APG_EN2bt(A, d, beta, lams[ll], L, eta, PGsteps, PGtol)
+            beta <- betaOb$x
+          }
           # Update theta using projected solution
           if(norm(beta, type = "2") > 1e-12){
             b <- t(Yt)%*%(Xt%*%beta)

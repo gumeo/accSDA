@@ -1,6 +1,6 @@
 SDAPcv <- function (x, ...) UseMethod("SDAPcv")
 
-SDAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits, tol, feat, quiet, initTheta){
+SDAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits, tol, feat, quiet, initTheta, bt=FALSE, L, eta){
 
   # Get dimensions of input matrices
   dimX <- dim(X)
@@ -129,8 +129,13 @@ SDAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits
 
           # Update beta using proximal gradient step
           b_old <- beta
-          beta <- prox_EN(A, d, beta, lams[ll], alpha, PGsteps, PGtol)
-          beta <- beta$x
+          if(bt == FALSE){
+            beta <- prox_EN(A, d, beta, lams[ll], alpha, PGsteps, PGtol)
+            beta <- beta$x
+          }else{
+            beta <- prox_ENbt(A, d, beta, lams[ll], L, eta, PGsteps, PGtol)
+            beta <- beta$x
+          }
 
           # Update theta using the projected solution
           if(norm(beta, type="2") > 1e-12){

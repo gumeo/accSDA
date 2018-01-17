@@ -18,6 +18,9 @@
 #' @param maxits Number of iterations to run
 #' @param tol Stopping tolerance for proximal gradient algorithm.
 #' @param initTheta Initial first theta, default value is a vector of ones.
+#' @param bt Boolean to indicate whether backtracking should be used, default false.
+#' @param L Initial estimate for Lipshitz constant used for backtracking.
+#' @param eta Scalar for Lipshitz constant.
 #' @return \code{SDAP} returns an object of \code{\link{class}} "\code{SDAP}" including a list
 #' with the following named components: (More will be added later to handle the predict function)
 #'
@@ -34,7 +37,7 @@ SDAP <- function (x, ...) UseMethod("SDAP")
 #'
 #' @rdname SDAP
 #' @method SDAP default
-SDAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, initTheta){
+SDAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, initTheta, bt = FALSE, L, eta){
 
   # Read training data size
   n <- dim(Xt)[1]
@@ -88,8 +91,14 @@ SDAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, i
 
       # Update beta using proximal gradient step
       b_old <- beta
-      beta <- prox_EN(A, d, beta, lam, alpha, PGsteps, PGtol)
-      beta <- beta$x
+      if(bt == FALSE){
+        beta <- prox_EN(A, d, beta, lam, alpha, PGsteps, PGtol)
+        beta <- beta$x
+      }else{
+        beta <- prox_ENbt(A, d, beta, lam, L, eta, PGsteps, PGtol)
+        beta <- beta$x
+      }
+
 
       # Update theta using the projected solution
       if(norm(beta, type="2") > 1e-12){

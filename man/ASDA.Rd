@@ -36,7 +36,9 @@ It is specified as a character vector which can be one of the three values
   \item{\code{SDAP}}{Proximal gradient algorithm.}
   \item{\code{SDAAP}}{Accelerated proximal gradient algorithm.}
   \item{\code{SDAD}}{Alternating directions method of multipliers algorithm.}
-}}
+}
+Note that further parameters are passed to the function in the argument \code{control},
+which is a list with named components.}
 
 \item{control}{List of control arguments. See Details.}
 }
@@ -96,6 +98,10 @@ The control list contains the following entries to further tune the
            \code{SDAAP} and \code{SDAD}.}
            \item{\code{initTheta}}{Option to set the initial theta vector, by default it is a vector of all ones
            for the first theta.}
+           \item{\code{bt}}{Logical indicating whether backtracking should be used, only applies to
+           the Proximal Gradient based methods. By default, backtracking is not used.}
+           \item{\code{L}}{Initial estimate for Lipshitz constant used for backtracking. Default value is 0.25.}
+           \item{\code{eta}}{Scalar for Lipshitz constant. Default value is 1.25.}
          }
 }
 \note{
