@@ -162,10 +162,10 @@ SDADcv.default <- function(X, Y, folds, Om, gam, lams, mu, q, PGsteps, PGtol, ma
 
           if(SMW == 1){
             # Use SMW-based ADMM
-            betaOb <- ADMM_EN_SMW(Minv, Xt, RS, d, beta, lams[ll], mu, PGsteps, PGtol, TRUE)
+            betaOb <- ADMM_EN_SMW(Minv, Xt, RS, d, beta, lams[ll], mu, PGsteps, PGtol, TRUE, rep(1,p))
             beta <- betaOb$y
           } else{
-            betaOb <- ADMM_EN2(R2, d, beta, lams[ll], mu, PGsteps, PGtol, TRUE)
+            betaOb <- ADMM_EN2(R2, d, beta, lams[ll], mu, PGsteps, PGtol, TRUE, rep(1,p))
             beta <- betaOb$y
           }
 

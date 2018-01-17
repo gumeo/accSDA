@@ -26,7 +26,7 @@
 #' This function is used by other functions and should only be called explicitly for
 #' debugging purposes.
 #' @keywords internal
-APG_EN2 <- function(A, d, x0, lam, alpha,  maxits, tol, selector = rep(1,dim(x0)[1])){
+APG_EN2 <- function(A, d, x0, lam, alpha,  maxits, tol, selector){
   ###
   # Initialization
   ###
