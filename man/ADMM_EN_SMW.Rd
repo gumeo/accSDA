@@ -4,8 +4,7 @@
 \alias{ADMM_EN_SMW}
 \title{ADMM on l1 regularized quadratic program}
 \usage{
-ADMM_EN_SMW(Ainv, V, R, d, x0, lam, mu, maxits, tol, quiet, selector = rep(1,
-  dim(Ainv)[1]))
+ADMM_EN_SMW(Ainv, V, R, d, x0, lam, mu, maxits, tol, quiet, selector)
 }
 \arguments{
 \item{Ainv}{Diagonal of \eqn{A^{-1}}{A^{-1}} term in SMW formula, where A is an n by n
