@@ -93,6 +93,7 @@ SDAAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxit
       A$gom <- gam*diag(Om)
       A$X <- Xt
       A$n <- nt
+      A$A <- 2*(t(Xt)%*%Xt/nt + gam*Om)
       alpha <- 1/(2*(norm(Xt, type="1")*norm(Xt, type="I")/nt + norm(diag(A$gom), type="I")))
     }else{
       A$flag <- 0

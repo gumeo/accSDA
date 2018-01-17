@@ -72,6 +72,7 @@ SDAAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, 
     A$gom <- gam*diag(Om)
     A$X <- Xt
     A$n <- nt
+    A$A <- 2*(crossprod(Xt)/nt + gam*Om)
     alpha <- 1/(2*(norm(Xt, type="1")*norm(Xt, type="I")/nt + norm(diag(A$gom), type="I")))
   }else{
     A$flag <- 0
