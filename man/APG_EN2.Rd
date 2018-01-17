@@ -4,7 +4,7 @@
 \alias{APG_EN2}
 \title{Accelerated Proximal Gradient on l1 regularized quadratic program}
 \usage{
-APG_EN2(A, d, x0, lam, alpha, maxits, tol, selector)
+APG_EN2(A, d, x0, lam, alpha, maxits, tol, selector = rep(1, dim(x0)[1]))
 }
 \arguments{
 \item{A}{p by p positive definite coefficient matrix
