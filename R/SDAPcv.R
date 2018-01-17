@@ -117,6 +117,12 @@ SDAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits
         }
         theta <- theta/as.numeric(sqrt(crossprod(theta,D%*%theta)))
 
+        # Make the first argument be positive, this is to make the results
+        # more reproducible and consistent.
+        if(theta[1] < 0){
+          theta <- (-1)*theta
+        }
+
         # Initialize beta
         beta <- matrix(0,p,1)
 
