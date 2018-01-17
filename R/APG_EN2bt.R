@@ -104,6 +104,7 @@ APG_EN2bt <- function(A, d, x0, lam, L, eta,  maxits, tol, selector = rep(1,dim(
       QminusF <- as.numeric((1/2)*t(pLy-y)%*%(L*diag(p)-A$A)%*%(pLy-y))
 
       while(QminusF < -tol){
+        print(QminusF)
         L <- eta*L
         alpha <- 1/L # step length
         pLyy <- sign(y-alpha*dfy)*pmax(abs(y-alpha*dfy) - lam*alpha*matrix(1,p,1),matrix(0,p,1))
