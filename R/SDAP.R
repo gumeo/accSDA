@@ -74,12 +74,6 @@ SDAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, i
     }
     theta <- theta/as.numeric(sqrt(crossprod(theta,D%*%theta)))
 
-    # Make the first argument be positive, this is to make the results
-    # more reproducible and consistent.
-    if(theta[1] < 0){
-      theta <- (-1)*theta
-    }
-
     # In case we want to initialize the theta
 
     # Initialize beta
@@ -124,6 +118,13 @@ SDAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, i
         break
       }
     }
+    # Make the first argument be positive, this is to make the results
+    # more reproducible and consistent.
+    if(theta[1] < 0){
+      theta <- (-1)*theta
+      beta <- (-1)*beta
+    }
+
     # Update Q and B
     Q[,j] <- theta
     B[,j] <- beta

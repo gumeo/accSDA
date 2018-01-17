@@ -103,12 +103,6 @@ SDAAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, 
     }
     theta <- theta/as.numeric(sqrt(crossprod(theta,D%*%theta)))
 
-    # Make the first argument be positive, this is to make the results
-    # more reproducible and consistent.
-    if(theta[1] < 0){
-      theta <- (-1)*theta
-    }
-
     # Initialize beta
     beta <- matrix(0,p,1)
 
@@ -148,6 +142,12 @@ SDAAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, 
         # Converged
         break
       }
+    }
+    # Make the first argument be positive, this is to make the results
+    # more reproducible and consistent.
+    if(theta[1] < 0){
+      theta <- (-1)*theta
+      beta <- (-1)*beta
     }
     # Update Q and B
     Q[,j] <- theta

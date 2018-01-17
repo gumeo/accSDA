@@ -142,12 +142,6 @@ SDADcv.default <- function(X, Y, folds, Om, gam, lams, mu, q, PGsteps, PGtol, ma
         }
         theta <- theta/as.numeric(sqrt(crossprod(theta,D%*%theta)))
 
-        # Make the first argument be positive, this is to make the results
-        # more reproducible and consistent.
-        if(theta[1] < 0){
-          theta <- (-1)*theta
-        }
-
         # Initialize coefficient vector for elastic net step
         d <- 2*t(Xt)%*%(Yt%*%theta)
 
@@ -200,6 +194,12 @@ SDADcv.default <- function(X, Y, folds, Om, gam, lams, mu, q, PGsteps, PGtol, ma
             # Converged
             break
           }
+        }
+        # Make the first argument be positive, this is to make the results
+        # more reproducible and consistent.
+        if(theta[1] < 0){
+          theta <- (-1)*theta
+          beta <- (-1)*beta
         }
         # Update Q and B
         Q[,j] <- theta
