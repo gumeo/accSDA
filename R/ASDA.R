@@ -416,12 +416,12 @@ ASDA.default <- function(Xt, Yt, Om = diag(p), gam = 1e-3, lam = 1e-6, q = K-1, 
   } else{
     if(method == "SDAP"){
       if(con$bt == FALSE){
-        res <- SDAPcv(Xt=Xt, Yt=Yt, folds=folds, Om=Om, gam=gam,
+        res <- SDAPcv(X=Xt, Y=Yt, folds=folds, Om=Om, gam=gam,
                       lam=lam, q=q, PGsteps=PGsteps, PGtol=PGtol,
                       maxits=maxits, tol=tol, feat=feat,
                       quiet=quiet, initTheta=con$initTheta)
       }else{
-        res <- SDAPcv(Xt=Xt, Yt=Yt, folds=folds, Om=Om, gam=gam,
+        res <- SDAPcv(X=Xt, Y=Yt, folds=folds, Om=Om, gam=gam,
                       lam=lam, q=q, PGsteps=PGsteps, PGtol=PGtol,
                       maxits=maxits, tol=tol, feat=feat,
                       quiet=quiet, initTheta=con$initTheta, bt=con$bt,
@@ -429,19 +429,19 @@ ASDA.default <- function(Xt, Yt, Om = diag(p), gam = 1e-3, lam = 1e-6, q = K-1, 
       }
     } else if(method == "SDAAP"){
       if(con$bt == FALSE){
-        res <- SDAAPcv(Xt=Xt, Yt=Yt, folds=folds, Om=Om, gam=gam,
+        res <- SDAAPcv(X=Xt, Y=Yt, folds=folds, Om=Om, gam=gam,
                        lam=lam, q=q, PGsteps=PGsteps, PGtol=PGtol,
                        maxits=maxits, tol=tol, feat=feat,
                        quiet=quiet, initTheta=con$initTheta)
       }else{
-        res <- SDAAPcv(Xt=Xt, Yt=Yt, folds=folds, Om=Om, gam=gam,
+        res <- SDAAPcv(X=Xt, Y=Yt, folds=folds, Om=Om, gam=gam,
                        lam=lam, q=q, PGsteps=PGsteps, PGtol=PGtol,
                        maxits=maxits, tol=tol, feat=feat,
                        quiet=quiet, initTheta=con$initTheta, bt=con$bt,
                        L=con$L, eta=con$eta)
       }
     } else{ # method is SDAD
-      res <- SDADcv(Xt=Xt, Yt=Yt, folds=folds, Om=Om, gam=gam,
+      res <- SDADcv(X=Xt, Y=Yt, folds=folds, Om=Om, gam=gam,
                     lam=lam, mu=mu, q=q, PGsteps=PGsteps, PGtol=PGtol,
                     maxits=maxits, tol=tol, feat=feat,
                     quiet=quiet, initTheta=con$initTheta)
