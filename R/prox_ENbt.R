@@ -28,7 +28,7 @@ prox_ENbt <- function(A, d, x0, lam, L, eta, maxits, tol){
   # Make sure these are not a matrix with
   # one element
   lam <- as.numeric(lam)
-  alpha <- as.numeric(alpha)
+  #alpha <- as.numeric(alpha)
 
   ###
   # Initialization
