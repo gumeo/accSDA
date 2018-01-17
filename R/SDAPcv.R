@@ -74,6 +74,7 @@ SDAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits
     # Precompute repeatedly used matrix products
     A <- (t(Xt)%*%Xt + gam*Om) # Elastic net coef matrix
     alpha <- 1/norm(A, type="2") # Step length in PGA
+    L <- 1/alpha
     D <- (1/n)*(t(Yt)%*%Yt)
     R <- chol(D)
 
