@@ -80,6 +80,7 @@ SDAAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, 
     alpha <- 1/(norm(A$A, type="F"))
   }
   L <- 1/alpha
+  L <- norm(diag(diag(Om*gam)),'I')+norm(Xt,'F')^2
   D <- (1/nt)*crossprod(Yt)
   R <- chol(D)
 
