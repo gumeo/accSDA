@@ -101,7 +101,7 @@ SDAAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxit
       alpha <- 1/(norm(A$A, type="F"))
     }
     L <- 1/alpha
-    L <- 2*norm(diag(diag(Om*gam)),'I')+2*norm(Xt,'F')^2
+    L <- norm(diag(diag(Om*gam)),'I')+norm(Xt,'F')^2
     D <- (1/n)*(t(Yt)%*%Yt)
     R <- chol(D)
 
