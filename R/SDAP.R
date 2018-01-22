@@ -100,7 +100,7 @@ SDAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, i
         beta <- beta$x
       }else{
         beta <- prox_ENbt(A, d, beta, lam, L, eta, PGsteps, PGtol)
-        L <- beta$L
+        #L <- beta$L
         beta <- beta$x
       }
 

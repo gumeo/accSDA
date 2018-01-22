@@ -164,7 +164,7 @@ SDAAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxit
             beta <- betaOb$x
           }else{
             betaOb <- APG_EN2bt(A, d, beta, lams[ll], L, eta, PGsteps, PGtol)
-            L <- betaOb$L
+            #L <- betaOb$L
             beta <- betaOb$x
           }
           # Update theta using projected solution

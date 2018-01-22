@@ -124,7 +124,7 @@ SDAAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, 
         beta <- betaOb$x
       }else{
         betaOb <- APG_EN2bt(A, d, beta, lam, L, eta, PGsteps, PGtol, selector)
-        L <- betaOb$L
+        #L <- betaOb$L
         beta <- betaOb$x
       }
 

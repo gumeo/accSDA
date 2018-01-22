@@ -138,7 +138,7 @@ SDAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits
             beta <- beta$x
           }else{
             beta <- prox_ENbt(A, d, beta, lams[ll], L, eta, PGsteps, PGtol)
-            L <- beta$L
+            #L <- beta$L
             beta <- beta$x
           }
 
