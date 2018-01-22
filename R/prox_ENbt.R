@@ -81,7 +81,7 @@ prox_ENbt <- function(A, d, x0, lam, L, eta, maxits, tol){
       #--------------------------------------------------------------------------------------
       # Backtracking line search update
       #--------------------------------------------------------------------------------------
-      L <- origL
+      #L <- origL
       alpha <- 1/L # step length
       # Evaluate proximal gradient
       pL <- sign(x-alpha*df)*pmax(abs(x-alpha*df) - lam*alpha*matrix(1,n,1),matrix(0,n,1))
