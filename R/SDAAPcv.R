@@ -102,6 +102,7 @@ SDAAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxit
     }
     L <- 1/alpha
     L <- norm(diag(diag(Om*gam)),'I')+norm(Xt,'F')^2
+    origL <- L
     D <- (1/n)*(t(Yt)%*%Yt)
     R <- chol(D)
 
@@ -127,6 +128,7 @@ SDAAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxit
       #-------------------------------------------------
       # For j=1,2,...,q compute the SDA pair (theta_j, beta_j)
       for(j in 1:q){
+        L <- origL
         # Initialization
 
         # Compute Qj (K by j, first j-1 scoring vectors, all-ones last col)
@@ -162,6 +164,7 @@ SDAAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxit
             beta <- betaOb$x
           }else{
             betaOb <- APG_EN2bt(A, d, beta, lams[ll], L, eta, PGsteps, PGtol)
+            L <- betaOb$L
             beta <- betaOb$x
           }
           # Update theta using projected solution

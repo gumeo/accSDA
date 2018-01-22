@@ -81,6 +81,7 @@ SDAAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, 
   }
   L <- 1/alpha
   L <- norm(diag(diag(Om*gam)),'I')+norm(Xt,'F')^2
+  origL <- L
   D <- (1/nt)*crossprod(Yt)
   R <- chol(D)
 
@@ -91,6 +92,7 @@ SDAAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, 
   # Alternating direction method to update (theta,beta)
   #------------------------------------------------------
   for(j in 1:q){
+    L <- origL
     ###
     # Initialization
     ###
@@ -122,6 +124,7 @@ SDAAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, 
         beta <- betaOb$x
       }else{
         betaOb <- APG_EN2bt(A, d, beta, lam, L, eta, PGsteps, PGtol, selector)
+        L <- betaOb$L
         beta <- betaOb$x
       }
 

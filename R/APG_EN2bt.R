@@ -129,7 +129,8 @@ APG_EN2bt <- function(A, d, x0, lam, L, eta,  maxits, tol, selector = rep(1,dim(
   retOb <- structure(
     list(call = match.call(),
          x = x,
-         k = k),
+         k = k,
+         L = L),
     class = "APG_EN2bt")
   return(retOb)
 }

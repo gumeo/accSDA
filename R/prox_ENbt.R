@@ -101,7 +101,8 @@ prox_ENbt <- function(A, d, x0, lam, L, eta, maxits, tol){
   retOb <- structure(
     list(call = match.call(),
          x = x,
-         k = k),
+         k = k,
+         L = L),
     class = "prox_ENbt")
   return(retOb)
 }

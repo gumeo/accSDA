@@ -49,6 +49,7 @@ SDAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, i
   alpha <- 1/norm(A, type="2") # Step length in PGA
   #L <- 1/alpha
   L <- gam*norm(diag(diag(Om)),'I')+norm(Xt,'F')^2
+  origL <- L
   D <- (1/n)*(crossprod(Yt))
   R <- chol(D)
 
@@ -59,6 +60,7 @@ SDAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, i
   # Alternating direction method to update (theta, beta)
   #-----------------------------------------------------------
   for(j in 1:q){
+    L <- origL
     ###
     # Initialization
     ###
@@ -98,6 +100,7 @@ SDAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, i
         beta <- beta$x
       }else{
         beta <- prox_ENbt(A, d, beta, lam, L, eta, PGsteps, PGtol)
+        L <- beta$L
         beta <- beta$x
       }
 

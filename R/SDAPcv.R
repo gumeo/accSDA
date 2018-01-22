@@ -76,6 +76,7 @@ SDAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits
     alpha <- 1/norm(A, type="2") # Step length in PGA
     L <- 1/alpha
     L <- norm(diag(diag(Om*gam)),'I')+norm(Xt,'F')^2
+    origL <- L
     D <- (1/n)*(t(Yt)%*%Yt)
     R <- chol(D)
 
@@ -101,6 +102,7 @@ SDAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits
       #-------------------------------------------------
       # For j=1,2,...,q compute the SDA pair (theta_j, beta_j)
       for(j in 1:q){
+        L <- origL
         # Initialization
 
         # Compute Qj (K by j, first j-1 scoring vectors, all-ones last col)
@@ -136,6 +138,7 @@ SDAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits
             beta <- beta$x
           }else{
             beta <- prox_ENbt(A, d, beta, lams[ll], L, eta, PGsteps, PGtol)
+            L <- beta$L
             beta <- beta$x
           }
 
