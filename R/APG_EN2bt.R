@@ -58,7 +58,8 @@ APG_EN2bt <- function(A, d, x0, lam, L, eta,  maxits, tol, selector = rep(1,dim(
       A$A%*%x - d
     }
   }
-
+  oneMat <- matrix(1,p,1)
+  zeroMat <- matrix(0,p,1)
   #-------------------------------------------------------------
   # Outer loop: Repeat until convergence or max # of iterations
   #-------------------------------------------------------------
@@ -98,14 +99,14 @@ APG_EN2bt <- function(A, d, x0, lam, L, eta,  maxits, tol, selector = rep(1,dim(
       ###
       alpha <- 1/L # step length
       dfy <- df(y)
-      pLyy <- sign(y-alpha*dfy)*pmax(abs(y-alpha*dfy) - lam*alpha*matrix(1,p,1),matrix(0,p,1))
+      pLyy <- sign(y-alpha*dfy)*pmax(abs(y-alpha*dfy) - lam*alpha*oneMat,zeroMat)
       pLy <- selector*pLyy + abs(selector-1)*(y-alpha*dfy)
 
       QminusF <- as.numeric((1/2)*t(pLy-y)%*%(L*diag(p)-A$A)%*%(pLy-y))
       while(QminusF < -tol){
         L <- eta*L
         alpha <- 1/L # step length
-        pLyy <- sign(y-alpha*dfy)*pmax(abs(y-alpha*dfy) - lam*alpha*matrix(1,p,1),matrix(0,p,1))
+        pLyy <- sign(y-alpha*dfy)*pmax(abs(y-alpha*dfy) - lam*alpha*oneMat,zeroMat)
         pLy <- selector*pLyy + abs(selector-1)*(y-alpha*dfy)
 
         QminusF <- as.numeric((1/2)*t(pLy-y)%*%(L*diag(p)-A$A)%*%(pLy-y))
