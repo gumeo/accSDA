@@ -28,6 +28,7 @@
 #' debugging purposes.
 #' @keywords internal
 APG_EN2bt <- function(A, d, x0, lam, L, eta,  maxits, tol, selector = rep(1,dim(x0)[1])){
+  origL <- L
   ###
   # Initialization
   ###
@@ -97,6 +98,7 @@ APG_EN2bt <- function(A, d, x0, lam, L, eta,  maxits, tol, selector = rep(1,dim(
       ###
       # Update gradient via backtracking
       ###
+      L <- origL
       alpha <- 1/L # step length
       dfy <- df(y)
       pLyy <- sign(y-alpha*dfy)*pmax(abs(y-alpha*dfy) - lam*alpha*oneMat,zeroMat)
