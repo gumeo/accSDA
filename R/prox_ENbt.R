@@ -32,8 +32,6 @@ prox_ENbt <- function(A, Xt, Om, gamma,  d, x0, lam, L, eta, maxits, tol){
   # one element
   origL <- L
   lam <- as.numeric(lam)
-  oneMat <- matrix(1,n,1)
-  zeroMat <- matrix(0,n,1)
   #alpha <- as.numeric(alpha)
   ifDiag <- FALSE
   if(norm(diag(diag(Om))-Om, type = "F") < 1e-15){
@@ -51,6 +49,9 @@ prox_ENbt <- function(A, Xt, Om, gamma,  d, x0, lam, L, eta, maxits, tol){
 
   # Get number of components of x,d, rows/cols of A
   n <- dim(x)[1]
+
+  oneMat <- matrix(1,n,1)
+  zeroMat <- matrix(0,n,1)
 
   ###
   # Outer loop: Repeat until converged or max # of iterations reached.
