@@ -166,7 +166,7 @@ SDAAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxit
             betaOb <- APG_EN2(A, d, beta, lams[ll], alpha, PGsteps, PGtol)
             beta <- betaOb$x
           }else{
-            betaOb <- APG_EN2bt(A, Xt, Om, gamma, d, beta, lams[ll], L, eta, PGsteps, PGtol)
+            betaOb <- APG_EN2bt(A, Xt, Om, gam, d, beta, lams[ll], L, eta, PGsteps, PGtol)
             #L <- betaOb$L
             beta <- betaOb$x
           }
