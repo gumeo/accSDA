@@ -4,11 +4,17 @@
 \alias{prox_ENbt}
 \title{Accelerated Proximal Gradient on l1 regularized quadratic program with backtracking}
 \usage{
-prox_ENbt(A, d, x0, lam, L, eta, maxits, tol)
+prox_ENbt(A, Xt, Om, gamma, d, x0, lam, L, eta, maxits, tol)
 }
 \arguments{
 \item{A}{p by p positive definite coefficient matrix
 \deqn{A = (\gamma Om + X^T X/n)}{A = (gamma Om + X^T X/n)}.}
+
+\item{Xt}{Same as X above, we need it to make calculations faster.}
+
+\item{Om}{Same reason as for the above parameter.}
+
+\item{gamma}{l2 regularizing parameter.}
 
 \item{d}{nx1 dimensional column vector.}
 

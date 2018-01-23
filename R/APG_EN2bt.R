@@ -5,6 +5,9 @@
 #'
 #' @param A p by p positive definite coefficient matrix
 #' \deqn{A = (\gamma Om + X^T X/n)}{A = (gamma Om + X^T X/n)}.
+#' @param Xt Same as X above, we need it to make calculations faster.
+#' @param Om Same reason as for the above parameter.
+#' @param gamma l2 regularizing parameter.
 #' @param d nx1 dimensional column vector.
 #' @param lam Regularization parameter for l1 penalty, must be greater than zero.
 #' @param L Initial vlaue of the backtracking Lipshitz constant.
@@ -27,7 +30,14 @@
 #' This function is used by other functions and should only be called explicitly for
 #' debugging purposes.
 #' @keywords internal
-APG_EN2bt <- function(A, d, x0, lam, L, eta,  maxits, tol, selector = rep(1,dim(x0)[1])){
+APG_EN2bt <- function(A, Xt, Om, gamma, d, x0, lam, L, eta,  maxits, tol, selector = rep(1,dim(x0)[1])){
+  ifDiag <- FALSE
+  if(norm(diag(diag(Om))-Om, type = "F") < 1e-15){
+    ifDiag <- TRUE
+  }else{
+    # Factorize Omega
+    R <- chol(gamma*Om)
+  }
   origL <- L
   ###
   # Initialization
@@ -49,6 +59,7 @@ APG_EN2bt <- function(A, d, x0, lam, L, eta,  maxits, tol, selector = rep(1,dim(
     #  as.numeric(t(x)%*%(matrix(A$gom,length(A$gom),1)*x) + (1/A$n)*norm(A$X%*%x)^2 + t(d)%*%x)
     #}
     df <- function(x){
+      #2*(matrix(A$gom,length(A$gom),1)*x + crossprod(A$X,A$X%*%(x/A$n))) - d
       2*(matrix(A$gom,length(A$gom),1)*x + crossprod(A$X,A$X%*%(x/A$n))) - d
     }
   }else{
@@ -104,14 +115,27 @@ APG_EN2bt <- function(A, d, x0, lam, L, eta,  maxits, tol, selector = rep(1,dim(
       pLyy <- sign(y-alpha*dfy)*pmax(abs(y-alpha*dfy) - lam*alpha*oneMat,zeroMat)
       pLy <- selector*pLyy + abs(selector-1)*(y-alpha*dfy)
 
-      QminusF <- as.numeric((1/2)*t(pLy-y)%*%(L*diag(p)-A$A)%*%(pLy-y))
+      pTilde <- (pLy-y)
+      if(ifDiag == TRUE){
+        QminusF <- as.numeric((1/2)*(sum(pTilde*pTilde*(L*rep(1,p)-gamma*diag(Om)))-norm(Xt%*%pTilde,type='2')^2))
+      }else{
+        QminusF <- as.numeric((1/2)*(sum(pTilde*pTilde*L)-norm(R%*%pTilde,type='2')^2-norm(Xt%*%pTilde,type='2')^2))
+      }
+
+      #QminusF <- as.numeric((1/2)*t(pLy-y)%*%(L*diag(p)-A$A)%*%(pLy-y))
       while(QminusF < -tol){
         L <- eta*L
         alpha <- 1/L # step length
         pLyy <- sign(y-alpha*dfy)*pmax(abs(y-alpha*dfy) - lam*alpha*oneMat,zeroMat)
         pLy <- selector*pLyy + abs(selector-1)*(y-alpha*dfy)
+        pTilde <- (pLy-y)
+        if(ifDiag == TRUE){
+          QminusF <- as.numeric((1/2)*(sum(pTilde*pTilde*(L*rep(1,p)-gamma*diag(Om)))-norm(Xt%*%pTilde,type='2')^2))
+        }else{
+          QminusF <- as.numeric((1/2)*(sum(pTilde*pTilde*L)-norm(R%*%pTilde,type='2')^2-norm(Xt%*%pTilde,type='2')^2))
+        }
 
-        QminusF <- as.numeric((1/2)*t(pLy-y)%*%(L*diag(p)-A$A)%*%(pLy-y))
+        #QminusF <- as.numeric((1/2)*t(pLy-y)%*%(L*diag(p)-A$A)%*%(pLy-y))
       }
 
       # Update based on backtracked APG solution

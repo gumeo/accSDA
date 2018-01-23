@@ -45,10 +45,10 @@ SDAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, i
   K <- dim(Yt)[2]
 
   # Precompute repeatedly used matrix products
-  A <- (crossprod(Xt) + gam*Om) # Elastic net coef matrix
+  A <- 2*(crossprod(Xt)/n + gam*Om) # Elastic net coef matrix
   alpha <- 1/norm(A, type="2") # Step length in PGA
   #L <- 1/alpha
-  L <- gam*norm(diag(diag(Om)),'I')+norm(Xt,'F')^2
+  L <- gam*norm(diag(diag(Om)),'I')+norm(Xt,'F')^2/n
   origL <- L
   D <- (1/n)*(crossprod(Yt))
   R <- chol(D)
@@ -99,7 +99,7 @@ SDAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, i
         beta <- prox_EN(A, d, beta, lam, alpha, PGsteps, PGtol)
         beta <- beta$x
       }else{
-        beta <- prox_ENbt(A, d, beta, lam, L, eta, PGsteps, PGtol)
+        beta <- prox_ENbt(A, Xt, Om, gam, d, beta, lam, L, eta, PGsteps, PGtol)
         #L <- beta$L
         beta <- beta$x
       }

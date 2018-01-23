@@ -73,10 +73,13 @@ SDAAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, 
     A$X <- Xt
     A$n <- nt
     A$A <- 2*(crossprod(Xt)/nt + gam*Om)
+    #A$A <- 2*(crossprod(Xt) + gam*Om)
     alpha <- 1/(2*(norm(Xt, type="1")*norm(Xt, type="I")/nt + norm(diag(A$gom), type="I")))
+    #alpha <- 1/(2*(norm(Xt, type="1")*norm(Xt, type="I") + norm(diag(A$gom), type="I")))
   }else{
     A$flag <- 0
     A$A <- 2*(crossprod(Xt)/nt + gam*Om)
+    #A$A <- 2*(crossprod(Xt) + gam*Om)
     alpha <- 1/(norm(A$A, type="F"))
   }
   L <- 1/alpha
@@ -116,6 +119,7 @@ SDAAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, 
     for(its in 1:maxits){
       # Compute coefficient vector for elastic net step
       d <- 2*crossprod(Xt,Yt%*%(theta/nt))
+      #d <- 2*crossprod(Xt,Yt%*%(theta))
 
       # Update beta using proximal gradient step
       b_old <- beta
@@ -123,7 +127,7 @@ SDAAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, 
         betaOb <- APG_EN2(A, d, beta, lam, alpha, PGsteps, PGtol, selector)
         beta <- betaOb$x
       }else{
-        betaOb <- APG_EN2bt(A, d, beta, lam, L, eta, PGsteps, PGtol, selector)
+        betaOb <- APG_EN2bt(A, Xt, Om, gam, d, beta, lam, L, eta, PGsteps, PGtol, selector)
         #L <- betaOb$L
         beta <- betaOb$x
       }

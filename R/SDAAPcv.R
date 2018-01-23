@@ -93,11 +93,14 @@ SDAAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxit
       A$gom <- gam*diag(Om)
       A$X <- Xt
       A$n <- nt
-      A$A <- 2*(t(Xt)%*%Xt/nt + gam*Om)
+      A$A <- 2*(crossprod(Xt)/nt + gam*Om)
+      #A$A <- 2*(crossprod(Xt) + gam*Om)
       alpha <- 1/(2*(norm(Xt, type="1")*norm(Xt, type="I")/nt + norm(diag(A$gom), type="I")))
+      #alpha <- 1/(2*(norm(Xt, type="1")*norm(Xt, type="I") + norm(diag(A$gom), type="I")))
     }else{
       A$flag <- 0
-      A$A <- 2*(t(Xt)%*%Xt/nt + gam*Om)
+      A$A <- 2*(crossprod(Xt)/nt + gam*Om)
+      #A$A <- 2*(crossprod(Xt) + gam*Om)
       alpha <- 1/(norm(A$A, type="F"))
     }
     L <- 1/alpha
@@ -155,7 +158,7 @@ SDAAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxit
         ###
         for(its in 1:maxits){
           # Compute coefficient vector for elastic net step
-          d <- 2*t(Xt)%*%(Yt%*%(theta/nt))
+          d <- 2*crossprod(Xt,Yt%*%(theta/nt))
 
           # Update beta using proximal gradient step
           b_old <- beta
@@ -163,7 +166,7 @@ SDAAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxit
             betaOb <- APG_EN2(A, d, beta, lams[ll], alpha, PGsteps, PGtol)
             beta <- betaOb$x
           }else{
-            betaOb <- APG_EN2bt(A, d, beta, lams[ll], L, eta, PGsteps, PGtol)
+            betaOb <- APG_EN2bt(A, Xt, Om, gamma, d, beta, lams[ll], L, eta, PGsteps, PGtol)
             #L <- betaOb$L
             beta <- betaOb$x
           }

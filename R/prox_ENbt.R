@@ -5,6 +5,9 @@
 #'
 #' @param A p by p positive definite coefficient matrix
 #' \deqn{A = (\gamma Om + X^T X/n)}{A = (gamma Om + X^T X/n)}.
+#' @param Xt Same as X above, we need it to make calculations faster.
+#' @param Om Same reason as for the above parameter.
+#' @param gamma l2 regularizing parameter.
 #' @param d nx1 dimensional column vector.
 #' @param lam Regularization parameter for l1 penalty, must be greater than zero.
 #' @param L Initial value of backtracking Lipshitz constant.
@@ -24,12 +27,21 @@
 #' This function is used by other functions and should only be called explicitly for
 #' debugging purposes.
 #' @keywords internal
-prox_ENbt <- function(A, d, x0, lam, L, eta, maxits, tol){
+prox_ENbt <- function(A, Xt, Om, gamma,  d, x0, lam, L, eta, maxits, tol){
   # Make sure these are not a matrix with
   # one element
   origL <- L
   lam <- as.numeric(lam)
+  oneMat <- matrix(1,n,1)
+  zeroMat <- matrix(0,n,1)
   #alpha <- as.numeric(alpha)
+  ifDiag <- FALSE
+  if(norm(diag(diag(Om))-Om, type = "F") < 1e-15){
+    ifDiag <- TRUE
+  }else{
+    # Factorize Omega
+    R <- chol(gamma*Om)
+  }
 
   ###
   # Initialization
@@ -75,7 +87,8 @@ prox_ENbt <- function(A, d, x0, lam, L, eta, maxits, tol){
       return(structure(
         list(call = match.call(),
              x = x,
-             k = k),
+             k = k,
+             L = L),
         class = "prox_ENbt"))
     } else{
       #--------------------------------------------------------------------------------------
@@ -84,16 +97,28 @@ prox_ENbt <- function(A, d, x0, lam, L, eta, maxits, tol){
       #L <- origL
       alpha <- 1/L # step length
       # Evaluate proximal gradient
-      pL <- sign(x-alpha*df)*pmax(abs(x-alpha*df) - lam*alpha*matrix(1,n,1),matrix(0,n,1))
-      gap <- as.numeric((1/2)*t(pL-x)%*%(L*diag(n)-A)%*%(pL-x))
+      pL <- sign(x-alpha*df)*pmax(abs(x-alpha*df) - lam*alpha*oneMat,zeroMat)
+      pTilde <- (pL-x)
+      if(ifDiag == TRUE){
+        gap <- as.numeric((1/2)*(sum(pTilde*pTilde*(L*rep(1,n)-gamma*diag(Om)))-norm(Xt%*%pTilde,type='2')^2))
+      }else{
+        gap <- as.numeric((1/2)*(sum(pTilde*pTilde*L)-norm(R%*%pTilde,type='2')^2-norm(Xt%*%pTilde,type='2')^2))
+        #gap <- as.numeric((1/2)*t(pTilde)%*%(L*diag(n)-A)%*%(pTilde))
+      }
 
       # backtrack
       while(gap < -tol){
         L <- eta*L
         alpha <- 1/L # step length
         # Evaluate proximal gradient
-        pL <- sign(x-alpha*df)*pmax(abs(x-alpha*df) - lam*alpha*matrix(1,n,1),matrix(0,n,1))
-        gap <- as.numeric((1/2)*t(pL-x)%*%(L*diag(n)-A)%*%(pL-x))
+        pL <- sign(x-alpha*df)*pmax(abs(x-alpha*df) - lam*alpha*oneMat,zeroMat)
+        pTilde <- (pL-x)
+        if(ifDiag == TRUE){
+          gap <- as.numeric((1/2)*(sum(pTilde*pTilde*(L*rep(1,n)-gamma*diag(Om)))-norm(Xt%*%pTilde,type='2')^2))
+        }else{
+          gap <- as.numeric((1/2)*(sum(pTilde*pTilde*L)-norm(R%*%pTilde,type='2')^2-norm(Xt%*%pTilde,type='2')^2))
+          #gap <- as.numeric((1/2)*t(pTilde)%*%(L*diag(n)-A)%*%(pTilde))
+        }
       }
       x <- pL
     }
