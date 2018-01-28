@@ -38,7 +38,7 @@ prox_ENbt <- function(A, Xt, Om, gamma,  d, x0, lam, L, eta, maxits, tol){
     ifDiag <- TRUE
   }else{
     # Factorize Omega
-    R <- chol(gamma*Om)
+    R <- chol(gamma*Om,pivot=TRUE)
   }
 
   ###

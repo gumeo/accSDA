@@ -36,7 +36,7 @@ APG_EN2bt <- function(A, Xt, Om, gamma, d, x0, lam, L, eta,  maxits, tol, select
     ifDiag <- TRUE
   }else{
     # Factorize Omega
-    R <- chol(gamma*Om)
+    R <- chol(gamma*Om,pivot=TRUE)
   }
   origL <- L
   ###
