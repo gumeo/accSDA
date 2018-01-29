@@ -68,7 +68,7 @@ SDAAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, 
   )
 
   # Check if Omega is diagonal
-  if(norm(diag(diag(Om))-Om, type = "F") < 1e-15){
+  if(rankRed == FALSE & norm(diag(diag(Om))-Om, type = "F") < 1e-15){
     A$flag <- 1
     A$gom <- gam*diag(Om)
     A$X <- Xt
