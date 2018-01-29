@@ -102,6 +102,8 @@ The control list contains the following entries to further tune the
            the Proximal Gradient based methods. By default, backtracking is not used.}
            \item{\code{L}}{Initial estimate for Lipshitz constant used for backtracking. Default value is 0.25.}
            \item{\code{eta}}{Scalar for Lipshitz constant. Default value is 1.25.}
+           \item{\code{rankRed}}{Boolean indicating whether Om is factorized, such that R^t*R=Om,
+           currently only applicable for accelerated proximal gradient.}
          }
 }
 \note{

@@ -8,7 +8,8 @@
 SDAAP(x, ...)
 
 \method{SDAAP}{default}(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol,
-  selector = rep(1, dim(Xt)[2]), initTheta, bt = FALSE, L, eta)
+  selector = rep(1, dim(Xt)[2]), initTheta, bt = FALSE, L, eta,
+  rankRed = FALSE)
 }
 \arguments{
 \item{Xt}{n by p data matrix, (not a data frame, but a matrix)}
@@ -46,6 +47,8 @@ for the first theta.}
 \item{L}{Initial estimate for Lipshitz constant used for backtracking.}
 
 \item{eta}{Scalar for Lipshitz constant.}
+
+\item{rankRed}{Boolean indicating whether Om is in factorized form, such that R^t*R = mO}
 }
 \value{
 \code{SDAAP} returns an object of \code{\link{class}} "\code{SDAAP}" including a list

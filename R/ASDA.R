@@ -61,6 +61,8 @@
 #'            the Proximal Gradient based methods. By default, backtracking is not used.}
 #'            \item{\code{L}}{Initial estimate for Lipshitz constant used for backtracking. Default value is 0.25.}
 #'            \item{\code{eta}}{Scalar for Lipshitz constant. Default value is 1.25.}
+#'            \item{\code{rankRed}}{Boolean indicating whether Om is factorized, such that R^t*R=Om,
+#'            currently only applicable for accelerated proximal gradient.}
 #'          }
 #'
 #' @return \code{ASDA} returns an object of \code{\link{class}} "\code{ASDA}" including a list
@@ -241,7 +243,8 @@ ASDA.default <- function(Xt, Yt, Om = diag(p), gam = 1e-3, lam = 1e-6, q = K-1, 
               initTheta = matrix(1:K,nrow=K,ncol=1),
               bt = FALSE,
               L = 0.25,
-              eta = 2)
+              eta = 2,
+              rankRed=FALSE)
   nmsC <- names(con)
   if(method == "SDAD"){
     # Set special defaults for SDAD
@@ -283,7 +286,7 @@ ASDA.default <- function(Xt, Yt, Om = diag(p), gam = 1e-3, lam = 1e-6, q = K-1, 
   if(missing(Om)){
     print("Om not specified, using default diag(p).")
   }
-  if(dim(Om)[1] != dim(Xt)[2]){
+  if(dim(Om)[1] != dim(Xt)[2] & con$rankRed == FALSE){
     stop("Om must be a p by p matrix, where p is the number of variables/columns in Xt.")
   }
   if(missing(gam)){
@@ -397,7 +400,7 @@ ASDA.default <- function(Xt, Yt, Om = diag(p), gam = 1e-3, lam = 1e-6, q = K-1, 
       if(con$bt==FALSE){
         res <- SDAAP(Xt=Xt, Yt=Yt, Om=Om, gam=gam, lam=lam, q=q, PGsteps=PGsteps,
                      PGtol=PGtol, maxits=maxits, tol=tol, selector=selector,
-                     initTheta=con$initTheta)
+                     initTheta=con$initTheta, rankRed=con$rankRed)
       }else{
         res <- SDAAP(Xt=Xt, Yt=Yt, Om=Om, gam=gam, lam=lam, q=q, PGsteps=PGsteps,
                      PGtol=PGtol, maxits=maxits, tol=tol, selector=selector,

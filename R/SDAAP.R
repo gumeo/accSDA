@@ -25,6 +25,7 @@
 #' @param bt Boolean to indicate whether backtracking should be used, default false.
 #' @param L Initial estimate for Lipshitz constant used for backtracking.
 #' @param eta Scalar for Lipshitz constant.
+#' @param rankRed Boolean indicating whether Om is in factorized form, such that R^t*R = mO
 #' @return \code{SDAAP} returns an object of \code{\link{class}} "\code{SDAAP}" including a list
 #' with the following named components: (More will be added later to handle the predict function)
 #'
@@ -42,7 +43,7 @@ SDAAP <- function(x, ...) UseMethod("SDAAP")
 #'
 #' @rdname SDAAP
 #' @method SDAAP default
-SDAAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, selector = rep(1,dim(Xt)[2]), initTheta, bt=FALSE, L, eta){
+SDAAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, selector = rep(1,dim(Xt)[2]), initTheta, bt=FALSE, L, eta, rankRed = FALSE){
   # TODO: Handle Yt as a factor and generate dummy matrix from it
 
   # Get training data size
@@ -76,6 +77,13 @@ SDAAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, 
     #A$A <- 2*(crossprod(Xt) + gam*Om)
     alpha <- 1/(2*(norm(Xt, type="1")*norm(Xt, type="I")/nt + norm(diag(A$gom), type="I")))
     #alpha <- 1/(2*(norm(Xt, type="1")*norm(Xt, type="I") + norm(diag(A$gom), type="I")))
+  }else if(rankRed==TRUE){
+    A$flag <- 0
+    # Omega is supplied in factorised form
+    A$X <- sqrt(1/nt)*Xt
+    A$gom <- sqrt(gam)*Om # Because Om is factored
+    A$n <- nt
+    alpha <- 1/(2*(norm(Xt, type="1")*norm(Xt, type="I")/nt + norm(A$gom, type="1")*norm(A$gom, type="I")))
   }else{
     A$flag <- 0
     A$A <- 2*(crossprod(Xt)/nt + gam*Om)
@@ -125,6 +133,9 @@ SDAAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, 
       b_old <- beta
       if(bt == FALSE){
         betaOb <- APG_EN2(A, d, beta, lam, alpha, PGsteps, PGtol, selector)
+        beta <- betaOb$x
+      }else if(rankRed == TRUE){
+        betaOb <- APG_EN2rr(A, d, beta, lam, alpha, PGsteps, PGtol, selector)
         beta <- betaOb$x
       }else{
         betaOb <- APG_EN2bt(A, Xt, Om, gam, d, beta, lam, L, eta, PGsteps, PGtol, selector)
