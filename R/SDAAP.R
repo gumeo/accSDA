@@ -68,7 +68,14 @@ SDAAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, 
   )
 
   # Check if Omega is diagonal
-  if(rankRed == FALSE & norm(diag(diag(Om))-Om, type = "F") < 1e-15){
+  if(rankRed == TRUE){
+    A$flag <- 0
+    # Omega is supplied in factorised form
+    A$X <- sqrt(1/nt)*Xt
+    A$gom <- sqrt(gam)*Om # Because Om is factored
+    A$n <- nt
+    alpha <- 1/(2*(norm(Xt, type="1")*norm(Xt, type="I")/nt + norm(A$gom, type="1")*norm(A$gom, type="I")))
+  }else if(norm(diag(diag(Om))-Om, type = "F") < 1e-15){
     A$flag <- 1
     A$gom <- gam*diag(Om)
     A$X <- Xt
@@ -77,13 +84,6 @@ SDAAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, 
     #A$A <- 2*(crossprod(Xt) + gam*Om)
     alpha <- 1/(2*(norm(Xt, type="1")*norm(Xt, type="I")/nt + norm(diag(A$gom), type="I")))
     #alpha <- 1/(2*(norm(Xt, type="1")*norm(Xt, type="I") + norm(diag(A$gom), type="I")))
-  }else if(rankRed==TRUE){
-    A$flag <- 0
-    # Omega is supplied in factorised form
-    A$X <- sqrt(1/nt)*Xt
-    A$gom <- sqrt(gam)*Om # Because Om is factored
-    A$n <- nt
-    alpha <- 1/(2*(norm(Xt, type="1")*norm(Xt, type="I")/nt + norm(A$gom, type="1")*norm(A$gom, type="I")))
   }else{
     A$flag <- 0
     A$A <- 2*(crossprod(Xt)/nt + gam*Om)
