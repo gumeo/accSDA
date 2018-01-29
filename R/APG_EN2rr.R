@@ -43,21 +43,10 @@ APG_EN2rr <- function(A, d, x0, lam, alpha,  maxits, tol, selector= rep(1,dim(x0
   told <- 1
 
   # Objective function and gradient
-  if(A$flag == 1){
-    #f <- function(x){
-    #  as.numeric(t(x)%*%(matrix(A$gom,length(A$gom),1)*x) + (1/A$n)*norm(A$X%*%x)^2 + t(d)%*%x)
-    #}
-    df <- function(x){
-      2*(matrix(A$gom,length(A$gom),1)*x + crossprod(A$X,A$X%*%(x/A$n))) - d
-    }
-  }else{
-    #f <- function(x){
-    #  as.numeric(0.5*t(x)%*%A$A%*%x + t(d)%*%x)
-    #}
-    df <- function(x){
-      2*(crossprod(A$X,A$X%*%x)+A$gom%*%t(A$gom)%*%x) - d
-    }
+  df <- function(x){
+    2*(crossprod(A$X,A$X%*%x)+A$gom%*%t(A$gom)%*%x) - d
   }
+
 
   #-------------------------------------------------------------
   # Outer loop: Repeat until convergence or max # of iterations
