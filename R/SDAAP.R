@@ -131,7 +131,7 @@ SDAAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, 
 
       # Update beta using proximal gradient step
       b_old <- beta
-      if(bt == FALSE){
+      if(bt == FALSE & rankRed==FALSE){
         betaOb <- APG_EN2(A, d, beta, lam, alpha, PGsteps, PGtol, selector)
         beta <- betaOb$x
       }else if(rankRed == TRUE){
