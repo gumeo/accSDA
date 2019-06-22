@@ -276,7 +276,7 @@ SZVDcv.default <- function(Atrain, Aval, k, num_gammas, g_mults, D, sparsity_pen
     }
 
     # Record sparsest nontrivial solution so far.
-    if (min(SZVD_res$stats$l0) > 3 && SZVD_res$stats$l0 < min_l0){
+    if (min(SZVD_res$stats$l0) > 3 & SZVD_res$stats$l0 < min_l0){
       l0_ind = i
       l0_x = DVs[[i]]
       min_l0 = SZVD_res$stats$l0
