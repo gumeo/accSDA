@@ -27,12 +27,14 @@
 #' @param eta Scalar for Lipshitz constant.
 #' @param rankRed Boolean indicating whether Om is in factorized form, such that R^t*R = mO
 #' @return \code{SDAAP} returns an object of \code{\link{class}} "\code{SDAAP}" including a list
-#' with the following named components: (More will be added later to handle the predict function)
+#' with the following named components:
 #'
 #' \describe{
 #'   \item{\code{call}}{The matched call.}
 #'   \item{\code{B}}{p by q matrix of discriminant vectors.}
 #'   \item{\code{Q}}{K by q matrix of scoring vectors.}
+#'   \item{\code{subits}}{Total number of iterations in proximal gradient subroutine.}
+#'   \item{\code{totalits}}{Number coordinate descent iterations for all discriminant vectors}
 #' }
 #' @seealso \code{SDAAPcv}, \code{\link{SDAP}} and \code{\link{SDAD}}
 #' @keywords internal
@@ -44,12 +46,14 @@ SDAAP <- function(x, ...) UseMethod("SDAAP")
 #' @rdname SDAAP
 #' @method SDAAP default
 SDAAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, selector = rep(1,dim(Xt)[2]), initTheta, bt=FALSE, L, eta, rankRed = FALSE){
-  # TODO: Handle Yt as a factor and generate dummy matrix from it
-
   # Get training data size
   nt <- dim(Xt)[1] # num. samples
   p <- dim(Xt)[2]  # num. features
   K <- dim(Yt)[2]  # num. classes
+
+  # Number of iterations logging data
+  subits <- 0
+  totalits <- rep(maxits,q)
 
   if(length(selector) != dim(Xt)[2]){
     stop('The length of selector must be the same as that of Xt')
@@ -81,13 +85,10 @@ SDAAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, 
     A$X <- Xt
     A$n <- nt
     A$A <- 2*(crossprod(Xt)/nt + gam*Om)
-    #A$A <- 2*(crossprod(Xt) + gam*Om)
     alpha <- 1/(2*(norm(Xt, type="1")*norm(Xt, type="I")/nt + norm(diag(A$gom), type="I")))
-    #alpha <- 1/(2*(norm(Xt, type="1")*norm(Xt, type="I") + norm(diag(A$gom), type="I")))
   }else{
     A$flag <- 0
     A$A <- 2*(crossprod(Xt)/nt + gam*Om)
-    #A$A <- 2*(crossprod(Xt) + gam*Om)
     alpha <- 1/(norm(A$A, type="F"))
   }
   L <- 1/alpha
@@ -123,23 +124,36 @@ SDAAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, 
 
     # Initialize beta
     beta <- matrix(0,p,1)
+    if(norm(diag(diag(Om))-Om, type = "F") < 1e-15 & sum(selector) == length(selector)){
+      # Extract reciprocal of diagonal of Omega
+      ominv <- 1/diag(Om)
+
+      # Compute rhs of f minimizer system
+      rhs0 <- crossprod(Xt, (Yt%*%(theta/nt)))
+      rhs = Xt%*%((ominv/nt)*rhs0)
+
+      # Partial solution
+      tmp_partial = solve(diag(nt)+Xt%*%((ominv/(gam*nt))*t(Xt)),rhs)
+
+      # Finish solving for beta using SMW
+      beta = (ominv/gam)*rhs0 - 1/gam^2*ominv*(t(Xt)%*%tmp_partial)
+    }
 
     for(its in 1:maxits){
       # Compute coefficient vector for elastic net step
       d <- 2*crossprod(Xt,Yt%*%(theta/nt))
-      #d <- 2*crossprod(Xt,Yt%*%(theta))
 
       # Update beta using proximal gradient step
       b_old <- beta
       if(bt == FALSE & rankRed==FALSE){
         betaOb <- APG_EN2(A, d, beta, lam, alpha, PGsteps, PGtol, selector)
         beta <- betaOb$x
+        subits <- subits + betaOb$k
       }else if(rankRed == TRUE){
         betaOb <- APG_EN2rr(A, d, beta, lam, alpha, PGsteps, PGtol, selector)
         beta <- betaOb$x
       }else{
         betaOb <- APG_EN2bt(A, Xt, Om, gam, d, beta, lam, L, eta, PGsteps, PGtol, selector)
-        #L <- betaOb$L
         beta <- betaOb$x
       }
 
@@ -147,8 +161,6 @@ SDAAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, 
       if(norm(beta, type="2") > 1e-12){
         # Update theta
         b <- crossprod(Yt,Xt%*%beta)
-        #y <- solve(t(R),b)
-        #z <- solve(R,y)
         y <- forwardsolve(t(R),b)
         z <- backsolve(R,y)
         tt <- Mj(z)
@@ -167,6 +179,7 @@ SDAAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, 
       }
 
       if(max(db,dt) < tol){
+        totalits[j] <- its
         # Converged
         break
       }
@@ -181,11 +194,14 @@ SDAAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, 
     Q[,j] <- theta
     B[,j] <- beta
   }
+  totalits <- sum(totalits)
   #Return B and Q in a SDAAP object
   retOb <- structure(
     list(call = match.call(),
          B = B,
-         Q = Q),
+         Q = Q,
+         subits = subits,
+         totalits = totalits),
     class = "SDAAP")
   return(retOb)
 }
