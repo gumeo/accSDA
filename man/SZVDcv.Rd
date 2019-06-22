@@ -7,8 +7,8 @@
 \usage{
 SZVDcv(Atrain, ...)
 
-\method{SZVDcv}{default}(Atrain, Aval, k, num_gammas, g_mults, D, sparsity_pen,
-  scaling, penalty, beta, tol, ztol, maxits, quiet)
+\method{SZVDcv}{default}(Atrain, Aval, k, num_gammas, g_mults, D,
+  sparsity_pen, scaling, penalty, beta, tol, ztol, maxits, quiet)
 }
 \arguments{
 \item{Atrain}{Training data set.}

@@ -4,7 +4,8 @@
 \alias{APG_EN2rr}
 \title{Accelerated Proximal Gradient on l1 regularized quadratic program}
 \usage{
-APG_EN2rr(A, d, x0, lam, alpha, maxits, tol, selector = rep(1, dim(x0)[1]))
+APG_EN2rr(A, d, x0, lam, alpha, maxits, tol, selector = rep(1,
+  dim(x0)[1]))
 }
 \arguments{
 \item{A}{Object containing everythign needed for calculating A,

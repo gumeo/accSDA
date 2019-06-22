@@ -4,8 +4,8 @@
 \alias{APG_EN2bt}
 \title{Accelerated Proximal Gradient (with backtracking) on l1 regularized quadratic program}
 \usage{
-APG_EN2bt(A, Xt, Om, gamma, d, x0, lam, L, eta, maxits, tol, selector = rep(1,
-  dim(x0)[1]))
+APG_EN2bt(A, Xt, Om, gamma, d, x0, lam, L, eta, maxits, tol,
+  selector = rep(1, dim(x0)[1]))
 }
 \arguments{
 \item{A}{p by p positive definite coefficient matrix
