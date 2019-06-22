@@ -172,12 +172,12 @@ SDAAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxit
           }
           # Update theta using projected solution
           if(norm(beta, type = "2") > 1e-12){
-            b <- t(Yt)%*%(Xt%*%beta)
-            y <- solve(t(R),b)
-            z <- solve(R,y)
+            b <- crossprod(Yt,Xt%*%beta)
+            y <- forwardsolve(t(R),b)
+            z <- backsolve(R,y)
             tt <- Mj(z)
             t_old <- theta
-            theta <- tt/as.numeric(sqrt(t(tt)%*%D%*%tt))
+            theta <- tt/sqrt(as.numeric(crossprod(tt, D)%*%tt))
 
             # Progress
             db <- norm(beta-b_old)/norm(beta, type="2")
