@@ -64,6 +64,11 @@ SDAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits
     Xv <- X[vinds,]
     Yv <- Y[vinds,]
 
+    # Normalize
+    Xt_norm <- accSDA::normalize(Xt)
+    Xt <- Xt_norm$Xc # Use the centered and scaled data
+    Xv <- accSDA::normalizetest(Xv,Xt_norm)
+
     # Get dimensions of training matrices
     nt <- dim(Xt)[1]
     p  <- dim(Xt)[2]
@@ -72,12 +77,12 @@ SDAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits
     C <- diag(diag((1/(t(Yt)%*%Yt))))%*%t(Yt)%*%Xt
 
     # Precompute repeatedly used matrix products
-    A <- 2*(crossprod(Xt) + gam*Om) # Elastic net coef matrix
-    alpha <- 1/norm(A, type="2") # Step length in PGA
+    A <- 2*(crossprod(Xt)/nt + gam*Om) # Elastic net coef matrix
+    alpha <- 1/norm(A, type="F") # Step length in PGA
     L <- 1/alpha
     L <- 2*norm(diag(diag(Om*gam)),'I')+2*norm(Xt,'F')^2
     origL <- L
-    D <- (1/n)*(t(Yt)%*%Yt)
+    D <- (1/nt)*(crossprod(Yt))
     R <- chol(D)
 
     ###
@@ -89,13 +94,13 @@ SDAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits
       print("-------------------------------------------")
     }
 
+    B <- array(0,c(p,q,nlam))
     ###
     # Loop through the validation parameters
     ###
     for(ll in 1:nlam){
       # Initialize B and Q
       Q <- matrix(1,K,q)
-      B <- matrix(0,p,q)
 
       #-------------------------------------------------
       # Call Alternating Direction Method to solve SDA
@@ -122,7 +127,26 @@ SDAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits
         theta <- theta/as.numeric(sqrt(crossprod(theta,D%*%theta)))
 
         # Initialize beta
-        beta <- matrix(0,p,1)
+        if(ll==1){
+          if(norm(diag(diag(Om))-Om, type = "F") < 1e-15){
+            # Extract reciprocal of diagonal of Omega
+            ominv <- 1/diag(Om)
+
+            # Compute rhs of f minimizer system
+            rhs0 <- crossprod(Xt, (Yt%*%(theta/nt)))
+            rhs = Xt%*%((ominv/nt)*rhs0)
+
+            # Partial solution
+            tmp_partial = solve(diag(nt)+Xt%*%((ominv/(gam*nt))*t(Xt)),rhs)
+
+            # Finish solving for beta using SMW
+            beta = (ominv/gam)*rhs0 - 1/gam^2*ominv*(t(Xt)%*%tmp_partial)
+          }else{
+            beta <- matrix(0,p,1)
+          }
+        }else{
+          beta <- matrix(B[,j,ll-1],p,1)
+        }
 
         ###
         # Alternating direction method to update (theta,beta)
@@ -176,7 +200,7 @@ SDAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits
         }
         # Update Q and B
         Q[,j] <- theta
-        B[,j] <- beta
+        B[,j,ll] <- beta
       }
 
       #------------------------------------------------------------
@@ -212,13 +236,14 @@ SDAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits
       ###
       # Validation scores
       ###
+      B_loc <- matrix(B[,,ll],p,q)
       # if fraction nonzero features less than feat.
-      if( 1 <= sum(B != 0) & sum(B != 0) <= q*p*feat){
+      if( 1 <= sum(B_loc != 0) & sum(B_loc != 0) <= q*p*feat){
         # Use misclassification rate as validation score.
         scores[f,ll] <- mc[f,ll]
-      } else if(sum(B != 0) > q*p*feat){
+      } else if(sum(B_loc != 0) > q*p*feat){
         # Solution is not sparse enough, use most sparse as measure of quality instead.
-        scores[f,ll] <- sum(B != 0)
+        scores[f,ll] <- sum(B_loc != 0)
       }
 
       # Display iteration stats
@@ -265,6 +290,10 @@ SDAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits
   Xt <- X[1:(n-pad),]
   Yt <- Y[1:(n-pad),]
 
+  # Normalize
+  Xt_norm <- accSDA::normalize(Xt)
+  Xt <- Xt_norm$Xc # Use the centered and scaled data
+
   # Get best Q and B on full training data
   resBest <- SDAP(Xt, Yt, Om, gam, lams[lbest], q, PGsteps, PGtol, maxits, tol)
 
@@ -274,7 +303,8 @@ SDAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits
          B = resBest$B,
          Q = resBest$Q,
          lbest = lbest,
-         lambest = lambest),
+         lambest = lambest,
+         scores=scores),
     class = "SDAPcv")
 
   return(retOb)

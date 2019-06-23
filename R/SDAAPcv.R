@@ -319,6 +319,10 @@ SDAAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxit
   Xt <- X[1:(n-pad),]
   Yt <- Y[1:(n-pad),]
 
+  # Normalize
+  Xt_norm <- accSDA::normalize(Xt)
+  Xt <- Xt_norm$Xc # Use the centered and scaled data
+
   # Get best Q and B on full training data
   resBest <- SDAAP(Xt, Yt, Om, gam, lams[lbest], q, PGsteps, PGtol, maxits, tol)
 
