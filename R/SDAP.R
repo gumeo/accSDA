@@ -28,6 +28,8 @@
 #'   \item{\code{call}}{The matched call.}
 #'   \item{\code{B}}{p by q matrix of discriminant vectors.}
 #'   \item{\code{Q}}{K by q matrix of scoring vectors.}
+#'   \item{\code{subits}}{Total number of iterations in proximal gradient subroutine.}
+#'   \item{\code{totalits}}{Number coordinate descent iterations for all discriminant vectors}
 #' }
 #' @seealso \code{SDAPcv}, \code{\link{SDAAP}} and \code{\link{SDAD}}
 #' @keywords internal
@@ -44,10 +46,14 @@ SDAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, i
   p <- dim(Xt)[2]
   K <- dim(Yt)[2]
 
+  # Logging variables
+  subits <- 0
+  totalits <- rep(maxits,q)
+
   # Precompute repeatedly used matrix products
   A <- 2*(crossprod(Xt)/n + gam*Om) # Elastic net coef matrix
-  alpha <- 1/norm(A, type="2") # Step length in PGA
-  #L <- 1/alpha
+  alpha <- 1/norm(A, type="F") # Step length in PGA
+
   L <- gam*norm(diag(diag(Om)),'I')+norm(Xt,'F')^2/n
   origL <- L
   D <- (1/n)*(crossprod(Yt))
@@ -85,6 +91,20 @@ SDAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, i
 
     # Initialize beta
     beta <- matrix(0,p,1)
+    if(norm(diag(diag(Om))-Om, type = "F") < 1e-15){
+      # Extract reciprocal of diagonal of Omega
+      ominv <- 1/diag(Om)
+
+      # Compute rhs of f minimizer system
+      rhs0 <- crossprod(Xt, (Yt%*%(theta/n)))
+      rhs = Xt%*%((ominv/n)*rhs0)
+
+      # Partial solution
+      tmp_partial = solve(diag(n)+Xt%*%((ominv/(gam*n))*t(Xt)),rhs)
+
+      # Finish solving for beta using SMW
+      beta = (ominv/gam)*rhs0 - 1/gam^2*ominv*(t(Xt)%*%tmp_partial)
+    }
 
     ###
     # Alternating direction method to update (theta,beta)
@@ -103,13 +123,11 @@ SDAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, i
         #L <- beta$L
         beta <- beta$x
       }
-
+      subits <- subits + beta$k
 
       # Update theta using the projected solution
       if(norm(beta, type="2") > 1e-12){
         b <- crossprod(Yt,Xt%*%beta)
-        #y <- solve(t(R),b)
-        #z <- solve(R,y)
         y <- forwardsolve(t(R),b)
         z <- backsolve(R,y)
         tt <- Mj(z)
@@ -129,6 +147,7 @@ SDAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, i
       # Check convergence
       if(max(db,dt)<tol){
         # Converged
+        totalits[j] <- its
         break
       }
     }
@@ -143,11 +162,14 @@ SDAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, i
     Q[,j] <- theta
     B[,j] <- beta
   }
+  totalits <- sum(totalits)
   #Return B and Q in a SDAP object
   retOb <- structure(
     list(call = match.call(),
          B = B,
-         Q = Q),
+         Q = Q,
+         subits = subits,
+         totalits = totalits),
     class = "SDAP")
   return(retOb)
 }

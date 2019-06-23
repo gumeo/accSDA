@@ -49,6 +49,8 @@ with the following named components: (More will be added later to handle the pre
   \item{\code{call}}{The matched call.}
   \item{\code{B}}{p by q matrix of discriminant vectors.}
   \item{\code{Q}}{K by q matrix of scoring vectors.}
+  \item{\code{subits}}{Total number of iterations in proximal gradient subroutine.}
+  \item{\code{totalits}}{Number coordinate descent iterations for all discriminant vectors}
 }
 
 \code{NULL}
