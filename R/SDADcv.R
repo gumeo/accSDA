@@ -70,6 +70,11 @@ SDADcv.default <- function(X, Y, folds, Om, gam, lams, mu, q, PGsteps, PGtol, ma
     Xv <- X[vinds,]
     Yv <- Y[vinds,]
 
+    # Normalize
+    Xt_norm <- accSDA::normalize(Xt)
+    Xt <- Xt_norm$Xc # Use the centered and scaled data
+    Xv <- accSDA::normalizetest(Xv,Xt_norm)
+
     # Get dimensions of training matrices
     nt <- dim(Xt)[1]
     p  <- dim(Xt)[2]
@@ -85,15 +90,15 @@ SDADcv.default <- function(X, Y, folds, Om, gam, lams, mu, q, PGsteps, PGtol, ma
       SMW <- 1
 
       # Easy to invert diagonal part of Elastic net coefficient matrix.
-      M <- mu*diag(p) + 2*gam*Om
-      Minv = 1/diag(M)
+      M <- mu + 2*gam*diag(Om)
+      Minv = 1/M
 
       # Cholesky factorization for smaller linear system.
-      RS = chol(diag(nt) + 2*Xt%*%diag(Minv)%*%t(Xt)/nt);
+      RS = chol(diag(nt) + 2*Xt%*%((Minv/nt)*t(Xt)));
     } else{ # Use Cholesky for solving linear systems in ADMM step
       # Flag to not use SMW
       SMW <- 0
-      A <- mu*diag(p) + 2*(t(Xt)%*%Xt + gam*Om)
+      A <- mu*diag(p) + 2*(t(Xt)%*%Xt/nt + gam*Om)
       R2 <- chol(A)
     }
     #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -111,13 +116,13 @@ SDADcv.default <- function(X, Y, folds, Om, gam, lams, mu, q, PGsteps, PGtol, ma
       print("-------------------------------------------")
     }
 
+    B <- array(0,c(p,q,nlam))
     ###
     # Loop through the validation parameters
     ###
     for(ll in 1:nlam){
       # Initialize B and Q
       Q <- matrix(1,K,q)
-      B <- matrix(0,p,q)
 
       #-------------------------------------------------
       # Call Alternating Direction Method to solve SDA
@@ -143,7 +148,7 @@ SDADcv.default <- function(X, Y, folds, Om, gam, lams, mu, q, PGsteps, PGtol, ma
         theta <- theta/as.numeric(sqrt(crossprod(theta,D%*%theta)))
 
         # Initialize coefficient vector for elastic net step
-        d <- 2*t(Xt)%*%(Yt%*%theta)
+        d <- 2*t(Xt)%*%(Yt%*%(theta/nt))
 
         # Initialize beta
         if(SMW == 1){
@@ -203,7 +208,7 @@ SDADcv.default <- function(X, Y, folds, Om, gam, lams, mu, q, PGsteps, PGtol, ma
         }
         # Update Q and B
         Q[,j] <- theta
-        B[,j] <- beta
+        B[,j,ll] <- beta
       }
 
       #------------------------------------------------------------
@@ -239,13 +244,14 @@ SDADcv.default <- function(X, Y, folds, Om, gam, lams, mu, q, PGsteps, PGtol, ma
       ###
       # Validation scores
       ###
+      B_loc <- matrix(B[,,ll],p,q)
       # if fraction nonzero features less than feat.
-      if( 1 <= sum(B != 0) & sum(B != 0) <= q*p*feat){
+      if( 1 <= sum(B_loc != 0) & sum(B_loc != 0) <= q*p*feat){
         # Use misclassification rate as validation score.
         scores[f,ll] <- mc[f,ll]
-      } else if(sum(B != 0) > q*p*feat){
+      } else if(sum(B_loc != 0) > q*p*feat){
         # Solution is not sparse enough, use most sparse as measure of quality instead.
-        scores[f,ll] <- sum(B != 0)
+        scores[f,ll] <- sum(B_loc != 0)
       }
 
       # Display iteration stats
@@ -292,6 +298,10 @@ SDADcv.default <- function(X, Y, folds, Om, gam, lams, mu, q, PGsteps, PGtol, ma
   Xt <- X[1:(n-pad),]
   Yt <- Y[1:(n-pad),]
 
+  # Normalize
+  Xt_norm <- accSDA::normalize(Xt)
+  Xt <- Xt_norm$Xc # Use the centered and scaled data
+
   # Get best Q and B on full training data
   resBest <- SDAD(Xt, Yt, Om, gam, lambest, mu, q, PGsteps, PGtol, maxits, tol)
 
@@ -301,9 +311,9 @@ SDADcv.default <- function(X, Y, folds, Om, gam, lams, mu, q, PGsteps, PGtol, ma
          B = resBest$B,
          Q = resBest$Q,
          lbest = lbest,
-         lambest = lambest),
+         lambest = lambest,
+         scores = scores),
     class = "SDADcv")
 
   return(retOb)
-
 }
