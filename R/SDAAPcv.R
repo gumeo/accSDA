@@ -68,6 +68,11 @@ SDAAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxit
     Xv <- X[vinds,]
     Yv <- Y[vinds,]
 
+    # Normalize
+    Xt_norm <- accSDA::normalize(Xt)
+    Xt <- Xt_norm$Xc # Use the centered and scaled data
+    Xv <- accSDA::normalizetest(Xv,Xt_norm)
+
     # Get dimensions of training matrices
     nt <- dim(Xt)[1]
     p  <- dim(Xt)[2]
@@ -117,14 +122,13 @@ SDAAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxit
       print(paste("Fold number:",f))
       print("-------------------------------------------")
     }
-
+    B <- array(0,c(p,q,nlam))
     ###
     # Loop through the validation parameters
     ###
     for(ll in 1:nlam){
       # Initialize B and Q
       Q <- matrix(1,K,q)
-      B <- matrix(0,p,q)
 
       #-------------------------------------------------
       # Call Alternating Direction Method to solve SDA
@@ -151,7 +155,26 @@ SDAAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxit
         theta <- theta/as.numeric(sqrt(crossprod(theta,D%*%theta)))
 
         # Initialize beta
-        beta <- matrix(0,p,1)
+        if(ll==1){
+          if(norm(diag(diag(Om))-Om, type = "F") < 1e-15){
+            # Extract reciprocal of diagonal of Omega
+            ominv <- 1/diag(Om)
+
+            # Compute rhs of f minimizer system
+            rhs0 <- crossprod(Xt, (Yt%*%(theta/nt)))
+            rhs = Xt%*%((ominv/nt)*rhs0)
+
+            # Partial solution
+            tmp_partial = solve(diag(nt)+Xt%*%((ominv/(gam*nt))*t(Xt)),rhs)
+
+            # Finish solving for beta using SMW
+            beta = (ominv/gam)*rhs0 - 1/gam^2*ominv*(t(Xt)%*%tmp_partial)
+          }else{
+            beta <- matrix(0,p,1)
+          }
+        }else{
+          beta <- matrix(B[,j,ll-1],p,1)
+        }
 
         ###
         # Alternating direction method to update (theta,beta)
@@ -206,7 +229,7 @@ SDAAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxit
         }
         # Update Q and B
         Q[,j] <- theta
-        B[,j] <- beta
+        B[,j,ll] <- beta
       }
 
       #------------------------------------------------------------
@@ -243,12 +266,13 @@ SDAAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxit
       # Validation scores
       ###
       # if fraction nonzero features less than feat.
-      if( 1 <= sum(B != 0) & sum(B != 0) <= q*p*feat){
+      B_loc <- matrix(B[,,ll],p,q)
+      if( 1 <= sum(B_loc != 0) & sum(B_loc != 0) <= q*p*feat){
         # Use misclassification rate as validation score.
         scores[f,ll] <- mc[f,ll]
-      } else if(sum(B != 0) > q*p*feat){
+      } else if(sum(B_loc != 0) > q*p*feat){
         # Solution is not sparse enough, use most sparse as measure of quality instead.
-        scores[f,ll] <- sum(B != 0)
+        scores[f,ll] <- sum(B_loc != 0)
       }
 
       # Display iteration stats
