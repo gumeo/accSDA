@@ -328,7 +328,8 @@ SDAAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxit
          B = resBest$B,
          Q = resBest$Q,
          lbest = lbest,
-         lambest = lambest),
+         lambest = lambest,
+         scores = scores),
     class = "SDAAPcv")
 
   return(retOb)
