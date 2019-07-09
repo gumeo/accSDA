@@ -63,7 +63,7 @@ SDAD.default <- function(Xt, Yt, Om, gam, lam, mu, q, PGsteps, PGtol, maxits, to
 
     # Easy to invert diagonal part of Elastic net coefficient matrix.
     M <- mu + 2*gam*diag(Om)
-    Minv = 1/diag(M)
+    Minv = 1/M
 
     # Cholesky factorization for smaller linear system.
     RS = chol(diag(nt) + 2*Xt%*%((Minv/nt)*t(Xt)));
