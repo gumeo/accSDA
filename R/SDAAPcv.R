@@ -237,9 +237,9 @@ SDAAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxit
       #------------------------------------------------------------
 
       # Project validation data
-      PXtest <- Xv%*%B
+      PXtest <- Xv%*%B[,,ll]
       # Project centroids
-      PC <- C%*%B
+      PC <- C%*%B[,,ll]
 
       # Compute distances to the centroid for each projected test observation
       dists <- matrix(0,nv,K)
