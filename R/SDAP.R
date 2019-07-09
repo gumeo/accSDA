@@ -116,14 +116,14 @@ SDAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, i
       # Update beta using proximal gradient step
       b_old <- beta
       if(bt == FALSE){
-        beta <- prox_EN(A, d, beta, lam, alpha, PGsteps, PGtol)
-        beta <- beta$x
+        betaObj <- prox_EN(A, d, beta, lam, alpha, PGsteps, PGtol)
+        beta <- betaObj$x
       }else{
-        beta <- prox_ENbt(A, Xt, Om, gam, d, beta, lam, L, eta, PGsteps, PGtol)
+        betaObj <- prox_ENbt(A, Xt, Om, gam, d, beta, lam, L, eta, PGsteps, PGtol)
         #L <- beta$L
-        beta <- beta$x
+        beta <- betaObj$x
       }
-      subits <- subits + beta$k
+      subits <- subits + betaObj$k
 
       # Update theta using the projected solution
       if(norm(beta, type="2") > 1e-12){
