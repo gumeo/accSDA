@@ -117,9 +117,11 @@ APG_EN2bt <- function(A, Xt, Om, gamma, d, x0, lam, L, eta,  maxits, tol, select
 
       pTilde <- (pLy-y)
       if(ifDiag == TRUE){
-        QminusF <- as.numeric((1/2)*(sum(pTilde*pTilde*(L*rep(1,p)-gamma*diag(Om)))-norm(Xt%*%pTilde,type='2')^2))
+        #QminusF = 1/2*L*norm(dy,2)^2 - 1/A.n*norm(A.X*dy)^2 - dy'*((A.gom).*dy);
+        QminusF <- as.numeric((0.5)*L*norm(pTilde, type = "2")^2 - (1/A$n)*norm(A$Xt%*%pTilde, type="2")^2 - sum((pTilde)*(A$gom*pTilde)))
       }else{
-        QminusF <- as.numeric((1/2)*(sum(pTilde*pTilde*L)-norm(R%*%pTilde,type='2')^2-norm(Xt%*%pTilde,type='2')^2))
+        #QminusF = 1/2*(L*norm(dy, 2)^2 - dy'*A.A*dy);
+        QminusF <- as.numeric((1/2)*(L*norm(pTilde, type="2")^2 - t(pTilde)%*%A$A%*%pTilde))
       }
 
       #QminusF <- as.numeric((1/2)*t(pLy-y)%*%(L*diag(p)-A$A)%*%(pLy-y))
@@ -130,9 +132,9 @@ APG_EN2bt <- function(A, Xt, Om, gamma, d, x0, lam, L, eta,  maxits, tol, select
         pLy <- selector*pLyy + abs(selector-1)*(y-alpha*dfy)
         pTilde <- (pLy-y)
         if(ifDiag == TRUE){
-          QminusF <- as.numeric((1/2)*(sum(pTilde*pTilde*(L*rep(1,p)-gamma*diag(Om)))-norm(Xt%*%pTilde,type='2')^2))
+          QminusF <- as.numeric((0.5)*L*norm(pTilde, type = "2")^2 - (1/A$n)*norm(A$Xt%*%pTilde, type="2")^2 - sum((pTilde)*(A$gom*pTilde)))
         }else{
-          QminusF <- as.numeric((1/2)*(sum(pTilde*pTilde*L)-norm(R%*%pTilde,type='2')^2-norm(Xt%*%pTilde,type='2')^2))
+          QminusF <- as.numeric((1/2)*(L*norm(pTilde, type="2")^2 - t(pTilde)%*%A$A%*%pTilde))
         }
 
         #QminusF <- as.numeric((1/2)*t(pLy-y)%*%(L*diag(p)-A$A)%*%(pLy-y))

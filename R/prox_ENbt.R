@@ -32,14 +32,6 @@ prox_ENbt <- function(A, Xt, Om, gamma,  d, x0, lam, L, eta, maxits, tol){
   # one element
   origL <- L
   lam <- as.numeric(lam)
-  #alpha <- as.numeric(alpha)
-  ifDiag <- FALSE
-  if(norm(diag(diag(Om))-Om, type = "F") < 1e-15){
-    ifDiag <- TRUE
-  }else{
-    # Factorize Omega
-    R <- chol(gamma*Om,pivot=TRUE)
-  }
 
   ###
   # Initialization
@@ -100,12 +92,7 @@ prox_ENbt <- function(A, Xt, Om, gamma,  d, x0, lam, L, eta, maxits, tol){
       # Evaluate proximal gradient
       pL <- sign(x-alpha*df)*pmax(abs(x-alpha*df) - lam*alpha*oneMat,zeroMat)
       pTilde <- (pL-x)
-      if(ifDiag == TRUE){
-        gap <- as.numeric((1/2)*(sum(pTilde*pTilde*(L*rep(1,n)-gamma*diag(Om)))-norm(Xt%*%pTilde,type='2')^2))
-      }else{
-        gap <- as.numeric((1/2)*(sum(pTilde*pTilde*L)-norm(R%*%pTilde,type='2')^2-norm(Xt%*%pTilde,type='2')^2))
-        #gap <- as.numeric((1/2)*t(pTilde)%*%(L*diag(n)-A)%*%(pTilde))
-      }
+      gap <- (1/2)*(L*norm(pTilde, type="2")^2 - t(pTilde)%*%A%*%pTilde)
 
       # backtrack
       while(gap < -tol){
@@ -114,12 +101,7 @@ prox_ENbt <- function(A, Xt, Om, gamma,  d, x0, lam, L, eta, maxits, tol){
         # Evaluate proximal gradient
         pL <- sign(x-alpha*df)*pmax(abs(x-alpha*df) - lam*alpha*oneMat,zeroMat)
         pTilde <- (pL-x)
-        if(ifDiag == TRUE){
-          gap <- as.numeric((1/2)*(sum(pTilde*pTilde*(L*rep(1,n)-gamma*diag(Om)))-norm(Xt%*%pTilde,type='2')^2))
-        }else{
-          gap <- as.numeric((1/2)*(sum(pTilde*pTilde*L)-norm(R%*%pTilde,type='2')^2-norm(Xt%*%pTilde,type='2')^2))
-          #gap <- as.numeric((1/2)*t(pTilde)%*%(L*diag(n)-A)%*%(pTilde))
-        }
+        gap <- (1/2)*(L*norm(pTilde, type="2")^2 - t(pTilde)%*%A%*%pTilde)
       }
       x <- pL
     }

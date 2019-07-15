@@ -29,7 +29,7 @@ SDAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits
   Y <- Y[prm,]
 
   # Sort lambdas in descending order
-  lams <- lams[order(lams,decreasing = TRUE)]
+  lams <- lams[order(lams,decreasing = FALSE)]
 
   ###
   # Initialization of cross-validation indices
@@ -237,19 +237,19 @@ SDAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits
       # Validation scores
       ###
       B_loc <- matrix(B[,,ll],p,q)
+      sum_B_loc_nnz <- sum(B_loc != 0)
       # if fraction nonzero features less than feat.
-      if( 1 <= sum(B_loc != 0) & sum(B_loc != 0) <= q*p*feat){
+      if( 1 <= sum_B_loc_nnz & sum_B_loc_nnz <= q*p*feat){
         # Use misclassification rate as validation score.
         scores[f,ll] <- mc[f,ll]
-      } else if(sum(B_loc != 0) > q*p*feat){
+      } else if(sum_B_loc_nnz > q*p*feat){
         # Solution is not sparse enough, use most sparse as measure of quality instead.
         scores[f,ll] <- sum(B_loc != 0)
       }
 
       # Display iteration stats
       if(!quiet){
-        print(paste("f:", f, "| ll:", ll, "| lam:", lams[ll], "| feat:",
-                    sum(B != 0)/(q*p), "| mc:", mc[f,ll], "| score:", scores[f,ll]))
+        print(paste("f:", f, "| ll:", ll, "| lam:", lams[ll], "| feat:", sum_B_loc_nnz/(q*p), "| mc:", mc[f,ll], "| score:", scores[f,ll]))
       }
     } # End of for ll in 1:nlam
     #--------------------------------------------
