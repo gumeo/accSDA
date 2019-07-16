@@ -118,7 +118,7 @@ APG_EN2bt <- function(A, Xt, Om, gamma, d, x0, lam, L, eta,  maxits, tol, select
       pTilde <- (pLy-y)
       if(ifDiag == TRUE){
         #QminusF = 1/2*L*norm(dy,2)^2 - 1/A.n*norm(A.X*dy)^2 - dy'*((A.gom).*dy);
-        QminusF <- as.numeric((0.5)*L*norm(pTilde, type = "2")^2 - (1/A$n)*norm(A$Xt%*%pTilde, type="2")^2 - sum((pTilde)*(A$gom*pTilde)))
+        QminusF <- as.numeric((0.5)*L*norm(pTilde, type = "2")^2 - (1/A$n)*norm(A$X%*%pTilde, type="2")^2 - sum((pTilde)*(A$gom*pTilde)))
       }else{
         #QminusF = 1/2*(L*norm(dy, 2)^2 - dy'*A.A*dy);
         QminusF <- as.numeric((1/2)*(L*norm(pTilde, type="2")^2 - t(pTilde)%*%A$A%*%pTilde))
