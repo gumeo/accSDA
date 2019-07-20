@@ -91,9 +91,16 @@ SDAAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxit
     ),
       class = "Amat"
     )
-
+    print("Checking size crossprod(Xt)")
+    print(dim(crossprod(Xt)))
+    print("Checking size Om")
+    print(dim(Om))
     # Check if Omega is diagonal
     if(norm(diag(diag(Om))-Om, type = "F") < 1e-15){
+      if(dim(Om)[1] != p){
+        warning("Columns dropped in normalization to a total of p, setting Om to diag(p)")
+        Om <- diag(p)
+      }
       A$flag <- 1
       A$gom <- gam*diag(Om)
       A$X <- Xt
