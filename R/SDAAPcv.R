@@ -91,10 +91,6 @@ SDAAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxit
     ),
       class = "Amat"
     )
-    print("Checking size crossprod(Xt)")
-    print(dim(crossprod(Xt)))
-    print("Checking size Om")
-    print(dim(Om))
     # Check if Omega is diagonal
     if(norm(diag(diag(Om))-Om, type = "F") < 1e-15){
       if(dim(Om)[1] != p){
