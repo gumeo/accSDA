@@ -5,7 +5,7 @@ SDAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits
   # Get dimensions of input matrices
   dimX <- dim(X)
   n <- dimX[1]
-  p <- dimX[2]
+  p_orig <- dimX[2]
   K <- dim(Y)[2]
 
   # If n is not divisible by K, duplicate some records for the sake of
@@ -48,7 +48,7 @@ SDAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits
   nlam <- length(lams)
 
   # Validation scores
-  scores <- q*p*matrix(1,nrow = folds, ncol = nlam)
+  scores <- q*p_orig*matrix(1,nrow = folds, ncol = nlam)
 
   # Misclassification rate for each classifier
   mc <- matrix(0,nrow = folds, ncol = nlam)
@@ -72,7 +72,10 @@ SDAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits
     # Get dimensions of training matrices
     nt <- dim(Xt)[1]
     p  <- dim(Xt)[2]
-
+    if(dim(Om)[1] != p){
+      warning("Columns dropped in normalization to a total of p, setting Om to diag(p)")
+      Om <- diag(p)
+    }
     # Centroid matrix of training data
     C <- diag(diag((1/(t(Yt)%*%Yt))))%*%t(Yt)%*%Xt
 
@@ -94,7 +97,7 @@ SDAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits
       print("-------------------------------------------")
     }
 
-    B <- array(0,c(p,q,nlam))
+    B <- array(0,c(p_orig,q,nlam))
     ###
     # Loop through the validation parameters
     ###
@@ -145,7 +148,8 @@ SDAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits
             beta <- matrix(0,p,1)
           }
         }else{
-          beta <- matrix(B[,j,ll-1],p,1)
+          beta <- matrix(B[,j,ll-1],p_orig,1)
+          beta <- matrix(beta[Xt_norm$Id],sum(Xt_norm$Id),1)
         }
 
         ###
@@ -200,7 +204,7 @@ SDAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits
         }
         # Update Q and B
         Q[,j] <- theta
-        B[,j,ll] <- beta
+        B[Xt_norm$Id,j,ll] <- beta
       }
 
       #------------------------------------------------------------
@@ -208,9 +212,9 @@ SDAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits
       #------------------------------------------------------------
 
       # Project validation data
-      PXtest <- Xv%*%B[,,ll]
+      PXtest <- Xv%*%B[Xt_norm$Id,,ll]
       # Project centroids
-      PC <- C%*%B[,,ll]
+      PC <- C%*%B[Xt_norm$Id,,ll]
 
       # Compute distances to the centroid for each projected test observation
       dists <- matrix(0,nv,K)
@@ -236,20 +240,20 @@ SDAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits
       ###
       # Validation scores
       ###
-      B_loc <- matrix(B[,,ll],p,q)
+      B_loc <- matrix(B[,,ll],p_orig,q)
       sum_B_loc_nnz <- sum(B_loc != 0)
       # if fraction nonzero features less than feat.
-      if( 1 <= sum_B_loc_nnz & sum_B_loc_nnz <= q*p*feat){
+      if( 1 <= sum_B_loc_nnz & sum_B_loc_nnz <= q*p_orig*feat){
         # Use misclassification rate as validation score.
         scores[f,ll] <- mc[f,ll]
-      } else if(sum_B_loc_nnz > q*p*feat){
+      } else if(sum_B_loc_nnz > q*p_orig*feat){
         # Solution is not sparse enough, use most sparse as measure of quality instead.
         scores[f,ll] <- sum(B_loc != 0)
       }
 
       # Display iteration stats
       if(!quiet){
-        print(paste("f:", f, "| ll:", ll, "| lam:", lams[ll], "| feat:", sum_B_loc_nnz/(q*p), "| mc:", mc[f,ll], "| score:", scores[f,ll]))
+        print(paste("f:", f, "| ll:", ll, "| lam:", lams[ll], "| feat:", sum_B_loc_nnz/(q*p_orig), "| mc:", mc[f,ll], "| score:", scores[f,ll]))
       }
     } # End of for ll in 1:nlam
     #--------------------------------------------
@@ -293,6 +297,9 @@ SDAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits
   # Normalize
   Xt_norm <- accSDA::normalize(Xt)
   Xt <- Xt_norm$Xc # Use the centered and scaled data
+  if(p_orig != p){
+    Om <- diag(dim(Xt)[2])
+  }
 
   # Get best Q and B on full training data
   resBest <- SDAP(Xt, Yt, Om, gam, lams[lbest], q, PGsteps, PGtol, maxits, tol)
