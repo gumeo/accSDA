@@ -326,9 +326,12 @@ SDAAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxit
   # Normalize
   Xt_norm <- accSDA::normalize(Xt)
   Xt <- Xt_norm$Xc # Use the centered and scaled data
-
+  if(dim(Om)[1] != dim(Xt)[2]){
+    warning("Columns dropped in normalization to a total of p, setting Om to diag(p)")
+    Om <- diag(dim(Xt)[2])
+  }
   # Get best Q and B on full training data
-  resBest <- SDAAP(Xt, Yt, Om, gam, lams[lbest], q, PGsteps, PGtol, maxits, tol)
+  resBest <- SDAAP(Xt, Yt, Om, gam, lams[lbest], q, PGsteps, PGtol, maxits, tol, bt=bt)
 
   # Create an object of class SDAPcv to return, might add more to it later
   retOb <- structure(

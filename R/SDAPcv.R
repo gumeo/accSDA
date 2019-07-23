@@ -302,7 +302,7 @@ SDAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits
   }
 
   # Get best Q and B on full training data
-  resBest <- SDAP(Xt, Yt, Om, gam, lams[lbest], q, PGsteps, PGtol, maxits, tol)
+  resBest <- SDAP(Xt, Yt, Om, gam, lams[lbest], q, PGsteps, PGtol, maxits, tol, bt = bt)
 
   # Create an object of class SDAPcv to return, might add more to it later
   retOb <- structure(
