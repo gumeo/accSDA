@@ -26,7 +26,7 @@ data from the ordASDA object.
     set.seed(123)
 
     # You can play around with these values to generate some 2D data to test one
-    numClasses <- 15
+    numClasses <- 5
     sigma <- matrix(c(1,-0.2,-0.2,1),2,2)
     mu <- c(0,0)
     numObsPerClass <- 5
@@ -42,10 +42,10 @@ data from the ordASDA object.
     res <- accSDA::ordASDA(train$X,train$Y,s=2,h=1, gam=1e-6, lam=1e-3)
     vals <- predict(object = res,newdata = test$X) # Takes a while to run ~ 10 seconds
     sum(vals==test$Y)/length(vals) # Get accuracy on test set
-    plot(test$X[,1],test$X[,2],col = factor(test$Y),asp=1,
-         main="Test Data with correct labels")
-    plot(test$X[,1],test$X[,2],col = factor(vals),asp=1,
-         main="Test Data with predictions from ordinal classifier")
+    #plot(test$X[,1],test$X[,2],col = factor(test$Y),asp=1,
+    #      main="Test Data with correct labels")
+    #plot(test$X[,1],test$X[,2],col = factor(vals),asp=1,
+    #     main="Test Data with predictions from ordinal classifier")
 }
 \seealso{
 \code{\link{ordASDA}}

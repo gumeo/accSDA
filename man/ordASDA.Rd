@@ -7,8 +7,17 @@
 \usage{
 ordASDA(Xt, ...)
 
-\method{ordASDA}{default}(Xt, Yt, s = 1, Om, gam = 0.001,
-  lam = 1e-06, method = "SDAAP", control, ...)
+\method{ordASDA}{default}(
+  Xt,
+  Yt,
+  s = 1,
+  Om,
+  gam = 0.001,
+  lam = 1e-06,
+  method = "SDAAP",
+  control,
+  ...
+)
 }
 \arguments{
 \item{Xt}{n by p data matrix, (can also be a data.frame that can be coerced to a matrix)}
@@ -68,7 +77,7 @@ Remember to normalize the data.
     set.seed(123)
 
     # You can play around with these values to generate some 2D data to test one
-    numClasses <- 15
+    numClasses <- 5
     sigma <- matrix(c(1,-0.2,-0.2,1),2,2)
     mu <- c(0,0)
     numObsPerClass <- 5
@@ -84,10 +93,10 @@ Remember to normalize the data.
     res <- accSDA::ordASDA(train$X,train$Y,s=2,h=1, gam=1e-6, lam=1e-3)
     vals <- predict(object = res,newdata = test$X) # Takes a while to run ~ 10 seconds
     sum(vals==test$Y)/length(vals) # Get accuracy on test set
-    plot(test$X[,1],test$X[,2],col = factor(test$Y),asp=1,
-         main="Test Data with correct labels")
-    plot(test$X[,1],test$X[,2],col = factor(vals),asp=1,
-         main="Test Data with predictions from ordinal classifier")
+    #plot(test$X[,1],test$X[,2],col = factor(test$Y),asp=1,
+    #      main="Test Data with correct labels")
+    #plot(test$X[,1],test$X[,2],col = factor(vals),asp=1,
+    #    main="Test Data with predictions from ordinal classifier")
 
 }
 \seealso{

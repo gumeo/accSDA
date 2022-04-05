@@ -1,3 +1,9 @@
+# accSDA 1.1.1
+
+* Fixing minor issues
+
+* If you have any questions please send a mail to: (gumeo140688@gmail.com)
+
 # accSDA 1.1.0
 
 * Method extended to use ordinal labels. Added functions are ordASDA and a predict function for the object returned from ordASDA. Read the documentation and look at the examples to test it out.

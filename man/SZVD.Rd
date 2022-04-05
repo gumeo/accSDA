@@ -7,9 +7,17 @@
 \usage{
 SZVD(train, ...)
 
-\method{SZVD}{default}(train, gamma, D, penalty = TRUE, scaling = TRUE,
-  tol = list(abs = 1e-04, rel = 1e-04), maxits = 2000, beta = 1,
-  quiet = TRUE)
+\method{SZVD}{default}(
+  train,
+  gamma,
+  D,
+  penalty = TRUE,
+  scaling = TRUE,
+  tol = list(abs = 1e-04, rel = 1e-04),
+  maxits = 2000,
+  beta = 1,
+  quiet = TRUE
+)
 }
 \arguments{
 \item{train}{Data matrix where first column is the response class.}

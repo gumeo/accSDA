@@ -7,8 +7,21 @@
 \usage{
 SDAD(x, ...)
 
-\method{SDAD}{default}(Xt, Yt, Om, gam, lam, mu, q, PGsteps, PGtol, maxits,
-  tol, selector = rep(1, dim(Xt)[2]), initTheta)
+\method{SDAD}{default}(
+  Xt,
+  Yt,
+  Om,
+  gam,
+  lam,
+  mu,
+  q,
+  PGsteps,
+  PGtol,
+  maxits,
+  tol,
+  selector = rep(1, dim(Xt)[2]),
+  initTheta
+)
 }
 \arguments{
 \item{Xt}{n by p data matrix, (not a data frame, but a matrix)}

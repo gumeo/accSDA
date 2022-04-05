@@ -7,8 +7,21 @@
 \usage{
 SZVD_kFold_cv(X, ...)
 
-\method{SZVD_kFold_cv}{default}(X, Y, folds, gams, beta, D, q, maxits, tol,
-  ztol, feat, penalty, quiet)
+\method{SZVD_kFold_cv}{default}(
+  X,
+  Y,
+  folds,
+  gams,
+  beta,
+  D,
+  q,
+  maxits,
+  tol,
+  ztol,
+  feat,
+  penalty,
+  quiet
+)
 }
 \arguments{
 \item{X}{n by p data matrix, variables should be scaled to by sd}

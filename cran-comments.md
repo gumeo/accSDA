@@ -1,20 +1,18 @@
 ## Test environments
-* local ubuntu 16.04 install, R 3.4.1
-* ubuntu 12.04 (on travis-ci), R 3.4.1
-* local windows 10, R 3.4.1
-* win-builder
+* local ubuntu 20.04 install, R 4.1.3
+* rhubs Debian Linux, R-devel, clang, ISO-8859-15 locale (debian-clang-devel)
+* rhubs Windows Server 2022, R-devel, 64 bit (windows-x86_64-devel)
 
 ## R CMD check results
 There were no ERRORs, WARNINGs.
 
-There was 1 note regarding pandoc for README.md and NEWS.md, pandoc is not available for the used version of R.
+## Notes
+I got an e-mail from Brian Ripley about an error in the current version on CRAN: https://www.stats.ox.ac.uk/pub/bdr/LENGTH1_self/accSDA.out
 
-## Last submission
-1) I got feedback from the last submission that I needed to add more to the description and add more examples. 
-This has been fixed.
+There are also a couple of notes in imports and lasydata.
 
-2) Second feedback was adding angle brackets to arxiv references in the description, that has been fixed. 
-Also all dontruns within examples have been removed and the examples have been changed, such that none takes 
-more than 5 seconds to run.
+All of these problems have been fixed in the current version.
 
-3) Double spaces remove from description.
+Also removed links for badges from readme that are causing issues.
+
+Also made some examples run faster, since runtime was to long.

@@ -4,8 +4,7 @@
 \alias{SZVD_ADMM}
 \title{Alternating Direction Method of Multipliers for SZVD}
 \usage{
-SZVD_ADMM(B, N, D, sols0, pen_scal, gamma, beta, tol, maxits,
-  quiet = TRUE)
+SZVD_ADMM(B, N, D, sols0, pen_scal, gamma, beta, tol, maxits, quiet = TRUE)
 }
 \arguments{
 \item{B}{Between class covariance matrix for objective (in space defined by N).}

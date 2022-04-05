@@ -7,8 +7,17 @@
 \usage{
 ASDA(Xt, ...)
 
-\method{ASDA}{default}(Xt, Yt, Om = diag(p), gam = 0.001,
-  lam = 1e-06, q = K - 1, method = "SDAAP", control = list(), ...)
+\method{ASDA}{default}(
+  Xt,
+  Yt,
+  Om = diag(p),
+  gam = 0.001,
+  lam = 1e-06,
+  q = K - 1,
+  method = "SDAAP",
+  control = list(),
+  ...
+)
 }
 \arguments{
 \item{Xt}{n by p data matrix, (can also be a data.frame that can be coerced to a matrix)}

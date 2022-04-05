@@ -1,6 +1,6 @@
 Package: accSDA
-Version: 1.0.0.9000
-Date: 2017-08-22
+Version: 1.1.1
+Date: 2022-04-05
 Authors@R: c(
      person("Gudmundur", "Einarsson", , "gumeo140688@gmail.com", role = c("aut", "cre", "trl")),
      person("Line", "Clemmensen", , "lkhc@dtu.dk", role = c("aut","ths")),
@@ -10,8 +10,6 @@ Authors@R: c(
 Title: Accelerated Sparse Discriminant Analysis
 Imports:
     MASS (>= 7.3.45),
-    rARPACK (>= 0.10.0),
-    sparseLDA (>= 0.1.7),
     ggplot2 (>= 2.1.0),
     ggthemes (>= 3.2.0),
     grid (>= 3.2.2),
@@ -29,5 +27,5 @@ Description: Implementation of sparse linear discriminant analysis, which is a s
 License: GPL (>= 2)
 URL: https://github.com/gumeo/accSDA/wiki
 BugReports: https://github.com/gumeo/accSDA/issues
-LazyData: TRUE
-RoxygenNote: 6.1.1
+LazyData: FALSE
+RoxygenNote: 7.1.1
