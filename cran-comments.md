@@ -12,3 +12,5 @@ I got an e-mail from Brian Ripley about an error in the current version on CRAN:
 There are also a couple of notes in imports and lasydata.
 
 All of these problems have been fixed in the current version.
+
+Also removed links for badges from readme that are causing issues.
