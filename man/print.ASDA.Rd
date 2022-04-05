@@ -4,8 +4,7 @@
 \alias{print.ASDA}
 \title{Print method for ASDA object}
 \usage{
-\method{print}{ASDA}(x, digits = max(3, getOption("digits") - 3),
-  numshow = 5, ...)
+\method{print}{ASDA}(x, digits = max(3, getOption("digits") - 3), numshow = 5, ...)
 }
 \arguments{
 \item{x}{Object of class ASDA. This object is returned from the function \code{\link{ASDA}}.}

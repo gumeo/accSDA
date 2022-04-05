@@ -4,8 +4,7 @@
 \alias{ASDABarPlot}
 \title{barplot for ASDA objects}
 \usage{
-ASDABarPlot(asdaObj, numDVs = 1, xlabel, ylabel, getList = FALSE, main,
-  ...)
+ASDABarPlot(asdaObj, numDVs = 1, xlabel, ylabel, getList = FALSE, main, ...)
 }
 \arguments{
 \item{asdaObj}{Object from the \code{ASDA} function.}

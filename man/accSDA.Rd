@@ -3,7 +3,6 @@
 \docType{package}
 \name{accSDA}
 \alias{accSDA}
-\alias{accSDA-package}
 \title{accSDA: A package for performing sparse discriminant analysis
         in various ways.}
 \description{

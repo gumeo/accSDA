@@ -7,9 +7,24 @@
 \usage{
 SDAAP(x, ...)
 
-\method{SDAAP}{default}(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits,
-  tol, selector = rep(1, dim(Xt)[2]), initTheta, bt = FALSE, L, eta,
-  rankRed = FALSE)
+\method{SDAAP}{default}(
+  Xt,
+  Yt,
+  Om,
+  gam,
+  lam,
+  q,
+  PGsteps,
+  PGtol,
+  maxits,
+  tol,
+  selector = rep(1, dim(Xt)[2]),
+  initTheta,
+  bt = FALSE,
+  L,
+  eta,
+  rankRed = FALSE
+)
 }
 \arguments{
 \item{Xt}{n by p data matrix, (not a data frame, but a matrix)}

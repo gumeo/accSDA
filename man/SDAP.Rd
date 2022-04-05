@@ -7,8 +7,22 @@
 \usage{
 SDAP(x, ...)
 
-\method{SDAP}{default}(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits,
-  tol, initTheta, bt = FALSE, L, eta)
+\method{SDAP}{default}(
+  Xt,
+  Yt,
+  Om,
+  gam,
+  lam,
+  q,
+  PGsteps,
+  PGtol,
+  maxits,
+  tol,
+  initTheta,
+  bt = FALSE,
+  L,
+  eta
+)
 }
 \arguments{
 \item{Xt}{n by p data matrix, (not a data frame, but a matrix)}
