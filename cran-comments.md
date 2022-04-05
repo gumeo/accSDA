@@ -14,3 +14,5 @@ There are also a couple of notes in imports and lasydata.
 All of these problems have been fixed in the current version.
 
 Also removed links for badges from readme that are causing issues.
+
+Also made some examples run faster, since runtime was to long.
