@@ -1,6 +1,6 @@
 Package: accSDA
 Version: 1.1.2
-Date: 2022-04-05
+Date: 2022-08-11
 Authors@R: c(
      person("Gudmundur", "Einarsson", , "gumeo140688@gmail.com", role = c("aut", "cre", "trl")),
      person("Line", "Clemmensen", , "lkhc@dtu.dk", role = c("aut","ths")),

@@ -1,3 +1,7 @@
+# accSDA 1.1.2
+
+* Fixing minor issues in internal documentation
+
 # accSDA 1.1.1
 
 * Fixing minor issues
