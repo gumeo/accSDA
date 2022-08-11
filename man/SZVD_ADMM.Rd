@@ -40,7 +40,7 @@ with the following named components
 }
 \description{
 Iteratively solves the problem
-\deqn{\text{min}(-1/2*x^TB^Tx + \gamma p(y): ||x||_2 \leq 1, DNx = y)}{min(-1/2*x^TB^Tx + gamma p(y): l2(x) <= 1, DNx = y)}
+\deqn{\min(-1/2*x^TB^Tx + \gamma p(y): ||x||_2 \leq 1, DNx = y)}
 }
 \details{
 This function is used by other functions and should only be called explicitly for
