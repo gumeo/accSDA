@@ -1,7 +1,7 @@
 #' Alternating Direction Method of Multipliers for SZVD
 #'
 #' Iteratively solves the problem
-#' \deqn{\text{min}(-1/2*x^TB^Tx + \gamma p(y): ||x||_2 \leq 1, DNx = y)}{min(-1/2*x^TB^Tx + gamma p(y): l2(x) <= 1, DNx = y)}
+#' \deqn{\text{min}(-1/2*x^TB^Tx + \gamma p(y): ||x||_2 \leq 1, DNx = y)}
 #'
 #' @param B Between class covariance matrix for objective (in space defined by N).
 #' @param N basis matrix for null space of covariance matrix W.
