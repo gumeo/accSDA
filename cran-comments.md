@@ -1,7 +1,7 @@
 ## Test environments
 * local ubuntu 20.04 install, R 4.1.3
 * rhub 
-* winbuilder R Under development (unstable) (2022-08-10 r82705 ucrt)
+* winbuilder R Under development (unstable) (2022-08-31 r82783 ucrt)
 
 ## R CMD check results
 
