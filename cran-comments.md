@@ -21,3 +21,5 @@ I got an e-mail from Brian Ripley about an error in the current version on CRAN 
 
 The error came from a LaTeX error in some internal documentation, this has now
 been fixed.
+
+I additionally fixed some links in the readme updating http -> https
