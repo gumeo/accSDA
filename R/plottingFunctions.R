@@ -53,9 +53,8 @@
 #' @export ASDABarPlot
 ASDABarPlot <- function(asdaObj, numDVs = 1, xlabel, ylabel, getList = FALSE, main, ...){
   # Found on: https://rpubs.com/Koundy/71792
-  theme_Publication <- function(base_size=14, base_family="Helvetica") {
-    (ggthemes::theme_foundation(base_size=base_size, base_family=base_family)
-     + ggplot2::theme(plot.title = ggplot2::element_text(face = "bold",
+  theme_Publication <- function(base_size=14) {
+    (ggplot2::theme(plot.title = ggplot2::element_text(face = "bold",
                                        size = ggplot2::rel(1.2), hjust = 0.5),
              text = ggplot2::element_text(),
              panel.background = ggplot2::element_rect(colour = NA),
