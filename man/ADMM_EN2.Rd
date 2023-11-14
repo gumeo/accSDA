@@ -24,8 +24,6 @@ ADMM_EN2(R, d, x0, lam, mu, maxits, tol, quiet, selector = rep(1, dim(x)[1]))
 \item{selector}{Vector to choose which parameters in the discriminant vector will be used to calculate the
 regularization terms. The size of the vector must be *p* the number of predictors. The
 default value is a vector of all ones. This is currently only used for ordinal classification.}
-
-\item{alpha}{Step length.}
 }
 \value{
 \code{ADMM_EN2} returns an object of \code{\link{class}} "\code{ADMM_EN2}" including a list

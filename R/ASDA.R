@@ -196,7 +196,7 @@ ASDA <- function (Xt, ...) UseMethod("ASDA")
 
 
 #' @return \code{NULL}
-#'
+#' @export
 #' @rdname ASDA
 #' @method ASDA default
 ASDA.default <- function(Xt, Yt, Om = diag(p), gam = 1e-3, lam = 1e-6, q = K-1, method = "SDAAP", control=list(), ...){

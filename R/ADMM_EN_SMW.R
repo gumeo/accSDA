@@ -10,7 +10,6 @@
 #' @param d nx1 dimensional column vector.
 #' @param lam Regularization parameter for l1 penalty, must be greater than zero.
 #' @param mu Augmented Lagrangian penalty parameter, must be greater than zero.
-#' @param alpha Step length.
 #' @param maxits Number of iterations to run
 #' @param tol Vector of stopping tolerances, first value is absolute, second is relative tolerance.
 #' @param quiet Logical controlling display of intermediate statistics.

@@ -57,10 +57,10 @@
 #' This function should potentially be made internal for the release.
 #' @rdname ZVD
 #' @export ZVD
-ZVD <- function (A, ...) UseMethod("ZVD",A)
+ZVD <- function (A, ...) UseMethod("ZVD", A)
 
 #' @return \code{NULL}
-#'
+#' @export
 #' @rdname ZVD
 #' @method ZVD default
 ZVD.default <- function(A, scaling = FALSE, get_DVs = FALSE){

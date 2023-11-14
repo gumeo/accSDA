@@ -29,8 +29,6 @@ positive definite coefficient matrix.}
 \item{selector}{Vector to choose which parameters in the discriminant vector will be used to calculate the
 regularization terms. The size of the vector must be *p* the number of predictors. The
 default value is a vector of all ones. This is currently only used for ordinal classification.}
-
-\item{alpha}{Step length.}
 }
 \value{
 \code{ADMM_EN_SMW} returns an object of \code{\link{class}} "\code{ADMM_EN_SMW}" including a list

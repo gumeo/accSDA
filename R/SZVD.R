@@ -66,10 +66,10 @@
 #' Maybe call it ASZDA. For that purpose the individual ZVD function will need to be implemented.
 #' @rdname SZVD
 #' @export SZVD
-SZVD <- function (train, ...) UseMethod("SZVD")
+SZVD <- function (train, ...) UseMethod("SZVD", train)
 
 #' @return \code{NULL}
-#'
+#' @export
 #' @rdname SZVD
 #' @method SZVD default
 SZVD.default <- function(train, gamma, D, penalty=TRUE, scaling=TRUE, tol = list(abs=1e-4, rel=1e-4), maxits = 2000, beta=1, quiet=TRUE){

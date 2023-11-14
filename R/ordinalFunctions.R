@@ -71,7 +71,7 @@ ordASDA <- function (Xt, ...) UseMethod("ordASDA")
 
 
 #' @return \code{NULL}
-#'
+#' @export
 #' @rdname ordASDA
 #' @method ordASDA default
 ordASDA.default <- function(Xt, Yt, s=1, Om, gam = 1e-3, lam = 1e-6, method='SDAAP', control,...){

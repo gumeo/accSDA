@@ -28,4 +28,4 @@ URL: https://github.com/gumeo/accSDA/wiki
 BugReports: https://github.com/gumeo/accSDA/issues
 LazyData: FALSE
 Encoding: UTF-8
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3

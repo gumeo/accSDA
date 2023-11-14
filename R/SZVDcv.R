@@ -72,10 +72,10 @@
 #' This function might require a wrapper similar to ASDA.
 #' @rdname SZVDcv
 #' @export SZVDcv
-SZVDcv <- function(Atrain, ...) UseMethod("SZVDcv",Atrain)
+SZVDcv <- function(Atrain, ...) UseMethod("SZVDcv", Atrain)
 
 #' @return \code{NULL}
-#'
+#' @export
 #' @rdname SZVDcv
 #' @method SZVDcv default
 SZVDcv.default <- function(Atrain, Aval, k, num_gammas, g_mults, D, sparsity_pen, scaling, penalty, beta, tol, ztol, maxits, quiet){
