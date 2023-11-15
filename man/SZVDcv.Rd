@@ -21,7 +21,8 @@ SZVDcv(Atrain, ...)
   tol,
   ztol,
   maxits,
-  quiet
+  quiet,
+  ...
 )
 }
 \arguments{

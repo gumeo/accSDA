@@ -72,7 +72,7 @@ SZVD <- function (train, ...) UseMethod("SZVD", train)
 #' @export
 #' @rdname SZVD
 #' @method SZVD default
-SZVD.default <- function(train, gamma, D, penalty=TRUE, scaling=TRUE, tol = list(abs=1e-4, rel=1e-4), maxits = 2000, beta=1, quiet=TRUE){
+SZVD.default <- function(train, gamma, D, penalty=TRUE, scaling=TRUE, tol = list(abs=1e-4, rel=1e-4), maxits = 2000, beta=1, quiet=TRUE, ...){
   ######################################################################
   # Preprocess the training set.
   ######################################################################

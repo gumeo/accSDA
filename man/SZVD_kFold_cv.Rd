@@ -20,7 +20,8 @@ SZVD_kFold_cv(X, ...)
   ztol,
   feat,
   penalty,
-  quiet
+  quiet,
+  ...
 )
 }
 \arguments{

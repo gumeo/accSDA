@@ -7,7 +7,7 @@
 \usage{
 ZVD(A, ...)
 
-\method{ZVD}{default}(A, scaling = FALSE, get_DVs = FALSE)
+\method{ZVD}{default}(A, scaling = FALSE, get_DVs = FALSE, ...)
 }
 \arguments{
 \item{A}{Matrix, where first column corresponds to class labels.}

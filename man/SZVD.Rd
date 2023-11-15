@@ -16,7 +16,8 @@ SZVD(train, ...)
   tol = list(abs = 1e-04, rel = 1e-04),
   maxits = 2000,
   beta = 1,
-  quiet = TRUE
+  quiet = TRUE,
+  ...
 )
 }
 \arguments{
