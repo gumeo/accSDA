@@ -1,6 +1,6 @@
 SDAAPcv <- function (x, ...) UseMethod("SDAAPcv")
 
-SDAAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits, tol, feat, quiet, initTheta, bt=FALSE, L, eta){
+SDAAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits, tol, feat, quiet, initTheta, bt=FALSE, L, eta, ...){
   #
   # HERE WE NEED A DESCRIPTION
   # Use Roxygen2 to create the desired documentation, internal function

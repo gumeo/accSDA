@@ -1,6 +1,6 @@
 SDAPcv <- function (x, ...) UseMethod("SDAPcv")
 
-SDAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits, tol, feat, quiet, initTheta, bt=FALSE, L, eta){
+SDAPcv.default <- function(X, Y, folds, Om, gam, lams, q, PGsteps, PGtol, maxits, tol, feat, quiet, initTheta, bt=FALSE, L, eta, ...){
 
   # Get dimensions of input matrices
   dimX <- dim(X)

@@ -20,7 +20,8 @@ SDAD(x, ...)
   maxits,
   tol,
   selector = rep(1, dim(Xt)[2]),
-  initTheta
+  initTheta,
+  ...
 )
 }
 \arguments{

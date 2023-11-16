@@ -21,7 +21,8 @@ SDAP(x, ...)
   initTheta,
   bt = FALSE,
   L,
-  eta
+  eta,
+  ...
 )
 }
 \arguments{

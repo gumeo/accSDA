@@ -1,6 +1,6 @@
 SDADcv <- function (x, ...) UseMethod("SDADcv")
 
-SDADcv.default <- function(X, Y, folds, Om, gam, lams, mu, q, PGsteps, PGtol, maxits, tol, feat, quiet, initTheta){
+SDADcv.default <- function(X, Y, folds, Om, gam, lams, mu, q, PGsteps, PGtol, maxits, tol, feat, quiet, initTheta, ...){
   #
   # HERE WE NEED A DESCRIPTION
   # Use Roxygen2 to create the desired documentation

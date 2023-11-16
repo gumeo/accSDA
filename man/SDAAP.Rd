@@ -23,7 +23,8 @@ SDAAP(x, ...)
   bt = FALSE,
   L,
   eta,
-  rankRed = FALSE
+  rankRed = FALSE,
+  ...
 )
 }
 \arguments{

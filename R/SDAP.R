@@ -40,7 +40,7 @@ SDAP <- function (x, ...) UseMethod("SDAP")
 #' @rdname SDAP
 #' @method SDAP default
 #' @keywords internal
-SDAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, initTheta, bt = FALSE, L, eta){
+SDAP.default <- function(Xt, Yt, Om, gam, lam, q, PGsteps, PGtol, maxits, tol, initTheta, bt = FALSE, L, eta, ...){
 
   # Read training data size
   n <- dim(Xt)[1]

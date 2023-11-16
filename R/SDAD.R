@@ -39,7 +39,7 @@ SDAD <- function (x, ...) UseMethod("SDAD")
 #'
 #' @rdname SDAD
 #' @method SDAD default
-SDAD.default <- function(Xt, Yt, Om, gam, lam, mu, q, PGsteps, PGtol, maxits, tol, selector = rep(1,dim(Xt)[2]), initTheta){
+SDAD.default <- function(Xt, Yt, Om, gam, lam, mu, q, PGsteps, PGtol, maxits, tol, selector = rep(1,dim(Xt)[2]), initTheta, ...){
   # TODO: Handle Yt as a factor and generate dummy matrix from it
 
   ###
