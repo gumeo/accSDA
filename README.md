@@ -1,4 +1,3 @@
-
 ![alt tag](https://travis-ci.org/gumeo/accSDA.svg?branch=master) [![CRAN](https://www.r-pkg.org/badges/version/accSDA)](https://cran.r-project.org/package=accSDA) [![Downloads](https://cranlogs.r-pkg.org/badges/accSDA?color=brightgreen)](https://www.r-pkg.org/pkg/accSDA)
 ![alt tag](https://cranlogs.r-pkg.org/badges/grand-total/accSDA)
 
@@ -102,7 +101,7 @@ N <- 100 # Number of samples per class
 K <- 5 # Number of classes
 
 # Mean for classes, they are zero everywhere except that coordinate i has
-# value 3 for class i, each column of the means matrix represents a mean
+# value 5 for class i, each column of the means matrix represents a mean
 # for a specific class.
 means <- matrix(0,nrow=P,ncol=K)
 for(i in 1:K){
